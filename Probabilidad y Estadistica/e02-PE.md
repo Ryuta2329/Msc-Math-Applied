@@ -1,29 +1,6 @@
----
-title: Ejercicio de Probabilidad y Estadística
-subtitle: Ejercicios de Funciones de Distribución.
-author: Marcelo J. Molinatti
-date: "2023-03-18"
-output:
- github_document:
-  number_sections: yes
-  html_preview: no
- html_document:
-  number_sections: yes
-  keep_md: yes
- pdf_document:
-  keep_tex: yes
-  number_sections: yes
- rdocx_document:
-  base_format: bookdown::word_document2
-  number_sections: yes
-  plots:
-   align: center
-header-includes:
- - \usepackage{amsmath}
- - \usepackage{tikz}
-lang: es
----
+# Ejercicio de Probabilidad y Estadística: Ejercicios de Funciones de Distribución.
 
+## Marcelo J. Molinatti
 
 
 1. **Ejercicio 2.10**. Considere una variable aleatoria discreta $X$ con función de probabilidad:
