@@ -1,0 +1,90 @@
+---
+title: Ejemplo de contaminación, temperatura y mortalidad cardiovascular.
+date: "`r Sys.Date()`"
+output:
+---
+
+```{r setup}
+library(astsa)
+
+if (!required("GGally"))
+	install.packages("GGally")
+
+data(part)
+data(tempr)
+data(cmort)
+
+
+df_ts <- ts(cbind(part, tempr, cmort), start=start(part), frequency = frequency(part))
+df_ts_tidy <- as_tsibble(df_ts)
+```
+
+Los datos que se muestran son series extraídas de un estudio de Shumway _et al._ de los posibles efectos de la temperatura y la contaminación sobre la mortalidad semanal en el condado de Los Ángeles. Nótense los fuertes componentes estacionales en todas las series, correspondientes a las variaciones invierno-verano y la tendencia decreciente de la mortalidad cardiovascular en el período de 10 años.
+
+```{r plot-ts-obs}
+autoplot(df_ts, facets=TRUE) +
+	xlab("Índice de la muestra") + ylab("Amplitud") + 
+	theme_light()
+```
+
+Una matriz de diagrama de dispersión, que se muestra en la Fig. 2.3, indica una posible relación lineal entre la mortalidad y las partículas contaminantes y una posible relación con la temperatura. Tenga en cuenta la forma curvilínea de la curva de mortalidad por temperatura, lo que indica que las temperaturas más altas, así como las temperaturas más bajas, están asociadas con aumentos en
+mortalidad cardiovascular
+
+```{r pairs-plot}
+pairs(cbind(Mortality=cmort, Temperature=tempr, Particulates=part))
+
+visitors |>
+  pivot_wider(values_from=Trips, names_from=State) |>
+  GGally::ggpairs(columns = 2:9)
+```
+
+Con base en la matriz de diagramas de dispersión, consideramos, tentativamente, cuatro modelos donde $M_t$ denota mortalidad cardiovascular, $T_t$ denota temperatura y $P_t$ denota los niveles de partículas. Ellos son:
+
+Mt = β0 + β1t + wt 
+Mt = β0 + β1t + β2(Tt − T·) + wt 
+Mt = β0 + β1t + β2(Tt − T·) + β3(Tt − T·)2 + wt 
+Mt = β0 + β1t + β2(Tt − T·) + β3(Tt − T·)2 + β4Pt + wt
+
+donde ajustamos la temperatura por su media, T· = 74.26, para evitar problemas de colinealidad.
+
+Aqui se supone haga la regresion lineal
+
+
+```
+temp = tempr-mean(tempr) # center temperature
+temp2 = temp^2
+trend = time(cmort) # time
+fit = lm(cmort~ trend + temp + temp2 + part, na.action=NULL)
+summary(fit) # regression results
+summary(aov(fit)) # ANOVA table (compare to next line)
+summary(aov(lm(cmort~cbind(trend, temp, temp2, part)))) # Table 2.1
+num = length(cmort) # sample size
+AIC(fit)/num - log(2*pi) # AIC
+BIC(fit)/num - log(2*pi) # BIC
+(AICc = log(sum(resid(fit)^2)/num) + (num+5)/(num-5-2)) # AICc
+```
+
+
+
+# Precios del pollo (pp 64, 67)
+
+fit = lm(chicken~time(chicken), na.action=NULL) # regress chicken on time
+par(mfrow=c(2,1))
+plot(resid(fit), type="o", main="detrended")
+plot(diff(chicken), type="o", main="first difference")
+par(mfrow=c(3,1)) # plot ACFs
+acf(chicken, 48, main="chicken")
+acf(resid(fit), 48, main="detrended")
+acf(diff(chicken), 48, main="first difference")
+
+# Varvas glaciales paleoclimáticas.
+
+Los glaciares que se derriten depositan capas anuales de arena y limo durante el deshielo primaveral.
+estaciones, que se pueden reconstruir anualmente durante un período que va desde el momento la deglaciación comenzó en Nueva Inglaterra (hace unos 12.600 años) hasta el momento en que finalizó (hace unos 6.000 años). Dichos depósitos sedimentarios, llamados varvas, pueden usarse como indicadores de parámetros paleoclimáticos, como la temperatura, porque, en un año cálido, se deposita más arena y limo del glaciar en retroceso. La Figura 2.7 muestra los espesores de las varvas anuales recolectadas de un lugar en Massachusetts para 634 años, comenzando hace 11,834 años. Para más información, véase Shumway y Verosub [185]. Debido a que la variación de los espesores aumenta en proporción a la cantidad depositada, una transformación logarítmica podría eliminar la no estacionariedad observable en la varianza en función del tiempo. La figura 2.7 muestra las varvas originales y transformadas, y está claro que se ha producido esta mejora. También podemos trazar el histograma de los datos originales y transformados, como en el problema 2.8, para argumentar que se mejora la aproximación a la normalidad. Las primeras diferencias ordinarias (2.30) también se calculan en el problema 2.8, y observamos que las primeras diferencias tienen un correlación negativa significativa en el desfase h = 1. Más adelante, en el Cap. 5, mostraremos que tal vez la serie de varvas tiene memoria larga y propondremos el uso de diferenciación fraccionaria.
+
+par(mfrow=c(2,1))
+plot(varve, main="varve", ylab="")
+plot(log(varve), main="log(varve)", ylab="" )
+
+# Example 2.10 Using Regression to Discover a Signal in Noise
+
