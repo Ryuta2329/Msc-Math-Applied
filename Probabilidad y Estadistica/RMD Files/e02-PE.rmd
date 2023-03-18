@@ -86,7 +86,7 @@ $$F(x) = P(X \le x) = \int_{-\infty}^x f(u)du =
     \end{cases}
 $$
 
-```{r distribution-plots, echo=FALSEm, fig.height=4}
+```{r distribution-plots, echo=FALSE, fig.height=4}
 plot_grid(
     ggdraw() + draw_image("./e02-PE_files/figure-html/e02-PE-E2-11-2.png"),
     ggdraw() + draw_image("./e02-PE_files/figure-html/e02-PE-E2-11-3.png"),
