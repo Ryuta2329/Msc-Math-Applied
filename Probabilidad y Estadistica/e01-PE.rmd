@@ -1,0 +1,137 @@
+---
+title: "Ejercicio de Probabilidad y Estadistica"
+subtitle: "El problema de la varilla de metal."
+author: Marcelo J. Molinatti
+date: "`r Sys.Date()`"
+output:
+ github_document:
+  number_sections: yes
+  html_preview: no
+  pandoc_args: ["--webtex=https://latex.codecogs.com/svg.image?"]
+ html_document:
+  number_sections: yes
+  keep_md: yes
+ pdf_document:
+  keep_tex: yes
+  number_sections: yes
+ rdocx_document:
+  base_format: bookdown::word_document2
+  number_sections: yes
+  plots:
+   align: center
+header-includes:
+ - \usepackage{amsmath}
+ - \usepackage{tikz}
+lang: es
+---
+
+```{r setup, include=FALSE}
+if (!require(pdftools)) {
+    install.packages("pdftools")
+}
+```
+
+Este problema se puede formular como:
+
+_a)_ Una varilla de metal de longitud $l$ se rompe en dos puntos distintos escogidos al azar. ¿Cuál es la probabilidad de que los tres segmentos ası́ obtenidos formen un triángulo?
+
+```{tikz, echo=FALSE, fig.cap = "Problema del Triangulo", fig.ext = 'png'}
+\tikzset{
+    cross/.style={path picture={\draw[black]
+        (path picture bounding box.south east) -- (path picture bounding box.north west)
+        (path picture bounding box.south west) -- (path picture bounding box.north east);}}
+}
+
+\begin{tikzpicture}
+    %Stick
+    \draw[thick] (-2,0) -- (2,0);
+    \draw[|-|, gray, yshift=-5pt] (-2,0) -- (2,0) node[midway,below] {$l$};
+    % Points
+    \draw[cross] (-1,0) circle (0.1);
+    \draw[cross] (0.5,0) circle (0.1);
+    \draw[->, gray, yshift=5pt] (-1,.5) to (-1,0);
+    \draw[->, gray, yshift=5pt] (0.5,.5) to (0.5,0);
+    % Arrow
+    \draw[->] (2,1) to [bend left] (4,1);
+    % Triangle
+    \draw[-, thick] (4,0) to (6,0);
+    \draw[-, thick, yshift=2pt] (6,0) to (4.5,1);
+    \draw[-, thick, xshift=-2pt] (4.5,1) to (4,0);
+\end{tikzpicture}
+```
+
+O, de otra forma, como: 
+
+_b)_ Se escogen dos números $x$ y $y$ al azar de manera independiente uno del otro, dentro del intervalo $(0, l)$. Calcule la probabilidad de que las longitudes $x$, $y$ y $l$ formen un triángulo.
+
+_c)_ Se escogen tres números $x$, $y$ y $z$ al azar, de manera independiente uno del otro, dentro del intervalo $(0, l)$. Calcule la probabilidad de que las longitudes $x$, $y$ y $z$ formen un triángulo.
+
+Para la primera formulación del problema, podemos considerar la distancia entre los puntos $x$ y $y$ definida como $\vert x - y \vert$. Para poder lograr formar un triangulo, la distancia entre los dos puntos seleccionados al azar debe ser mayor a $1/4$ de la longitud $l$, pero menos a $1/2$ de esa misma longitud. El razonamiento es el siguiente:
+
+* Si $\vert x - y \vert > l/2$, entonces las longitudes de los fragmentos restantes, digamos $a$ y $b$, sumadas son menores a $l/2$; y queda $\vert x - y \vert > a + b$. Elevando ambos lados al cuadrado se obtiene:
+
+ $$
+ \begin{align}
+     (x - y)^2 &> (a + b)^2 \\
+         &> a^2 + b^2 - 2ab\text{Cos}\gamma + 2ab + 2ab\text{Cos}\gamma \\
+         &> a^2 + b^2 - 2ab\text{Cos}\gamma
+ \end{align}
+ $$
+
+ y la ley del coseno no se cumple, por lo que no es posible formar el triangulo. 
+
+* Si $\vert x - y \vert < l/4$, entonces las longitudes de los fragmentos restantes, digamos $a$ y $b$, sumadas son mayores a $3l/4$; por lo que $\vert x - y \vert < a + b$. Al igual que antes:
+
+ $$
+ \begin{align}
+     (x - y)^2 &< (a + b)^2 \\
+         &< a^2 + b^2 - 2ab\text{Cos}\gamma + 2ab + 2ab\text{Cos}\gamma \\
+         &< a^2 + b^2 - 2ab\text{Cos}\gamma
+ \end{align}
+ $$
+
+ La ultima desigualdad se cumple dadas las desigualdades iniciales $\vert x - y \vert < l/4$ y $a + b > 3l/4$, por lo que la ley del coseno no se cumple, y no es posible formar el triangulo.
+
+* Si $l/4 \le \vert x - y \vert \le l/2$, implica $l/2 \le a + b \le 3l/4$, de lo que se obtiene $\vert x - y \vert \le a + b$. Elevando al cuadrado ambos lados:
+ 
+ $$
+ \begin{align}
+     (x - y)^2 &\le (a + b)^2 \\
+         &\le a^2 + b^2 - 2ab\text{Cos}\gamma + 2ab + 2ab\text{Cos}\gamma \\
+         &\le a^2 + b^2 - 2ab\text{Cos}\gamma
+ \end{align}
+ $$
+
+ Como en la ultima expresión la igualdad es posible, la ley del coseno se cumple y es posible formar un triangulo.
+
+Entonces, el triangulo es posible formarlo siempre y cuando $l/4 \le \vert x - y \vert \le l/2$. Por lo que, la variable aleatoria es el par $(x, y)$ en un espacio muestral $(0, l/2)\times(0, l/2)$. Se obtiene de la desigualdad 4 ecuaciones:
+
+$$
+\begin{align}
+    \frac{l}{4} &\le x - y &\Rightarrow y &\ge x - \frac{l}{4} \\
+    \frac{l}{4} &\le -(x - y) &\Rightarrow y &\le x + \frac{l}{4} \\
+    \frac{l}{2} &\ge x - y &\Rightarrow y &\le x - \frac{l}{2} \\
+    \frac{l}{4} &\le -(x - y) &\Rightarrow y &\le x + \frac{l}{2} \\
+\end{align}
+$$
+
+y se puede observar en el gráfico siguiente, que los pares ordenados permitidas son aquellos que caen en el área denotada por los triángulos rectángulos que se forman arriba y debajo de las rectas $y = x - l/4$ y $y= x + l/4$. 
+
+```{tikz, echo=FALSE, fig.ext = 'png'}
+\begin{tikzpicture}
+    \draw[step=2.5cm,gray,very thin] (0,0) grid (10,10);
+    \draw[thick,->] (0,0) -- (11,0) node[below, xshift=-25pt]{$l/2$};
+    \draw[thick,->] (0,0) -- (0,11) node[above, xshift=-20pt, yshift=-30pt]{$l/2$};
+    \draw[ultra thick] (5,0) -- (10,5) node[midway, above, xshift=-25pt]{$y = x - l/4$};
+    \draw[ultra thick] (0,5) -- (5,10) node[midway, below, xshift=25pt]{$y = x + l/4$};
+    \draw[thin, fill=gray!40!white] (0,5) -- (5,10) -- (0,10) -- cycle;
+    \draw[very thin, fill=gray!40!white] (5,0) -- (10,5) -- (10,0) -- cycle;
+ \end{tikzpicture}
+```
+
+Se observa en el gráfico, para facilitar la búsqueda de la probabilidad, que el área del espacio de probabilidad es el área del cuadrado cuyas aristas miden $l/2$, por lo que $\text{Área}(\Omega) = l/2 \times l/2 = l^2/4$; y que esta área se puede partir en 8 triángulos rectángulos de base $l/4$ y altura $l/4$, de los cuales dos, corresponden al área donde es posible formar un triangulo. De forma que $\text{Área}(A) = (l/4 \times l/4)/2 + (l/4 \times l/4)/2 = l^2/16$. Y la probabilidad buscada es:
+
+$$P\{(x, y)\in\Omega: l/4 \le \vert x - y \vert \le l/2\} = \frac{\text{Área}(A)}{\text{Área}(\Omega)} = \frac{l^2/16}{l^2/4} = \frac{1}{4}$$
+
+<!---rmarkdown::render("Tarea-1-Prob-Stat-2022.Rmd", "rdocx_document")--->
+<!---rmarkdown::render("Tarea-1-Prob-Stat-2022.Rmd", "pdf_document")--->

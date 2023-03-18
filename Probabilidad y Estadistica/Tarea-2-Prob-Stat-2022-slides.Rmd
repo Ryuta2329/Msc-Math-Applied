@@ -1,0 +1,462 @@
+---
+title: Tarea de Probabilidades y Estadística
+subtitle: Contraste de Hipótesis
+author: "<br><br> Marcelo J. Molnatti"
+date: "<br>17/11/2022"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: xaringan-themer.css
+    seal: false
+    nature:
+      ratio: "16:9"
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+class: inverse, right, middle
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.height=6, out.width="100%")
+
+library(ggplot2)
+library(ggstatsplot)
+library(dplyr)
+```
+
+```{r xaringan-themer, include=FALSE}
+library(xaringanthemer)
+style_solarized_light()
+```
+
+# Tarea de Probabilidades y Estadística
+## Contraste de Hipótesis
+
+**Marcelo J. Molinatti**
+
+_Noviembre 17, 2022_
+
+---
+class: inverse, middle, center
+
+# Colesterol en plasma.
+
+---
+layout: true
+class: top, left
+
+# Colesterol en plasma.
+
+---
+
+**Se realiza un estudio, en el que participan $10$ individuos, para investigar el efecto del ejercicio físico en el nivel de colesterol en plasma. Antes del ejercicio se tomaron muestras de sangre para determinar el nivel de colesterol de cada individuo. Después, los participantes fueron sometidos a un programa de ejercicios. Al final de los ejercicios se tomaron nuevamente muestras de sangre y se obtuvo una segunda lectura del nivel de colesterol. Los resultados se muestran a continuación.**
+
+--
+
+```{r e02-3-table, echo=FALSE, eval=TRUE}
+cholesterol_data <- data.frame(
+    Antes=c(182, 230, 160, 200, 160, 240, 260, 480, 263, 240),
+    Despues=c(190, 220, 166, 150, 140, 220, 156, 312, 240, 250))
+
+knitr::kable(as.data.frame(t(cholesterol_data)), col.names = NULL)
+```
+--
+
+Se trata de dos muestras relacionadas dado que las medidas se hacen sobre los mismos individuos antes y después del programa de ejercicios. 
+
+---
+
+Se buscan contrastar las hipótesis:
+
+$$
+\begin{align}
+    H_0\text{: }&\mu_{antes} - \mu_{después} \le 0; \\
+    H_1\text{: }&\mu_{antes} - \mu_{después} > 0
+\end{align}
+$$
+
+--
+
+Se realiza una prueba $t$-Student para muestras pareadas, con un nivel de significancia $\alpha=0{,}05$. Para ello, es necesario primero comprobar si las varianzas son iguales o no (de esta forma, se escoge el estimador correcto de la desviación estándar a usar en la prueba), utilizando la prueba $F$ para contrastar las hipótesis:
+
+$$
+\begin{align}
+    H_0\text{: }&\sigma_1 = \sigma_2 \Rightarrow \frac{\sigma_1}{\sigma_2} = 1;\\
+    H_1\text{: }&\sigma_1 \ne \sigma_2 \Rightarrow \frac{\sigma_1}{\sigma_2} \ne 1
+\end{align}
+$$
+
+--
+
+La prueba se lleva a cabo con un nivel de significancia de $0{,}1$ para poder mantener el nivel de significancia del contraste de medias en $\alpha=0{,}05$. 
+
+---
+
+```{r e02-3-1}
+var.test(cholesterol_data$Antes, cholesterol_data$Despues, 
+  ratio=1, "two.sided", 
+  conf.level=0.90)
+```
+
+--
+
+Los resultados muestran que, para un nivel de significancia de $0{,}1$, se puede mantener la hipótesis de varianzas iguales.
+
+--
+
+Por lo tanto, el contraste de medias se puede realizar bajo este supuesto. 
+
+---
+.pull-left[
+Los resultados son:
+
+```{r e02-3-2}
+ t.test(cholesterol_data$Antes, cholesterol_data$Despues, 
+    alternative = "two.sided", var.equal=TRUE,
+    paired = TRUE, conf.level=.95)
+```
+]
+.pull-right[
+```{r boxplot-cholesterol, echo=FALSE, dpi=500}
+cholesterol_data %>%
+  tibble::add_column(subject=1:10, .before=1) %>%
+  tidyr::pivot_longer(2:3, names_to="Trt", values_to="cholesterol") %>%
+  ggwithinstats(x=Trt, y=cholesterol,
+    plot.type="box",
+    title = "Gráfico de cajas de colesterol en sangre.",
+    subtitle="Antes y después del tratamiento.",
+    results.subtitle=FALSE,
+    xlab="Tratamiento", ylab="Colesterol en Sangre",
+    p.adjust.method="holm",
+    var.equal=TRUE,
+    bf.message=FALSE, 
+    violin.args = list(width = 0, alpha = 0.1),
+    pairwise.display="all", alternative="greater"
+)
+```
+]
+
+---
+
+.pull-left[
+Como se observa, la probabilidad asociada a un estadístico como el encontrado permite rechazar la hipótesis nula, por lo que se debe concluir, con un 95% de confianza, que el programa de entrenamiento si disminuye los niveles de colesterol en plasma en los individuos.
+]
+.pull-right[
+```{r boxplot-cholesterol-2, echo=FALSE, dpi=500}
+cholesterol_data %>%
+  tibble::add_column(subject=1:10, .before=1) %>%
+  tidyr::pivot_longer(2:3, names_to="Trt", values_to="cholesterol") %>%
+  ggwithinstats(x=Trt, y=cholesterol,
+    plot.type="box",
+    title = "Gráfico de cajas de colesterol en sangre.",
+    subtitle="Antes y después del tratamiento.",
+    results.subtitle=FALSE,
+    xlab="Tratamiento", ylab="Colesterol en Sangre",
+    p.adjust.method="holm",
+    var.equal=TRUE,
+    bf.message=FALSE, 
+    violin.args = list(width = 0, alpha = 0.1),
+    pairwise.display="all", alternative="greater"
+)
+```
+]
+
+---
+layout: false
+class: inverse, middle, center
+
+# Familias numerosas.
+
+---
+layout: true
+class: top, left
+
+# Familias numerosas.
+
+---
+
+**Se ignora la proporción de familias numerosas y con el fin de determinar dicha proporción se toma una muestra de $800$ familias siendo la proporción observada de $0{,}18$. ¿Se puede afirmar que la proporción de familias numerosas es $0{,}20$?.**
+
+--
+
+Si $p$ es la proporción de familias numerosas, se busca contrastar las siguientes hipótesis:
+
+$$
+\begin{align}
+    H_0\text{: }& p = 0{,}2; \\
+    H_1\text{: }& p \ne 0{,}2;
+\end{align}
+$$
+
+--
+
+Se utiliza una prueba de proporciones para calcular un estadístico que permita concluir con un $95$% de confianza cual de las dos hipótesis mantener. 
+
+---
+
+.pull-left[
+```{r e02-1}
+N <- 800
+n <- 0.18 * 800
+
+res <- prop.test(n, N, .2, alternative="two.sided")
+res
+```
+]
+.pull-right[
+Los resultados indican que la probabilidad de obtener un valor de $\chi^2$ tan grande como el calculado solo por azar es `r sprintf(res$p.value, fmt = '%#.4f')`, por lo que se mantiene la hipótesis nula con un $95$% de confianza, y se concluye que es posible afirmar que la proporción de familias numerosas es $0{,}20$
+]
+
+---
+layout: false
+class: inverse, middle, center
+
+# Pacientes curados
+
+---
+layout: true
+class: top, left
+
+# Pacientes curados
+
+---
+
+**Se sospecha que añadiendo al tratamiento habitual para la curación de una enfermedad un medicamento A, se consigue mayor número de pacientes curados. Tomamos dos grupos de enfermos de $100$ individuos cada uno. A un grupo se le suministra el medicamento $A$ y se curan $60$ enfermos y al otro no se le suministra, curándose $55$ enfermos. ¿Es efectivo el tratamiento A en la curación de la enfermedad?**
+
+--
+
+Se busca saber si la proporción de individuos curados por el tratamiento A, $p_{A}$ es mayor que la proporción obtenida en el grupo control, $p_{control}$. Para ello, se busca contrastar las siguientes hipótesis: 
+
+$$
+\begin{align}
+    H_0\text{: }& p_{A} - p_{control} \le 0; \\
+    H_1\text{: }& p_{A} - p_{control} > 0;
+\end{align}
+$$
+
+--
+
+Se utiliza una prueba de diferencia de proporciones para verificar si existe o no una diferencia significativa entre estas proporciones con un nivel de significancia $\alpha=0{,}05$.
+
+---
+
+.pull-left[
+```{r e01-5}
+N <- c(A=100, Control=100)
+n <- c(A=60, Control=55)
+
+prop.test(n, N, alternative="greater", conf.level=0.95)
+```
+]
+.pull-right[
+Los resultados de la prueba muestran que para el nivel de significancia escogido, la diferencia de proporciones de `r -diff(n/N)` no es significativamente distinta de cero, lo cual permite concluir con un 95% de confianza que la proporción de pacientes tratados con el medicamento A que se curaron no es mayor que la proporción obtenida para el tratamiento control.
+]
+
+---
+layout: false
+class: inverse, middle, center
+
+# Las hojas de las Encinas
+
+---
+layout: true
+class: top, left
+
+# Las hojas de las Encinas
+
+---
+
+**En 5 zonas de la provincia de Granada (Ladihonda y Fazares, zonas muy secas y Cortijuela, Molinillo y Fardes, zonas húmedas) se hacen una serie de mediciones sobre las hojas de las encinas a lo largo de 3 años consecutivos: 1995, muy seco; y, 1996 y 1997, muy lluviosos.** 
+
+El objetivo es medir la simetría fluctuante en dichas hojas como indicador de estrés en la planta. Bajo condiciones de estrés (sequía, herbivoría, limitación por nutrientes, entre otras), la hipótesis es que la asimetría aumente. Contamos con la siguiente información: 
+ 
+* _Localización de árboles_: 5 zonas, dos en zonas muy secas (Hoya Guadix-Baza, Ladihonda y Fazares) y tres en zonas con mayor precipitación (Cortijuela, Molinillo, Fardes). En esta última, Fardes, son árboles situados en la ladera de un río (presumiblemente poco afectados por años más o menos secos). 
+* _Años de climatología diferente_: 1995 año muy seco y años 1996 y 1997, años muy lluviosos. 
+* _Situación de la hoja_: _Canopy_ (copa de los árboles) y _Sprouts_ (rebrotes, hojas nuevas que salen desde la parte inferior del tronco). 
+ 
+---
+
+Disponemos de un total de 2101 casos, cedidos por el Departamento de Ecología de la Universidad de Granada (España), de los que hemos seleccionado aleatoriamente una muestra de tamaño 15 que se presenta en la siguiente tabla: 
+
+```{r e02-6-data, echo=FALSE}
+ tree_data <- data.frame(
+      Zona=c("Cortijuela", "Cortijuela", "Molinillo", "Molinillo", "Molinillo", "Fardes", "Fardes", 'Ladihonda', "Ladihonda", "Fazares", "Fazares", "Fazares", "Cortijuela", "Fazares", "Fazares"),
+      Parte=c("Canopy", "Canopy", 'Canopy', "Canopy", "Canopy", "Canopy", 'Canopy', 'Canopy', 'Canopy', 'Canopy', "Canopy", "Canopy", "Sprouts", 'Sprouts', 'Sprouts'),
+      Anho=c(1995, 1996, 1995, 1996, 1996, 1995, 1996, 1995, 1996, 1995, 1996, 1996, 1995, 1995, 1996),
+      Longitud=c(26.51, 30.17, 34.24, 31.04, 34.99, 30.48, 25.07, 25.04, 29.16, 35.12, 25.41, 27.02, 23.04, 27.69, 34.71),
+      Asimetria=c(0.028, 0.010, 0.080, 0.340, 0.087, 0.040, 0.010, 0.021, 0.135, 0.010, 0.094, 0.153, 0.156, 0.172, 0.077))
+
+knitr::kable(tree_data)
+```
+---
+
+Se pide: 
+
+* ¿Se puede admitir que la longitud de las hojas de encina se distribuye normalmente? 
+* ¿Se puede admitir que la longitud media de las hojas es igual a 30 cm a un nivel de significancia del 5%? 
+* Suponiendo que la asimetría de las hojas sigan una distribución Normal; comprobar mediante un contraste de hipótesis si existen diferencias significativas en la asimetría de las hojas teniendo en cuenta la situación de la hoja en el árbol. 
+* A un nivel de significancia del 5%, ¿es representativo el ajuste lineal entre la longitud y la asimetría? ¿Cuál sería la expresión del modelo? ¿Cuánto explica el modelo?
+
+---
+
+**¿Se puede admitir que la longitud de las hojas de encina se distribuye normalmente?**
+
+Para saber si la distribución de la longitud de las hojas sigue una distribución normal se utiliza una prueba de Shapiro-Wilks (no es posible usar la prueba de Kolmogorov-Smirnov debido a que los parámetros poblacionales son desconocidos). 
+
+--
+
+La prueba contrasta las hipotesis:
+
+$$
+\begin{align}
+    H_0\text{: }& F(x) = \Phi(x) \\
+    H_1\text{: }& F(x) \ne \Phi(x)
+\end{align}
+$$
+
+--
+
+El contraste se hace con un nivel de significancia de $\alpha = 0{,}05$, y los resultados son los siguientes:
+
+---
+
+.pull-left[
+```{r e02-6-1}
+shapiro.test(tree_data$Longitud)
+```
+
+Se observa que la hipótesis nula se puede mantener con un nivel de confianza del 95% dado que la probabilidad asociada al estadístico calculado es mayor al $\alpha$ especificado.
+
+El gráfico muestra que dentro de $\pm 1$ desviación estándar, la distribución se ajusta bien a una normal, pero mas allá de eso, los puntos se desvían mas de esta distribución teórica.
+]
+.pull-right[
+```{r e02-6-2, echo=FALSE, dpi=500}
+ggplot(tree_data, aes(sample=Longitud)) +
+  stat_qq_line(colour = "deepskyblue4", size=1.5) + 
+  stat_qq() + 
+  theme_light(base_size=10) +
+  xlab("Distribución teórica (Normal estandar)") + 
+  theme(panel.grid=element_blank())
+```
+]
+
+---
+
+**¿Se puede admitir que la longitud media de las hojas es igual a 30 cm a un nivel de significancia del 5%?**
+
+--
+
+Ahora, suponiendo que el supuesto de normalidad es posible mantenerlo (basándonos en los resultados de la prueba), podemos contrastar las siguientes hipótesis sobre la longitud media de las hojas:
+
+$$
+\begin{align}
+    H_0\text{: }&\mu = 30; \\
+    H_1\text{: }&\mu \ne 30;
+\end{align}
+$$
+
+--
+
+En este caso, no se especifica ninguna tendencia natural a que la tensión de ruptura sea mayor o menor a este valor por lo que se usa un contraste bilateral. Dado que la varianza es desconocida, se puede aplicar una prueba $t$-Student.
+
+---
+
+Los resultados de la prueba son:
+
+```{r e02-6-3}
+t_test_res <- t.test(tree_data$Longitud, alternative="two.sided", mu=30)
+t_test_res
+```
+
+Dado que $p =$ `r t_test_res$p.value` es mayor al valor de $\alpha = 0{,}05$, por lo que se debe mantener la hipótesis nula, y se concluye con un nivel de confianza del 95%, que la longitud promedio de las hojas es 30 cm.
+
+---
+
+**Suponiendo que la asimetría de las hojas sigan una distribución Normal; comprobar mediante un contraste de hipótesis si existen diferencias significativas en la asimetría de las hojas teniendo en cuenta la situación de la hoja en el árbol.**
+
+--
+
+Ahora, se supone que ambas poblaciones de _Canopy_ y _Sprouts_ provienen de una distribución normal, ambas independientes, donde $n_{Canoopy}=$ ``r length(tree_data$Asimetria[tree_data$Parte == "Canopy"])`` y $n_{Sprouts}=$ ``r length(tree_data$Asimetria[tree_data$Parte == "Sprouts"])``. 
+
+En este caso se busca evaluar si la diferencia en asimetría de las hojas de ambas partes de hojas presente en los arboles es la misma o no. Se tienen las hipótesis:
+
+$$
+\begin{align}
+    H_0\text{: }&\mu_{Canopy} - \mu_{Sprouts} = 0; \\
+    H_1\text{: }&\mu_{Canopy} - \mu_{Sprouts} \ne 0;
+\end{align}
+$$
+
+El contraste es bilateral dado que no se dispone de información _a priori_ sobre la simetría de las hojas en ambas partes de los arboles. 
+
+---
+
+Se aplica una prueba $t$-Student para verificar si la diferencia de medias de $\bar{X_{Canopy}} - \bar{X_{Sprouts}} =$ `r mean(tree_data$Asimetria[tree_data$Parte == "Canopy"]) - mean(tree_data$Asimetria[tree_data$Parte == "Sprouts"])` es significativamente distinta de cero o no. 
+
+--
+
+Para ello, es necesario primero comprobar si las varianzas son iguales o no, utilizando la prueba $F$ para contrastar las hipótesis:
+
+$$
+\begin{align}
+    H_0\text{: }&\sigma_{Canopy} = \sigma_{Sprouts} \Rightarrow \frac{\sigma_{Canopy}}{\sigma_{Sprouts}} = 1;\\
+    H_1\text{: }&\sigma_{Canopy} \ne \sigma_{Sprouts} \Rightarrow \frac{\sigma_{Canopy}}{\sigma_{Sprouts}} \ne 1
+\end{align}
+$$
+
+---
+
+La prueba se lleva a cabo con un nivel de significancia de $0{,}1$ para poder mantener el nivel de significancia del contraste de medias en $\alpha=0{,}05$. 
+
+--
+
+```{r e02-6-4}
+var.test(
+    tree_data$Asimetria[tree_data$Parte == "Canopy"], 
+    tree_data$Asimetria[tree_data$Parte == "Sprouts"], 
+    ratio=1, "two.sided", conf.level=0.90)
+```
+
+Los resultados muestran que, para un nivel de significancia de $0{,}1$, se puede mantener la hipótesis de varianzas iguales.
+
+---
+
+Por lo tanto, el contraste de medias se puede realizar bajo este supuesto. Los resultados son:
+
+--
+
+```{r e02-6-5}
+t.test(
+    tree_data$Asimetria[tree_data$Parte == "Canopy"], 
+    tree_data$Asimetria[tree_data$Parte == "Sprouts"], 
+    "two.sided", var.equal=TRUE)
+```
+
+Los resultados indican que para un $\alpha=0{,}05$, se mantiene la hipótesis nula, y se concluye que la asimetría de las hojas es la misma, con un 95% de confianza. 
+
+---
+
+**A un nivel de significancia del 5%, ¿es representativo el ajuste lineal entre la longitud y la asimetría? ¿Cuál sería la expresión del modelo? ¿Cuánto explica el modelo?**
+
+---
+
+Para la regresión lineal entre la asimetría de las hojas y la longitud de la hoja se procede de la siguiente forma:
+
+```{r e02-6-6}
+mod <- lm(Asimetria ~ Longitud, tree_data)
+summary(mod)
+```
+
+---
+
+- Los resultados muestran que las variables Asimetría y Longitud no muestran una relación lineal dado que el valor de la prueba $F=0{,}01106$ para análisis de varianza arroja un valor de probabilidad de $p=0{,}9178$, el cual no es significativo para $\alpha=0{,}05$. 
+- De igual forma, los coeficiente estimados no son significativos para un valor de significancia igual al anterior, indicando que la pendiente y el intercepto no son diferentes de cero. 
+- El $R^2=0{,}00085$ muestra que apenas el $0{,}085$% de la varianza es explicada por el modelo, lo cual no representa ni el 1% de la varianza total, lo cual es un indicativo de la falta de asociación de las variables.
+
+---
+layout: false
+class: inverse, center, middle
+
+# THE END
+
+<!---rmarkdown::render("Tarea-2-Prob-Stat-2022-slides.Rmd", "xaringan::moon_reader")--->

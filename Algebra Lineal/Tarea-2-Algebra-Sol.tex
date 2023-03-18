@@ -1,0 +1,38 @@
+Sea $G$ un grupo abeliano de orden $n$ y $h:G \rightarrow G$ una función definida como $h(a)=a^k$, donde $k$ es un número entero.
+\begin{enumerate}
+	\item Demuestre que $h$ es un homomorfismo de grupo.
+	\item Demuestre que si $\text{gcd}(n,k) = 1$, entonces $h$ es un isomorfismo.
+\end{enumerate}
+
+Sea $*$ la operacion binaria definida en el grupo $G$, y $a,b \in G$ entonces
+
+\begin{equation}
+	h(a * b) = (a * b)^k = (a * b) * (a * b) * \ldots * (a * b)
+\end{equation}
+
+Como $G$ es grupo abeliano, sus elementos conmutan y se pueden asociar de cualquier manera, por lo que:
+
+\begin{align}
+	(a * b)\times (a * b) \times \ldots \times (a * b) &= (a * a * \ldots * a) * (b * b * \ldots * b) \\
+		&= a^k * b^k \\
+		&= h(a) * h(b)
+\end{align}
+
+Luego $h(a * b) = h(a) * h(b)$, y por lo tanto $h$ es homomorfismo de grupo.
+
+Para demostrar que es isomorfismo, se debe demostrar que $h$ es biyectiva. 
+\begin{enumerate}
+	\item Sea $h(a) = h(b) \rarrow a^k = b^k$. Multiplicando ambos lados por $a^{-k}$ se tiene:
+	\begin{align}
+		a^{-k} * a^k = a^{-k} * b^k & \rarrow (a^{-1} * a)^k = (a^{-1} * b)^k \\
+			& \rarrow e^k = (a^{-1} * b)^k \\
+			& \rarrow e = (a^{-1} * b)^k
+	\end{align}
+
+	
+\end{enumerate}
+
+Sea f:G→H un homomorfismo de grupo, entonces:
+
+	Si M≤G, entonces f(M)≤H.
+	Si M≤H, entonces f^(-1) (M)={x∈G:f(x)∈M} es un subgrupo de G
