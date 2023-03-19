@@ -7,84 +7,132 @@ output:
 ```{r setup}
 library(astsa)
 
-if (!required("GGally"))
+if (!require("GGally"))
 	install.packages("GGally")
-
-data(part)
-data(tempr)
-data(cmort)
-
+if (!require("dplyr")){
+	install.packages("dplyr")
+	library(dplyr)
+}
+if (!require("tsibble")){
+	install.packages("tsibble")
+	library(tsibble)
+}
 
 df_ts <- ts(cbind(part, tempr, cmort), start=start(part), frequency = frequency(part))
-df_ts_tidy <- as_tsibble(df_ts)
+colnames(df_ts) <- c("Particulas", "Temperatura", "Mortalidad")
+df_ts_tidy <- as_tsibble(df_ts, key=index) |>
+	mutate(key=dplyr::recode(key, `tempr`="Temperatura", `cmort`="Mortalidad", `part`="Particulas"))
 ```
 
-Los datos que se muestran son series extraídas de un estudio de Shumway _et al._ de los posibles efectos de la temperatura y la contaminación sobre la mortalidad semanal en el condado de Los Ángeles. Nótense los fuertes componentes estacionales en todas las series, correspondientes a las variaciones invierno-verano y la tendencia decreciente de la mortalidad cardiovascular en el período de 10 años.
+Los datos que se muestran son series extraídas de un estudio de Shumway _et al._ de los posibles efectos de la temperatura y la contaminación sobre la mortalidad semanal en el condado de Los Ángeles. Nótense los fuertes componentes estacionales en todas las series, correspondientes a las variaciones invierno-verano; y la tendencia decreciente de la mortalidad cardiovascular en el período de 10 años.
 
 ```{r plot-ts-obs}
-autoplot(df_ts, facets=TRUE) +
+ggplot(df_ts_tidy, aes(x=index, y=value)) +
+	geom_line() + 
+	facet_grid(rows=vars(key), scales = "free") +
 	xlab("Índice de la muestra") + ylab("Amplitud") + 
 	theme_light()
 ```
 
-Una matriz de diagrama de dispersión, que se muestra en la Fig. 2.3, indica una posible relación lineal entre la mortalidad y las partículas contaminantes y una posible relación con la temperatura. Tenga en cuenta la forma curvilínea de la curva de mortalidad por temperatura, lo que indica que las temperaturas más altas, así como las temperaturas más bajas, están asociadas con aumentos en
-mortalidad cardiovascular
+Una matriz de diagrama de dispersión, que se muestra en la figura \@ref(fig:pairs-plot), indica una posible relación lineal entre la mortalidad y las partículas contaminantes y una posible relación con la temperatura. Tenga en cuenta la forma curvilínea de la curva de mortalidad por temperatura, lo que indica que las temperaturas más altas, así como las temperaturas más bajas, están asociadas con aumentos en la mortalidad cardiovascular.
 
-```{r pairs-plot}
-pairs(cbind(Mortality=cmort, Temperature=tempr, Particulates=part))
-
-visitors |>
-  pivot_wider(values_from=Trips, names_from=State) |>
-  GGally::ggpairs(columns = 2:9)
+```{r pairs-plot, label="fig:pairs-plot"}
+df_ts |> GGally::ggpairs(2:4)
 ```
 
 Con base en la matriz de diagramas de dispersión, consideramos, tentativamente, cuatro modelos donde $M_t$ denota mortalidad cardiovascular, $T_t$ denota temperatura y $P_t$ denota los niveles de partículas. Ellos son:
 
-Mt = β0 + β1t + wt 
-Mt = β0 + β1t + β2(Tt − T·) + wt 
-Mt = β0 + β1t + β2(Tt − T·) + β3(Tt − T·)2 + wt 
-Mt = β0 + β1t + β2(Tt − T·) + β3(Tt − T·)2 + β4Pt + wt
+$$
+\begin{aligned}
+Mt &= \beta_0 + \beta_1t + w_t \\
+Mt &= \beta_0 + \beta_1t + \beta_2(T_t − T_\dot) + w_t \\
+Mt &= \beta_0 + \beta_1t + \beta_2(T_t − T_\dot) + \beta_3(T_t − T_\dot)^2 + w_t \\
+Mt &= \beta_0 + \beta_1t + \beta_2(T_t − T_\dot) + \beta_3(T_t − T_\dot)^2 + \beta_4P_t + w_t
+\end{aligned}
+$$
 
-donde ajustamos la temperatura por su media, T· = 74.26, para evitar problemas de colinealidad.
+donde ajustamos la temperatura por su media, $T_\dot = 74{,}26$, para evitar problemas de colinealidad.
 
-Aqui se supone haga la regresion lineal
+```{r fitting-models}
+# Tranformando los datos de Temperatura.
+df_ts_tidy <- df_ts_tidy %>%
+	tidyr::spread(key="key", value="value") %>%
+	mutate(trend = time(cmort), 
+		diff_Temp=Temperatura - mean(Temperatura),
+		diff_Temp_Square=diff_Temp ** 2)
 
+# Se ajustan los modelos
+fitted_models <- tibble(models=
+	c(Mortalidad ~ trend, 
+		Mortalidad ~ trend + diff_Temp, 
+		Mortalidad ~ trend + diff_Temp + diff_Temp_Square, 
+		Mortalidad ~ trend + diff_Temp + diff_Temp_Square + Particulas)) %>%
+	mutate(fit=purrr::map(models, ~lm(., data=df_ts_tidy)),
+		glanced = map(fit, glance)) %>%
+  unnest(glanced)
 
+fitted_models %>%
+	mutate(SSE=sigma ** 2 * df.residual, MSE=sigma ** 2) %>%
+	dplyr::select(SSE, df.residual, MSE, adj.r.squared, AIC, BIC) %>%
+	mutate(AIC=AIC / nrow(df_ts_tidy) - log(2*pi), BIC=BIC / nrow(df_ts_tidy) - log(2*pi)) %>%
+	tibble::add_column(Model=c("$M_t = \\beta_0 + \\beta_1 t + w_t$",
+		"$M_t = \\beta_0 + \\beta_1 t + \\beta_2(T - T_\\dot) + w_t$", 
+		"$M_t = \\beta_0 + \\beta_1 t + \\beta_2(T - T_\\dot) + \\beta_3(T - T_\\dot)^2 + w_t$", 
+		"$M_t = \\beta_0 + \\beta_1 t + \\beta_2(T - T_\\dot) + \\beta_3(T - T_\\dot)^2 + \\beta_4 P_t + w_t$"), .before=1) %>%
+	kable(digits=3,
+		col.names=c("", "SSE", "df", "MSE", bquote("R" * "2"), "AIC", "BIC"),
+		caption="Medidas de ajuste y de información para los modelos ajustados.", 
+		label="tab:p02-02-01", escape=FALSE)
 ```
-temp = tempr-mean(tempr) # center temperature
-temp2 = temp^2
-trend = time(cmort) # time
-fit = lm(cmort~ trend + temp + temp2 + part, na.action=NULL)
-summary(fit) # regression results
-summary(aov(fit)) # ANOVA table (compare to next line)
-summary(aov(lm(cmort~cbind(trend, temp, temp2, part)))) # Table 2.1
-num = length(cmort) # sample size
-AIC(fit)/num - log(2*pi) # AIC
-BIC(fit)/num - log(2*pi) # BIC
-(AICc = log(sum(resid(fit)^2)/num) + (num+5)/(num-5-2)) # AICc
+
+Notamos que cada modelo funciona sustancialmente mejor que el anterior y que el modelo que incluye la temperatura, la temperatura al cuadrado y las partículas funciona mejor, representando alrededor del 60% de la variabilidad y con el mejor valor para AIC y BIC.
+
+```{r augmented}
+coef_matrix <- summary(fitted_models$fit[[4]])$coefficients[,1:2]
 ```
 
+El mejor modelo que se selecciona es entonces:
 
+$$Mt &= `r round(coef_matrix[1,1], 1)` + `r round(coef_matrix[2,1], 3)`t + `r round(coef_matrix[3,1], 3)`(T_t − T_\dot) + `r round(coef_matrix[4,1], 3)`(T_t − T_\dot)^2 + `r round(coef_matrix[5,1], 3)`P_t + w_t$$
 
-# Precios del pollo (pp 64, 67)
+para mortalidad. Como era de esperar, se presenta una tendencia negativa en el tiempo, así como un coeficiente negativo para la temperatura ajustada. La contaminación tiene un peso positivo y puede interpretarse como la contribución incremental a las muertes diarias por unidad de contaminación por partículas.
 
-fit = lm(chicken~time(chicken), na.action=NULL) # regress chicken on time
-par(mfrow=c(2,1))
-plot(resid(fit), type="o", main="detrended")
-plot(diff(chicken), type="o", main="first difference")
-par(mfrow=c(3,1)) # plot ACFs
-acf(chicken, 48, main="chicken")
-acf(resid(fit), 48, main="detrended")
-acf(diff(chicken), 48, main="first difference")
+Al verificar los residuales, se puede observar un comportamiento violento alrededor del cero, pero que parece variar por encima y debajo de este con regularidad. Esto implica que existe autocorrelación residual que no se ha tomado en cuenta en el modelo de regresión.
 
-# Varvas glaciales paleoclimáticas.
+```{r residual-fitted, label="fog:residual-fitted"}
+augmented_df <- augment(fitted_models$fit[[4]])
 
-Los glaciares que se derriten depositan capas anuales de arena y limo durante el deshielo primaveral.
-estaciones, que se pueden reconstruir anualmente durante un período que va desde el momento la deglaciación comenzó en Nueva Inglaterra (hace unos 12.600 años) hasta el momento en que finalizó (hace unos 6.000 años). Dichos depósitos sedimentarios, llamados varvas, pueden usarse como indicadores de parámetros paleoclimáticos, como la temperatura, porque, en un año cálido, se deposita más arena y limo del glaciar en retroceso. La Figura 2.7 muestra los espesores de las varvas anuales recolectadas de un lugar en Massachusetts para 634 años, comenzando hace 11,834 años. Para más información, véase Shumway y Verosub [185]. Debido a que la variación de los espesores aumenta en proporción a la cantidad depositada, una transformación logarítmica podría eliminar la no estacionariedad observable en la varianza en función del tiempo. La figura 2.7 muestra las varvas originales y transformadas, y está claro que se ha producido esta mejora. También podemos trazar el histograma de los datos originales y transformados, como en el problema 2.8, para argumentar que se mejora la aproximación a la normalidad. Las primeras diferencias ordinarias (2.30) también se calculan en el problema 2.8, y observamos que las primeras diferencias tienen un correlación negativa significativa en el desfase h = 1. Más adelante, en el Cap. 5, mostraremos que tal vez la serie de varvas tiene memoria larga y propondremos el uso de diferenciación fraccionaria.
+ggplot(augmented_df[, c(".fitted", ".std.resid")], 
+	aes(x=.fitted, y=.std.resid)) +
+	geom_line() + geom_point() +
+	geom_hline(yintercept=0) +
+	xlab("Valores Estimados") +
+  ylab("Residuales Estandarizados") + 
+  theme_light()
+```
 
-par(mfrow=c(2,1))
-plot(varve, main="varve", ylab="")
-plot(log(varve), main="log(varve)", ylab="" )
+Una mirada a la función de autocorrelación y la función de autocorrelación parcial muestra que las observaciones en la serie tienen correlación con otras observaciones adyacentes, y que un modelo autoregresivo parece que seria mas apropiado. 
 
-# Example 2.10 Using Regression to Discover a Signal in Noise
+```{r autocorr-funs, label="fig:autocorr-funs"}
+# Se calculan las correlaciones y correlaciones parciales
+df_values <- data.frame(lag=1:27, 
+	acf_vals=acf(augmented_df$Mortalidad, plot=FALSE)$acf[,,1][1:27],
+	pacf_vals=pacf(augmented_df$Mortalidad, plot=FALSE)$acf[,,1])
 
+cowplot::plot_grid(
+	ggplot(data = df_values, mapping = aes(x = lag, y = acf_vals)) +
+	  geom_point() +
+	  geom_hline(aes(yintercept = 0)) +
+	  geom_segment(mapping = aes(xend = lag, yend = 0)) +
+	  geom_hline(yintercept = c(1/sqrt(nrow(df_ts_tidy)), -1/sqrt(nrow(df_ts_tidy))), linetype=2, color='blue') +
+	  ylab(latex2exp::TeX("$\\rho(s, t)$")) +
+	  theme_light(), 
+  ggplot(data = df_values, mapping = aes(x = lag, y = pacf_vals)) +
+	  geom_point() +
+	  geom_hline(aes(yintercept = 0)) +
+	  geom_hline(yintercept = c(1/sqrt(nrow(df_ts_tidy)), -1/sqrt(nrow(df_ts_tidy))), linetype=2, color='blue') +
+	  geom_segment(mapping = aes(xend = lag, yend = 0)) +
+	  ylab(latex2exp::TeX("$\\rho(s, t)$")) +
+	  theme_light(), 
+	nrow=1)
+```

@@ -14,7 +14,12 @@ lang: es
 ```{r setup}
 library(astsa)
 library(ggfortify)
+library(kableExtra)
 ```
+
+* Ejercicios del [capitulo 1](#capitulo-1). Caracteristicas de series temporales.
+* Ejercicios del [capitulo 2](#capitulo-2). Analisis de datos exploratorio.
+* Ejercicios del [capitulo 3](#capitulo-3). Modelos ARIMA.
 
 # Capitulo 1.
 
@@ -94,7 +99,7 @@ _d)_ Compare y contraste _a)_–_c)_; i.e., como cambia el promedio móvil cada 
 ```{r p1-3, label="fig:p1-3", fig.caption="", warning=FALSE, out.width="100%"}
 sims <- data.frame(
   # Iniciso a)
-  a=filter(rnorm(200, 0, 1), filter=c(0, -.9), method="recursive")[-(1:100)],
+  a=stats::filter(rnorm(200, 0, 1), filter=c(0, -.9), method="recursive")[-(1:100)],
   # Iniciso b)
   b=cos(2 * pi * 1:100 / 4),
   # Iniciso c)
@@ -103,14 +108,14 @@ sims <- data.frame(
 legend <- NULL
 plot_list <- apply(sims, 2, function(ts) {
 	# Aplico el filtrp sobre la serie:
-	vt <- filter(ts, filter=rep(1/4, 4), sides=1, method="convolution")
+	vt <- stats::filter(ts, filter=rep(1/4, 4), sides=1, method="convolution")
 
 	# Grafico
 	p1 <- autoplot(cbind(ts, vt), facets=FALSE) +
 	  xlab("Índice") + ylab("") + 
 	  aes(linetype = plot_group) +
 	  scale_linetype_manual(name="", labels=c(expression("x"["t"]), expression("v"["t"])), values=c(1, 2)) +
-  	  scale_colour_manual(name="", values=c("20","200"), labels=c(expression("x"["t"]), expression("v"["t"]))) + 
+  	  scale_colour_manual(name="", values=c("20","1"), labels=c(expression("x"["t"]), expression("v"["t"]))) + 
 	  theme_light()
 
 	  legend <<- cowplot::get_legend(p1 + theme(legend.box.margin = margin(0, 0, 0, 1)))
@@ -396,11 +401,52 @@ $$
 
 donde el termino central sea nula dado que $U_1$ y $U_2$ son independientes (tal que $E[U_1U_2] = E[U_1]E[U_2] = 0$) y la identidad trigonometrica para suma de angulos para el coseno ($cos(\alpha - \beta) = cos(\alpha)cos(\beta) + sen(\alpha)sen(\beta)$).
 
-**Problema 1.10** Supongamos que nos gustaría predecir una sola serie estacionaria $x_t$ con media cero y función de autocorrelación $\rho(h)$ en algún momento en el futuro, digamos, $t + l$, para $l > 0$.  
-_a)_ Si predecimos usando solo $x_t$ y algún multiplicador de escala $A$, demuestre que el error de predicción cuadrático medio $MSE(A) = E[(x_t+l − Ax_t)^2]$ es minimizado por $A = \rho(l)$.  
-_b)_ Demuestre que el error de predicción cuadrático medio mínimo es $MSE(A) = \gamma(0)[1 − \rho^2(l)]$.  
-_c)_ Demuestre que si $x_t+l = Ax_t$, entonces $\rho(l) = 1$ si $A > 0$, y $ρ(l) = −1$ si $A < 0$.
+**Problema 1.10** Supongamos que nos gustaría predecir una sola serie estacionaria $x_t$ con media cero y función de autocorrelación $\rho(h)$ en algún momento en el futuro, digamos, $t + \ell$, para $l > 0$.  
+_a)_ Si predecimos usando solo $x_t$ y algún multiplicador de escala $A$, demuestre que el error de predicción cuadrático medio $MSE(A) = E[(x_{t+l} - Ax_t)^2]$ es minimizado por $A = \rho(l)$.  
+_b)_ Demuestre que el error de predicción cuadrático medio mínimo es $MSE(A) = \gamma(0)[1 - \rho^2(l)]$.  
+_c)_ Demuestre que si $x_{t+l} = Ax_t$, entonces $\rho(l) = 1$ si $A > 0$, y $ρ(l) = −1$ si $A < 0$.
 
+De la definicion de $MSE$, se tiene por producto notable que:
+
+$$\begin{aligned}
+MSE(A) = E[(x_{t+l} − Ax_t)^2] &= E[x_{t+l}^2 - 2Ax_tx_{t+l} + A^2x_t^2] \\
+	&= E[x_{t+l}^2] - 2AE[x_tx_{t+l}] + A^2E[x_t^2]
+\end{aligned}
+$$
+
+Derivando con respecto a $A$, e igualando a cero queda:
+
+$$-2E[x_tx_{t+l}] + 2AE[x_t^2] = 0$$
+
+Resolviendo para $A$ da:
+
+$$A = \frac{E[x_tx_{t+l}]}{E[x_t^2]}$$
+
+El numerador es la autocovarianza $\gamma(l)$ ya que $x_t$ tiene media cero. El denominador es la autocovarianza $\gamma(0)$, por lo que $A = \gamma(l)/\gamma(0) = \rho(l)$ y queda demostrado.
+
+Para demostrar el inciso _b)_, solo se necesita sacar $\gamma(0)$ como factor comun de la expansion del producto notable:
+
+$$\begin{aligned}
+MSE(A) = E[(x_{t+l} − Ax_t)^2]  \\
+	&= E[x_{t+l}^2] - 2AE[x_tx_{t+l}] + A^2E[x_t^2] \\
+	&= \gamma(0) - 2\frac{\gamma(l)}{\gamma(0)}\gamma(l) + \left(\frac{\gamma(l)}{\gamma(0)}\right)^2\gamma(0) \\
+	&= \gamma(0)\left(1 - 2\left(\frac{\gamma(l)}{\gamma(0)}\right)^2 + \left(\frac{\gamma(l)}{\gamma(0)}\right)^2\right) \\
+	&= \gamma(0)\left(1 - \left(\frac{\gamma(l)}{\gamma(0)}\right)^2\right) \\
+	&= \gamma(0)\left(1 - \rho^2(l)\right)
+\end{aligned}
+$$
+
+De la definicion se tiene:
+
+$$\begin{aligned}
+	\rho(l) &= \frac{\gamma(l)}{\gamma(0)} \\
+		&= \frac{E[x_{t+l}x_t]}{E[x_t^2]} \\
+		&= \frac{AE[x_t^2]}{E[x_t^2]} \\
+		&= A
+\end{aligned}
+$$
+
+Si $A > 0$, entonces $\rho(l) = 1$, dado que se esta correlacion seria entre $x_t$ y ella misma. Si $A < 0$, la correlacion es negativa, debido al sogno de $A$, pero seria la minima posible ya que la correlacion seria aun entre $x_t$ y ella misma, de forma que se escribe $\rho(l) = -1$
 
 <!---
 **Problema 1.11** Considere el proceso lineal definido en (1.31), como:
@@ -507,15 +553,228 @@ Demuestre que √n x¯ →p 0, donde ¯ x es la media muestral (1.34).
 
 **Problema 1.32** 
 
+--->
+
 # Capitulo 2.
 
-**Problema 2.1** Un modelo estructural Para los datos de Johnson & Johnson, digamos yt, que se muestran en la figura 1.1, sea xt = log(yt). En este problema, vamos a ajustar un tipo especial de modelo estructural, xt = Tt + St + Nt donde Tt es un componente de tendencia, St es un componente estacional y Nt es ruido. En nuestro caso, el tiempo t está en trimestres (1960.00, 1960.25, . . . ) por lo que una unidad de tiempo es un año.
-(a) Ajuste el modelo de regresión
+**Problema 2.1** Un modelo estructural para los datos de Johnson y Johnson, digamos $y_t$, sea $x_t = log(y_t)$. En este problema, vamos a ajustar un tipo especial de modelo estructural, $x_t = T_t + S_t + N_t$ donde $T_t$ es un componente de tendencia, $S_t$ es un componente estacional y $N_t$ es ruido. En nuestro caso, el tiempo $t$ está en trimestres ($1960{,}00, 1960{,}25, \ldots$) por lo que una unidad de tiempo es un año.   
+_a)_ Ajuste el modelo de regresión
 
-donde Qi(t) = 1 si el tiempo t corresponde al trimestre i = 1, 2, 3, 4 y cero en caso contrario. Las Qi(t) se denominan variables indicadoras. Supondremos por ahora que wt es una secuencia de ruido blanco gaussiana. Sugerencia: el código detallado se proporciona en el Código R.4, el último ejemplo de la Secc. R.4.
-(b) Si el modelo es correcto, ¿cuál es el incremento anual promedio estimado en las ganancias registradas por acción?
-(c) Si el modelo es correcto, ¿la tasa promedio de ganancias registradas aumenta o disminuye del tercer trimestre al cuarto trimestre? y ¿en qué porcentaje aumenta o disminuye?
-(d) ¿Qué sucede si incluye un término de intersección en el modelo en (a)? Explique por qué hubo un problema.
-(e) Grafique los datos, xt, y superponga los valores ajustados, digamos ˆ xt, en el gráfico. Examine los residuos, xt − xˆt, y establezca sus conclusiones. ¿Parece que el modelo se ajusta bien a los datos (los residuos se ven blancos)?
+$$x_t = \beta t + \alpha_1 Q_1(t) + \alpha_2 Q_2(t) + \alpha_3 Q_3(t) + \alpha_4 Q_4(t) + w_t$$
 
---->
+donde $Q_i(t) = 1$ si el tiempo $t$ corresponde al trimestre $i = 1, 2, 3, 4$ y cero en caso contrario. Las $Q_i(t)$ se denominan variables indicadoras. Supondremos por ahora que $w_t$ es una secuencia de ruido blanco gaussiana.   
+_b)_ Si el modelo es correcto, ¿cuál es el incremento anual promedio estimado en las ganancias registradas por acción?
+_c)_ Si el modelo es correcto, ¿la tasa promedio de ganancias registradas aumenta o disminuye del tercer trimestre al cuarto trimestre? y ¿en qué porcentaje aumenta o disminuye?
+_d)_ ¿Qué sucede si incluye un término de intersección en el modelo en _a)_? Explique por qué hubo un problema.
+_e)_ Grafique los datos, $x_t$, y superponga los valores ajustados, digamos $\hat{x}_t$, en el gráfico. Examine los residuos, $x_t − \hat{x}_t$, y establezca sus conclusiones. ¿Parece que el modelo se ajusta bien a los datos (los residuos se ven blancos)?
+
+La figura \ref{fig:ex01} muestra las ganancias trimestrales por acción de la empresa estadounidense _Johnson & Johnson_, proporcionada por el profesor Paul Griffin (comunicación personal) de la _Graduate School of Management_ de la Universidad de California, Davis. Hay 84 trimestres (21 años) medidos desde el primer trimestre de 1960 hasta el último trimestre de 1980.
+
+```{r p02-01-01, label="fig:p02-01"}
+autoplot(jj) +
+  ggtitle("Pasageros de la Clase Economica: Melbourne-Sydney") +
+  xlab("Año") +
+  ylab("Miles") +
+  theme_light()
+```
+
+Para transformar los datos, reorganizo los datos a un fromato largo, y creo los regresores para el elemento de tendencia (usando ```lubridate::year```) y para los cuartos de cada año (usando ```lubridate::quarter```). Luego, para este ultimo, se crearon 4 variables distintas $Q_i$ usando una expresion condicional sobe ```quarter```.
+
+```{r p02-01-02}
+library(lubridate)
+
+# Transformando ls datos para obtener y_t
+# y generar los regresores t y Q_i
+df_jj <- jj |>
+	as_tsibble(key=c("Q1", "Q2", "Q3", "Q4")) |>
+	mutate(log_Earnings = log(value), 
+		year = year(index), 
+		quarter=factor(quarter(index)), 
+		Q1=ifelse(quarter == 1, 1, 0),
+		Q2=ifelse(quarter == 2, 1, 0),
+		Q3=ifelse(quarter == 3, 1, 0),
+		Q4=ifelse(quarter == 4, 1, 0))
+```
+
+Ajustando el modelo de regresión, arroja los siguientes resultados mostrados en la tabla \ref{tab:p02-01}. Los resultados del ajuste se interpretan tomando en cuenta el uso de variables indicadoras: ```year``` corresponde al elemento de tendencia $\beta$, y cada ```Q1, Q2, Q3``` y ```Q4``` corresponde a los valores de $\alpha_i$.
+
+```{r p02-01-03}
+library(broom)
+
+# Ajuste del modelo
+# mod <- lm(log_Earnings ~ year + quarter, df_jj)
+mod <- lm(log_Earnings ~ year + Q1 + Q2 + Q3 + Q4 - 1, df_jj)
+
+# Resultados de la estimacion.
+tidy(mod) |> 
+	kable(digits=4, 
+		col.names=c("Regresor", bquote(beta["i"]), bquote(sigma["i"]), "Z", "p"),
+		caption="Resultados de la regresión lineal: Estimadores para los coeficientes del modelo.", 
+		label="tab:p02-01")
+```
+
+Los resultados muestran que todos los coeficientes son significativos, con $p$-valores mucho menores a $0{,}01$. Es de hacer notar que la diferencia entre la contribución de cada cuarto a las ganancias (en escala logarítmica) es bastante similar, variando solo en las décimas o centésimas.  
+Los cambios anuales en las ganancias viene dado por el coeficiente para $t$ (```year```) de la siguiente forma:
+
+$$x_t - x_{t-1} = \beta t - \beta (t-1) = \beta$$
+
+donde los terminos para los cuartos se cancelan en la diferencia. Usando $log(y_t) - log(y_t) = log(y_t/y_{t-1]})$ permite obtener:
+
+$$y_t = y_{t-1}e^\beta$$
+
+Es decir, anualmente hay un incremento promedio de $e^\beta = `r round(exp(coef(mod)[["year"]]), 4)`$ en las ganancias por accion, suponiendo que el modelo es correcto.   
+Los incrementos/decrementos de cuarto a cuarto en un mismo año vienen dados por:
+
+$$x_{t,Q_i} - x_{t-1, Q_{i-1}} = \alpha_i - \alpha_{i-1}$$
+
+y al devolver la transformacion, como antes, se obtiene:
+
+$$y_{t, Q_i} = y_{t, Q_{i-1}}e^{\alpha_i - \alpha_{i-1}}$$
+
+Para el incremento del cuarto cuarto al primero, se da un incremento de año de forma que el termino de tendencia no desaparece. Pero por propiedad de exponenciales, este se se puede separar del cambio de cuarto de año como: $y_{t, Q_1} = y_{t-1, Q_4}e^{\beta}e^{\alpha_4 - \alpha_1}$. Los cambios de un cuarto a otro se muestran en la tabla \ref{tab:p02-02}.
+
+```{r p02-01-04}
+# Etiquetas para cada uno de los cambios de cuarto
+labels <- c(
+	bquote(alpha["2"]~"-"~alpha["1"]), 
+	bquote(alpha["3"]~"-"~alpha["2"]), 
+	bquote(alpha["4"]~"-"~alpha["3"]), 
+	bquote(alpha["1"]~"-"~alpha["4"]))
+# Incrementos de cuarto a cuarto
+increment <- exp(diff(coef(mod)[c("Q1", "Q2", "Q3", "Q4", "Q1")]))
+
+# Tabla de incrementos cuarto a cuarto
+tibble(Etiqueta=labels, Incremento=increment) %>%
+	mutate(Porcentaje=100 * (Incremento - 1)) %>%
+	kable(digits=4,
+		caption="Incrementos en las ganancias promedio por accion cuarto a cuarto.", 
+		label="tab:p02-02")
+```
+
+Como se observa, a excepción del paso del tercer cuarto al cuarto, siempre ocurre un incremento en las ganancias promedio por acción: de $7{,}24$% en el $Q2$, de $11{,}8$% en el $Q3$, y un incremento de $4{,}62$% al pasar al $Q1$. Los resultados muestran que la caída en las ganancias al pasar al $Q4$ es el mayor cambio en las ganancias por acción en cada año, de $20{,}3$%. 
+
+Al intentar añadir un coeficiente, el ajuste es capaz de determinarlo, pero arroja ```NA``` para el coeficiente $\alpha_4$. 
+La razon de esto es que al añadir el termino para el coeficiente, este se toma como un caso base (en este caso, $Q1$. 
+El coeficiente estimado corresponde entonces a $\alpha_1$), y cada uno de los términos $Q_i$ para $i=2, 3, 4$ se determinan como cambios (cuanto por encima o por debajo del intercepto) con respecto al intercepto: 
+de forma que ```Q1``` en el modelo con intercepto es en realidad la diferencia $\alpha_2 - \alpha_1$; ```Q2``` en el modelo con intercepto es en realidad la diferencia $\alpha_3 - \alpha_1$; y ```Q3``` en el modelo con intercepto es en realidad la diferencia $\alpha_4 - \alpha_1$. Pero dado que ya se sacaron todas las diferencias entre cada cuarto con respecto al caso base (primer cuarto), el ultimo coeficiente no significa nada, arrojando el valor de ```NA```.
+
+El gráfico para el modelo se observa en la figura \@ref(fig:p02-02), donde se observa que la serie ajustada esta ligeramente mas suavizada que la serie observada, aunque se nota que de 1962 a 1965 la series ajustada parece sobrestimar de manera sistemática la serie observada, mientras que de 1970 a 1975 el modelo parece subestimar de forma sistemática la serie observada. El resto del tiempo, la serie parece variar por encima o por debajo.
+
+```{r p02-01-05, label="fig:p02-02"}
+augmented_df <- left_join(df_jj, augment(mod))
+
+ggplot(df_jj[, c("index", "log_Earnings")], aes(x=index, y=log_Earnings)) +
+	geom_line() + geom_point() + 
+	geom_line(aes(y=.fitted), 
+		data=augmented_df[, c("index", ".fitted")],
+		color="orange") + 
+	geom_point(aes(y=.fitted), 
+		data=augmented_df[, c("index", ".fitted")], 
+		color="orange") +
+  ggtitle("Pasageros de la Clase Economica: Melbourne-Sydney (escala logaritmica)") +
+  xlab("Año") +
+  ylab("log Ganancias por Accion") + 
+  theme_light()
+```
+
+Al verificar los residuales, se observa en la figura \@ref(fig:p02-03) que la serie tiene un comportamiento que no se toma en cuenta en el modelo, alguna correlacion entre los valores adyacentes. Tambien se observan valores con mas de dos desviaciones estandar, y en general cambios mas violentos, al inicio y en el centro de la serie.
+
+```{r p02-01-06, label="fig:p02-03"}
+ggplot(augmented_df[, c(".fitted", ".std.resid")], 
+	aes(x=.fitted, y=.std.resid)) +
+	geom_line() + geom_point() +
+	geom_hline(yintercept=0) +
+	xlab("Valores Estimados") +
+  ylab("Residuales Estandarizados") + 
+  theme_light()
+```
+
+Las gráficas de la figura \@ref(fig:p02-04) muestran las función de autocorrelación y autocorrelación parcial. Se observa de inmediato que la caída de la primera es bastante lenta, indicando una correlación bastante grande entre elementos adyacentes en la serie; mientras que la función de autocorrelación parcial muestra que la correlación parece ser mayor solo entre observaciones separadas a intervalo de un año.
+
+```{r p02-01-07, label="fig:p02-04"}
+# Se calculan las correlaciones y correlaciones parciales
+df_values <- data.frame(lag=1:19, 
+	acf_vals=acf(augmented_df$log_Earnings, plot=FALSE)$acf[,,1][1:19],
+	pacf_vals=pacf(augmented_df$log_Earnings, plot=FALSE)$acf[,,1])
+
+cowplot::plot_grid(
+	ggplot(data = df_values, mapping = aes(x = lag, y = acf_vals)) +
+	  geom_point() +
+	  geom_hline(aes(yintercept = 0)) +
+	  geom_segment(mapping = aes(xend = lag, yend = 0)) +
+	  geom_hline(yintercept = c(1/sqrt(20), -1/sqrt(20)), linetype=2, color='blue') +
+	  ylab(latex2exp::TeX("$\\rho(s, t)$")) +
+	  theme_light(), 
+  ggplot(data = df_values, mapping = aes(x = lag, y = pacf_vals)) +
+	  geom_point() +
+	  geom_hline(aes(yintercept = 0)) +
+	  geom_hline(yintercept = c(1/sqrt(20), -1/sqrt(20)), linetype=2, color='blue') +
+	  geom_segment(mapping = aes(xend = lag, yend = 0)) +
+	  ylab(latex2exp::TeX("$\\rho(s, t)$")) +
+	  theme_light(), 
+	nrow=1)
+```
+
+La información mostrada en las funciones de autocorrelación y en la distribución de los residuales parece indicar que el modelo no es del todo correcto y que sera apropiado ajustar un modelo autoregresivo.
+
+**Problema 2.2** Para los datos de mortalidad cardiovascular:  
+_a)_ Agregue otro componente a la regresión que represente el conteo de partículas cuatro semanas antes; es decir, agregue $P_{t−4}$. Exprese su conclusión.
+_b)_ Dibuje una matriz de diagrama de dispersión de $M_t$, $T_t$, $P_t$ y $P_{t−4}$ y luego calcule las correlaciones por pares entre las series. Compare la relación entre $M_t$ y $P_t$ versus $M_t$ y $P_{t−4}$.
+
+```{r p02-02-01, echo=FALSE}
+tempR <- tempfile(fileext = ".R")
+library(knitr)
+purl("Pollution-Mortality-example.Rmd", output=tempR)
+source(tempR)
+unlink(tempR)
+```
+
+La primera parte del análisis se encuentra en el archivo de ejemplo para [la mortalidad cardiovascular y partículas contaminantes]. Allí, se muestra que el mejor modelo encontrado para mortalidad fue:
+
+$$Mt &= `r round(coef_matrix[1,1], 1)` + `r round(coef_matrix[2,1], 3)`t + `r round(coef_matrix[3,1], 3)`(T_t − T_\dot) + `r round(coef_matrix[4,1], 3)`(T_t − T_\dot)^2 + `r round(coef_matrix[5,1], 3)`P_t + w_t$$
+
+En esta parte se busca añadir la información del retraso $P_{t-4}$ para verificar si hay una mejora en el ajuste. Los resultados se muestran a continuación:
+
+```{r p02-02-02}
+df_ts <- cbind(part, tempr, cmort)
+
+# Se crea la variable retraso.
+pt_4 <- ts.intersect(df_ts, pt_4=stats::lag(df_ts[, "part"],-4), dframe=TRUE)
+colnames(pt_4) <- c("Particulas", "Temperatura", "Mortalidad", "P_t-4")
+
+# Datos para la regresión
+df_lag <- pt_4 %>%
+	mutate(trend = time(cmort)[-(505:508)], 
+		diff_Temp=Temperatura - mean(Temperatura),
+		diff_Temp_Square=diff_Temp ** 2)
+
+mod_lag <- lm(Mortalidad ~ trend + diff_Temp + diff_Temp_Square + Particulas + `P_t-4`, df_lag)
+bind_rows(fitted_models[4,], glance(mod_lag)) %>%
+	mutate(SSE=sigma ** 2 * df.residual, MSE=sigma ** 2) %>%
+	dplyr::select(SSE, df.residual, MSE, adj.r.squared, AIC, BIC) %>%
+	mutate(AIC=AIC / nrow(df_ts_tidy) - log(2*pi), BIC=BIC / nrow(df_ts_tidy) - log(2*pi)) %>%
+	tibble::add_column(Model=c(
+		"$M_t = \\beta_0 + \\beta_1 t + \\beta_2(T - T_\\dot) + \\beta_3(T - T_\\dot)^2 + \\beta_4 P_t + w_t$", "$M_t = \\beta_0 + \\beta_1 t + \\beta_2(T - T_\\dot) + \\beta_3(T - T_\\dot)^2 + \\beta_4 P_t + P_{t-4} + w_t$"), .before=1) %>%
+	kable(digits=3,
+		col.names=c("", "SSE", "df", "MSE", "R^2", "AIC", "BIC"),
+		caption="Medidas de ajuste y de información para los modelos ajustados.", 
+		label="tab:p02-02-01", escape=FALSE)
+```
+
+Los resultados muestran que hay una mejora en el ajuste al añadir a $P_{t-4}$, pero que solo resulta en un aumento de la varianza explicada de `r 100 * (0.604 - 0.592)`%. Podemos verificar si el modelo es significativo por medio de la prueba $F$:
+
+$$F(5, 498) = \frac{(40.8 - 39.5) / 5}{39.5 / 498} = 1.3218\times 10^{-5}$$
+
+Este valor de $F$ tiene una probabilidad asociada de $F(5, 498) = `r round(1 - pf((40.8 - 39.5) / 5 / 39.5 / 498, 5, 498), 4)`$. Esto quiere decir que no hay una mejora significativa en el modelo al añadir a $P_{t-4}$ comparado con el modelo sin este termino.
+
+Al realizar los gráficos de dispersión con los pares de variables del modelo, y calcular el coeficiente de correlación de estas, se puede observar que la correlación entre $M_t$ y $P_t$ versus $M_t$ y $P_{t−4}$, es bastante similar, siendo mayor par el ultimo caso. Dada esta correlación, seria mas apropiado elegir un modelo en el cual solo se haga una relación entre $M_t$ y $P_{t−4}$, eliminando el termino de $P_t$.
+
+```{r p02-02-03, label="fig:p02-02-03"}
+if (!required("GGally"))
+	install.packages("GGally")
+
+pt_4 |> GGally::ggpairs()
+```
+
+
+# Capitulo 3.

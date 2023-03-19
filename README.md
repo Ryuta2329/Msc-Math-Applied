@@ -1,11 +1,13 @@
-# Asignaciones del curso de Probabilidad y Estadistica (Msc Matematicas Aplicadas)
+# Msc Matematicas Aplicadas
 
-Las tareas son:
+Cada una de los directorios corresponde a una materia distinta cursada en la maestria.
 
-* La [Tarea 1](https://github.com/Ryuta2329/Tarea-probabilidad/blob/a24d25ecbcc2d83e24b2c347472a040f570c9e6c/Tarea-1-Prob-Stat-2022.md) es la correspondiente a los problemas y simulaciones de distribuciones de probabilidad.
-* La [Tarea 2](https://github.com/Ryuta2329/Tarea-probabilidad/blob/main/Tarea-2-Prob-Stat-2022.md) es la correspondiente a los constrastes de hipotesis y pruebas estadisticas.
+1. Primer trimestre
+ 
+ * [Algebra Lineal](https://github.com/Ryuta2329/Msc-Math-Applied/tree/main/Algebra%20Lineal): Problemas de algebra lineal asignados como tarea durante el curso.
+ * [Probabilidad y Estadistica](https://github.com/Ryuta2329/Msc-Math-Applied/tree/main/Probabilidad%20y%20Estadistica): Trabajos y tareas asignados en el curso de probabilidad y estadistica.
+ 
+2. Segundo trimestre
 
-Los ejercicios son:
-
-* El ejercicio [e01](https://github.com/Ryuta2329/Tarea-probabilidad/blob/main/e01-PE.md) corresponde al de la varilla quebrada para formar un triangulo.
-* El ejercicio [e02](https://github.com/Ryuta2329/Tarea-probabilidad/blob/main/e02-PE.md) corresponde a los problemas del capitulo 2.
+ * [Modelos Lineales](https://github.com/Ryuta2329/Msc-Math-Applied/tree/main/Modelos%20Lienales): Ejercicios practicos y teoricos de regresion lineal.
+ * [Series Temporales](https://github.com/Ryuta2329/Msc-Math-Applied/tree/main/Series%20Temporales): Ejercicios, ejemplos y problemas del libro del curso. 

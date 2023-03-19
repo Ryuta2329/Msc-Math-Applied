@@ -1,0 +1,20 @@
+---
+title: Ejemplo de Varvas glaciales paleoclimáticas.
+date: "`r Sys.Date()`"
+output:
+---
+
+```{r setup}
+library(astsa)
+
+
+```
+
+# Varvas glaciales paleoclimáticas.
+
+Los glaciares que se derriten depositan capas anuales de arena y limo durante el deshielo primaveral.
+estaciones, que se pueden reconstruir anualmente durante un período que va desde el momento la deglaciación comenzó en Nueva Inglaterra (hace unos 12.600 años) hasta el momento en que finalizó (hace unos 6.000 años). Dichos depósitos sedimentarios, llamados varvas, pueden usarse como indicadores de parámetros paleoclimáticos, como la temperatura, porque, en un año cálido, se deposita más arena y limo del glaciar en retroceso. La Figura 2.7 muestra los espesores de las varvas anuales recolectadas de un lugar en Massachusetts para 634 años, comenzando hace 11,834 años. Para más información, véase Shumway y Verosub [185]. Debido a que la variación de los espesores aumenta en proporción a la cantidad depositada, una transformación logarítmica podría eliminar la no estacionariedad observable en la varianza en función del tiempo. La figura 2.7 muestra las varvas originales y transformadas, y está claro que se ha producido esta mejora. También podemos trazar el histograma de los datos originales y transformados, como en el problema 2.8, para argumentar que se mejora la aproximación a la normalidad. Las primeras diferencias ordinarias (2.30) también se calculan en el problema 2.8, y observamos que las primeras diferencias tienen un correlación negativa significativa en el desfase h = 1. Más adelante, en el Cap. 5, mostraremos que tal vez la serie de varvas tiene memoria larga y propondremos el uso de diferenciación fraccionaria.
+
+par(mfrow=c(2,1))
+plot(varve, main="varve", ylab="")
+plot(log(varve), main="log(varve)", ylab="" )

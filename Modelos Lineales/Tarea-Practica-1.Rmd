@@ -1,0 +1,116 @@
+---
+title: Primera tarea práctica: Regresión líneal.
+author: Marcelo Molinatti
+date: "`r Sys.Date()`"
+output:
+---
+
+```{r setup}
+library(kableExtra)
+library(ggplot2)
+```
+
+# Regresión con factores fijos.
+
+Se realizó un experimento para comparar los rendimientos $Y_i$ (medidos por el peso seco de las plantas) bajo una condición de control y dos condiciones de tratamiento diferentes. Así, la respuesta, el peso seco, depende de un factor, la condición de crecimiento, con tres niveles. Estamos interesados en saber si las medias de respuesta difieren entre los grupos.
+
+```{r table-data-fix, echo=FALSE, label="tab:reg-fix", tab.caption="Pesos seco de plantas bajo tres condiciones de crecimiento ditintas."}
+# Toamdo de Dobson, Barnett (2008). An Introduction to Generalized Linear Models.
+dr_wght <- 
+tibble(~Control, ~TreatmentA, ~TreatmentB,
+		   4.17, 		4.81, 		 6.31,
+		   5.58, 		4.17, 		 5.12,
+		   5.18,        4.41, 		 5.54,
+		   6.11,        3.59, 		 5.50,
+		   4.50,        5.87, 		 5.37,
+		   4.61,        3.83, 		 5.29,
+		   5.17,        6.03, 		 4.92,
+		   4.53,        4.89, 		 6.15,
+		   5.33,        4.32, 		 5.80,
+		   5.14,         4.69, 		 5.26)
+
+kable(dr_wght)
+```
+
+# Regresion lineal simple.
+
+Considere los datos experimentales de la tabla, que se obtuvieron de 33 muestras de desechos tratados químicamente en un estudio realizado en _Virginia Tech_. Se registraron los valores de _x_, la reducción porcentual de los sólidos totales, y de _y_, el porcentaje de disminución de la
+demanda de oxígeno químico.
+
+```{r pRLS-01, echo=FALSE, fig.caption="Medidas de la reducción de los sólidos y de la demanda de oxígeno químico", label="fig:pRLS"}
+# Toamdo de Walpole (). Probabilidad y Esatdsitica para Ingieneria
+df_RLS <- tribble(~solid_reduction, ~oxigen_reduction,
+3, 5,
+7, 11, 
+11, 21, 
+15, 16, 
+18, 16, 
+27, 28, 
+29, 27, 
+30, 25, 
+30, 35, 
+31, 30, 
+31, 40, 
+32, 32, 
+33, 34, 
+33, 32, 
+34, 34,
+36, 37,
+36, 38,
+36, 34,
+37, 36,
+38, 38,
+39, 37, 
+39, 36, 
+39, 45, 
+40, 39, 
+41, 41, 
+42, 40, 
+42, 44, 
+43, 37, 
+44, 44, 
+45, 46,
+46, 46,
+47, 49,
+50, 51)
+```
+
+Al inspeccionar dicho diagrama se observa que los puntos se acercan mucho a una línea recta, lo cual indica que la suposición de linealidad entre las dos variables parece ser razonable.
+
+```{r pRLS-02}
+ggplot(df_RLS, aes(x=solid_reduction, y=oxigen_reduction)) +
+	geom_point(size=1.8) +
+	geom_smooth(method=lm) + 
+	xlab("Fuerza del Brazo") + ylab("Levantamiento dinámico") +
+	theme_light()
+```
+
+
+
+# Regresión múltiple con regresores variables.
+
+Los datos de la tabla  muestran los porcentajes de las calorías totales obtenidas de los carbohidratos complejos para veinte hombres diabéticos insulina-dependientes que habían seguido una dieta alta en carbohidratos durante seis meses. Se pensó que el cumplimiento del régimen estaba relacionado con la edad (en años), el peso corporal (en relación con el peso _ideal_ para la estatura) y otros componentes de la dieta, como el porcentaje de calorías como proteína. Estas otras variables se tratan como variables explicativas.
+
+```{r pRLM-01, tab.caption="Carbohidratos, edad, peso relativo y proteínas de veinte hombres diabéticos insulinodependientes"}
+(~Carbohydrate, ~Age, ~Weight ,~Protein
+33, 33, 100, 14,
+40, 47, 92, 15,
+37, 49, 135, 18,
+27, 35, 144, 12,
+30, 46, 140, 15,
+43, 52, 101, 15,
+34, 62, 95, 14,
+48, 23, 101, 17,
+30, 32, 98, 15,
+38, 42, 105, 14,
+50, 31, 108, 17,
+51, 61, 85, 19,
+30, 63, 130, 19,
+36, 40, 127, 20,
+41, 50, 109, 15,
+42, 64, 107, 16,
+46, 56, 117, 18,
+24, 61, 100, 13,
+35, 48, 118, 18,
+37, 28, 102, 14)
+```

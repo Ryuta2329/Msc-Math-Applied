@@ -1,0 +1,42 @@
+---
+title: Ejemplo de Precios mensuales del pollo en USA.
+date: "`r Sys.Date()`"
+output:
+---
+
+```{r setup}
+library(astsa)
+
+
+```
+
+# Precios mensuales del pollo en USA.
+
+Considere el precio mensual (por libra) de un pollo en los EE. UU. desde mediados de 2001 hasta mediados de 2016 (180 meses), digamos $x_t$, que se muestra en la figura \@ref(fig:chicken-plot-1). Hay una tendencia ascendente obvia en la serie, y podríamos usar una regresión lineal simple para estimar esa tendencia ajustando el modelo:
+
+$$x_t = \beta_0 + \beta_1 z_t + w_t, \quad zt = 2001\frac{7}{12}, 2001\frac{8}{12}, \ldots, 2016\frac{6}{12}$$
+
+
+```{r chiken-plot-1, label="fig:chicken-plot-1"}
+fit <- lm(chicken~time(chicken))
+
+autoplot(chicken) + 
+  ggtitle("Precio mensual de pollo en USA") +
+  geom_abline(aes(slope=coef(fit)["time(chicken)"], intercept=coef(fit)["(Intercept)"]), color="blue") +
+  xlab("Año") +
+  ylab("Centimos por libra") +
+  theme_light()
+```
+
+
+```
+par(mfrow=c(2,1))
+plot(resid(fit), type="o", main="detrended")
+plot(diff(chicken), type="o", main="first difference")
+par(mfrow=c(3,1)) # plot ACFs
+acf(chicken, 48, main="chicken")
+acf(resid(fit), 48, main="detrended")
+acf(diff(chicken), 48, main="first difference")
+
+```
+
