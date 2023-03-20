@@ -776,5 +776,9 @@ if (!required("GGally"))
 pt_4 |> GGally::ggpairs()
 ```
 
+**Problema 2.3** En este problema, exploramos la diferencia entre una caminata aleatoria y un proceso estacionario de tendencia.  
+_a)_ Genere cuatro series que sean paseo aleatorio con deriva, de longitud $n = 100$ con $\delta = {,}01$ y $\sigma_w = 1$. Llame a los datos $x_t$ para $t = 1, \ldots, 100$. Ajuste la regresión $x_t = \beta t + w_t$ usando mínimos cuadrados. Grafique los datos, la función media verdadera (es decir, $\mu t = {,}01 t$) y la línea ajustada, $\hat{x}_t = \hat{\beta} t$, en el mismo gráfico. 
+_b)_ Genere cuatro series de longitud $n = 100$ que sean de tendencia lineal más ruido, digamos $y_t = {,}01 t + w_t$, donde $t$ y $w_t$ son como en la parte _a)_. Ajuste la regresión $y_t = \beta t + w_t$ usando mínimos cuadrados. Grafique los datos, la función media verdaderay la línea ajustada.
+_c)_ Comente (qué aprendió de esta tarea).
 
 # Capitulo 3.

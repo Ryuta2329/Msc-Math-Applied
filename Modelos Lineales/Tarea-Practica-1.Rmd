@@ -1,14 +1,39 @@
 ---
-title: Primera tarea práctica: Regresión líneal.
+title: "Primera tarea práctica: Regresión lineal."
 author: Marcelo Molinatti
 date: "`r Sys.Date()`"
-output:
+output: 
+ pdf_document:
+  keep_tex: no
+  keep_md: yes
+  fig_caption: yes
+tables: yes
+header-includes:
+ - \usepackage{tabu}
+ - \usepackage{float}
+ - \floatplacement{figure}{H} 
+ - \usepackage{caption}
+ - \captionsetup[table]{name=Tabla}
+lang: es
 ---
 
-```{r setup}
+```{r setup, include=FALSE}
 library(kableExtra)
 library(ggplot2)
+library(dplyr)
+
+options(knitr.table.format = "latex", knitr.kable.NA = "", OutDec = ",", scipen=999)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, 
+	tab.cap.style = "Table Caption", tab.cap.pre = "Tabla ", tab.cap.sep = ". ", 
+	fig.cap.style = "Image Caption", fig.cap.pre = "Figura ", fig.cap.sep = ". ")
+
+if (!require(broom))
+	install.packages("broom")
+if (!require(cowplot))
+	install.packages("cowplot")
 ```
+
+<!---
 
 # Regresión con factores fijos.
 
@@ -16,101 +41,174 @@ Se realizó un experimento para comparar los rendimientos $Y_i$ (medidos por el 
 
 ```{r table-data-fix, echo=FALSE, label="tab:reg-fix", tab.caption="Pesos seco de plantas bajo tres condiciones de crecimiento ditintas."}
 # Toamdo de Dobson, Barnett (2008). An Introduction to Generalized Linear Models.
-dr_wght <- 
-tibble(~Control, ~TreatmentA, ~TreatmentB,
-		   4.17, 		4.81, 		 6.31,
-		   5.58, 		4.17, 		 5.12,
-		   5.18,        4.41, 		 5.54,
-		   6.11,        3.59, 		 5.50,
-		   4.50,        5.87, 		 5.37,
-		   4.61,        3.83, 		 5.29,
-		   5.17,        6.03, 		 4.92,
-		   4.53,        4.89, 		 6.15,
-		   5.33,        4.32, 		 5.80,
-		   5.14,         4.69, 		 5.26)
-
-kable(dr_wght)
+#dr_wght <- 
+#tibble(~Control, ~TreatmentA, ~TreatmentB,
+#		   4.17, 		4.81, 		 6.31,
+#		   5.58, 		4.17, 		 5.12,
+#		   5.18,        4.41, 		 5.54,
+#		   6.11,        3.59, 		 5.50,
+#		   4.50,        5.87, 		 5.37,
+#		   4.61,        3.83, 		 5.29,
+#		   5.17,        6.03, 		 4.92,
+#		   4.53,        4.89, 		 6.15,
+#		   5.33,        4.32, 		 5.80,
+#		   5.14,         4.69, 		 5.26)
+#
+#kable(dr_wght)
 ```
+--->
 
-# Regresion lineal simple.
+# Regresión lineal simple.
 
-Considere los datos experimentales de la tabla, que se obtuvieron de 33 muestras de desechos tratados químicamente en un estudio realizado en _Virginia Tech_. Se registraron los valores de _x_, la reducción porcentual de los sólidos totales, y de _y_, el porcentaje de disminución de la
-demanda de oxígeno químico.
+Considere los datos experimentales de la tabla, que se obtuvieron de $n=33$ muestras de desechos tratados químicamente en un estudio realizado en _Virginia Tech_. Se registraron los valores de _x_, la reducción porcentual de los sólidos totales, y de _y_, el porcentaje de disminución de la demanda de oxígeno químico.
 
-```{r pRLS-01, echo=FALSE, fig.caption="Medidas de la reducción de los sólidos y de la demanda de oxígeno químico", label="fig:pRLS"}
+```{r pRLS-01, echo=FALSE, label="pRLS-00"}
 # Toamdo de Walpole (). Probabilidad y Esatdsitica para Ingieneria
-df_RLS <- tribble(~solid_reduction, ~oxigen_reduction,
-3, 5,
-7, 11, 
-11, 21, 
-15, 16, 
-18, 16, 
-27, 28, 
-29, 27, 
-30, 25, 
-30, 35, 
-31, 30, 
-31, 40, 
-32, 32, 
-33, 34, 
-33, 32, 
-34, 34,
-36, 37,
-36, 38,
-36, 34,
-37, 36,
-38, 38,
-39, 37, 
-39, 36, 
-39, 45, 
-40, 39, 
-41, 41, 
-42, 40, 
-42, 44, 
-43, 37, 
-44, 44, 
-45, 46,
-46, 46,
-47, 49,
-50, 51)
+df_RLS <- tibble(
+	solid_reduction=c(3, 7, 11, 15, 18, 27, 29, 30, 30, 31, 31, 32, 33, 33, 34, 36, 36, 36, 37, 38, 39, 39, 39, 40, 41, 42, 42, 43, 44, 45, 46, 47, 50),
+	oxigen_reduction=c(5, 11, 21, 16, 16, 28, 27, 25, 35, 30, 40, 32, 34, 32, 34, 37, 38, 34, 36, 38, 37, 36, 45, 39, 41, 40, 44, 37, 44, 46, 46, 49, 51))
 ```
 
-Al inspeccionar dicho diagrama se observa que los puntos se acercan mucho a una línea recta, lo cual indica que la suposición de linealidad entre las dos variables parece ser razonable.
+Al inspeccionar dicho diagrama se observa que los puntos se acercan mucho a una línea recta, lo cual indica que la suposición de linealidad entre las dos variables parece ser razonable y el sl modelo seleccionado para el análisis.
 
-```{r pRLS-02}
+```{r pRLS-02, fig.cap="Reduccion de la demanda de oxigeno con respecto a la reduccion de solidos totales.", label="pRLS-01", out.width="70%", fig.align='center'}
 ggplot(df_RLS, aes(x=solid_reduction, y=oxigen_reduction)) +
 	geom_point(size=1.8) +
-	geom_smooth(method=lm) + 
+	geom_smooth(method=lm, se=FALSE) + 
 	xlab("Fuerza del Brazo") + ylab("Levantamiento dinámico") +
 	theme_light()
 ```
 
+Ajustamos un modelo de regresión lineal simple de la forma $y = \beta_0 + \beta_1 x$, para poder estimar los coeficientes del modelo de regresión $\beta_0$ y $\beta_1$
 
+```{r pRLS-03}
+fit <- lm(oxigen_reduction ~ solid_reduction, df_RLS)
+
+as_tibble(summary(fit)$coefficients) |>
+	tibble::add_column(term=c("Reduccion de Solidos", "Residuales"), .before=1) |>
+	kable(digits=3, row.names=FALSE, booktabs=TRUE,
+		col.names=c("", "Estimado, $\\hat{\\beta}$", "Desv. Estandar", "$\\hat{t}$", "$P(t > \\hat{t})$"), 
+		caption="Resultados de la regresion lineal simple.",
+		escape=FALSE, label="pRLS-01", format.args = list(big.mark=".")) %>%
+	kable_classic(position = "center", latex_options = "hold_position")
+```
+
+Como se observa, ambos estimadores (del coeficiente y de la pendiente) son significativamente distintos de cero, dado el valor de probabilidad asociado para el estadístico $\hat{t}$ que indica que una desviación tan grande solo por azar es improbable. Este estadístico busca contrastar las hipótesis $H_0: \beta_i = 0$ contra la alternativa $H_1: \beta_i \ne 0$ para cada $i=0, 1$. Como la probabilidad asociada es muy pequeña, se concluye que la probabilidad de que $\hat{\beta}_i \sim N(0, \sigma_{\beta_i})$ es muy baja y que estos deben venir de alguna otra distribución con media distinta de cero.  
+Otra forma de validar el modelo de regresión es comparando el modelo planteado con un modelo nulo que no incluye pendiente (es decir, que no incluye la relación lineal con la variable independiente $x$), utilizando una prueba $F$ como se muestra en la tabla \ref{tab:pRLS-04}. 
+
+```{r pRLS-04}
+broom::tidy(aov(fit)) |>
+	mutate(term=c("Reduccion de Solidos", "Residuales")) |>
+	kable(digits=3, row.names=FALSE, booktabs=TRUE,
+		col.names=c("", "df", "SS", "MS", "$\\hat{F}$", "$P(F > \\hat{F})$"), 
+		caption="\\label{tab:pRLS-04}Tabla ANOVA para validar el modelo de regresion.",
+		escape=FALSE, format.args = list(big.mark=".")) %>%
+	kable_classic(position = "center", latex_options = "hold_position")
+```
+
+De la tabla se observa que al comparar las varianza del modelo con pendiente y el modelo nulo (solo intercepto), se obtiene un valor de $F$ mucho mas grande que el que se esperaría por azar, y es por ello que se le asocia una probabilidad aproximadamente nula (a 4 espacios decimales, el valor es cero). Esto no da la confianza de escoger el modelo de regresión como un buen modelo de trabajo que permite describir los datos observados, y realizar predicciones. De hecho, es posible calcular y obtener una medida de asociación entre las variables, $R^2$, cuyo valor es `r broom::glance(fit)$adj.r.squared`, el cual nos permite concluir que el modelo es capaz de explicar un `r round(100 * broom::glance(fit)$adj.r.squared, 1)`% de la varianza observada.
+
+Sin embargo, aun es necesario validar las suposiciones del modelo de regresión, verificando lo valores residuales. Los gráficos mostrados en la figura \ref{fig:pRLS-02} muestran que los residuales no tienen un comportamiento normal: es fácil ver del _QQ-plot_ que varias observaciones se desvían mas de los esperado, tanto por encima como por debajo. 
+El gráfico de residuales a la izquierda muestra que aun se percibe cierto grado de linealidad entre los valores esperados y los residuales, y permite constatar la presencia de al menos dos residuales que se desvían mas de dos desviaciones estándar de la media de cero. 
+El tercer gráfico (a la derecha) muestra la información del gráfico de residuales, pero donde cada punto se ha escalado en tamaño usando como factor la influencia que cada punto tiene sobre la estimación. Se puede observar, que las observaciones asociadas a valores grandes o pequeños de sólidos totales tienen la mayor influencia y que uno de los atípicos tiene una gran influencia en la recta estimada.
+
+```{r pRLS-05, fig.cap="\\label{fig:pRLS-02}Graficos de residuales para validacion del modelo de regresion.", label="fig:pRLS-02", fig.height=5, fig.width=13}
+augmented_fit <- broom::augment(fit)
+
+cowplot::plot_grid(
+	ggplot(augmented_fit, aes(x=.fitted, y=.std.resid)) +
+		geom_point(size=1.8) +
+		xlab("Predichos") + ylab("Residuales") +
+		geom_hline(yintercept=c(0, -1.96, 1.96), linetype=c(1, 2, 2)) + 
+		theme_light(),
+	ggplot(augmented_fit, aes(sample = .resid)) + 
+		stat_qq() + 
+		stat_qq_line(color="blue") + 
+		theme_light(),
+    ggplot(mutate(augmented_fit, .too.large=ifelse(abs(.std.resid) > 1.96, 1, 0)), 
+    		aes(x = .fitted, y = .std.resid)) +
+    	geom_point(aes(colour = .too.large, size=.hat * 100), alpha = .8) + 
+    	geom_hline(yintercept = c(1.96, 3), linetype = 2, col = c("gray60", "gray50")) + 
+    	xlab("Predichos") + ylab("Residuales Estandarizados") +
+    	theme_bw() +
+    	theme(legend.position="none") +
+    	geom_text(aes(label=ifelse(.std.resid > 1.96, as.character(paste(solid_reduction, oxigen_reduction, sep=", ")), '')), 
+    		hjust=0, vjust=0),
+	nrow=1)
+```
+
+Dado estos resultados, se concluye que el problema no parece ser que el modelo sea incorrecto, sino que no se esta tomando en cuenta la influencia que cada observación (particularmente los atípicos) tienen sobre la estimación de los coeficientes. Es por ello que, en lugar de una transformación de los datos, se prefirió realizar una regresión de mínimos cuadrados ponderados, usando como pesos la varianza residual estimada de cada una de las observaciones:
+
+$$w_i = \frac{1}{\hat{\sigma^2}(1 - h_{ii})}$$
+
+donde $h_{ii}$ es la palanca (_leverage_) de la $i$-esima observación. Realizando la regresión ponderada usando estos pesos arroja los resultados mostrados en la tabla \ref{tab:pRLS-03}, donde se observa el cambio ligero en los coeficientes (los cuales aun siguen siendo significativos): aumento de la pendiente y caída del intercepto. 
+
+```{r pRLS-06}
+fit2 <- lm(oxigen_reduction ~ solid_reduction, df_RLS, weights=1 / (broom::glance(fit)$sigma ** 2 * (1 - augmented_fit$.hat)))
+
+as_tibble(summary(fit2)$coefficients) |>
+	tibble::add_column(term=c("Reduccion de Solidos", "Residuales"), .before=1) |>
+	kable(digits=3, row.names=TRUE, 
+		col.names=c("", "Estimado, $\\hat{\\beta}$", "Desv. Estandar", "$\\hat{t}$", "$P(t > \\hat{t})$"), booktabs=TRUE,
+		escape=FALSE, label="tab:pRLS-03", format.args = list(big.mark="."),
+		caption="\\label{tab:pRLS-03}Resultados de la regresión lineal ponderada.") %>%
+	kable_classic(position = "center", latex_options = "hold_position")
+```
+
+El modelo nuevo, sigue siendo significativo al compararlo con el modelo nulo, e incluso el error cuadrado medio es 10 veces menor en el modelo de regresión ponderado (resultados no mostrados). La superposición de la nueva recta permite darnos cuenta que la mejora no es muy grande, y que la ponderación solo resulta en un aumento de `r round(100 * (broom::glance(fit2)$adj.r.squared - broom::glance(fit)$adj.r.squared), 3)`% en la varianza explicada.
+
+```{r, echo=FALSE, eval=FALSE}
+broom::tidy(aov(fit2)) |>
+	kable(digits=3, row.names=TRUE, 
+		col.names=c("df", "SS", "MS", "\\hat{F})$", "$P(F > \\hat{F})$"), 
+		escape=TRUE, label="tab:pRLS-02", format.args = list(big.mark="."),
+		caption="Tabla ANOVA para validar el modelo de regresión ponderado.") %>%
+	kable_classic(position = "center", latex_options = "hold_position")
+```
+
+```{r pRLS-07, fig.cap="Reducción de la demanda de oxigeno con respecto a la reducción de sólidos totales.", label="fig:pRLS-07"}
+ggplot(df_RLS, aes(x=solid_reduction, y=oxigen_reduction)) +
+	geom_point(size=1.8) +
+	geom_smooth(method=lm, se=FALSE) + 
+	geom_abline(slope=coef(fit2)[[2]], intercept=coef(fit2)[[1]]) + 
+	xlab("Fuerza del Brazo") + ylab("Levantamiento dinámico") +
+	theme_light()
+```
+
+Dado que no hubo una mejora importante, seria adecuado considerar una regresión a trozos. Una inspección mas cuidadosa de los datos parece indicar que el conjunto de datos se podría dividir en dos regiones, cuyo paso de una región a otra depende de si la cantidad de sólidos totales es mayor o menor a aproximadamente 22.
+
+<!---
 
 # Regresión múltiple con regresores variables.
 
 Los datos de la tabla  muestran los porcentajes de las calorías totales obtenidas de los carbohidratos complejos para veinte hombres diabéticos insulina-dependientes que habían seguido una dieta alta en carbohidratos durante seis meses. Se pensó que el cumplimiento del régimen estaba relacionado con la edad (en años), el peso corporal (en relación con el peso _ideal_ para la estatura) y otros componentes de la dieta, como el porcentaje de calorías como proteína. Estas otras variables se tratan como variables explicativas.
 
 ```{r pRLM-01, tab.caption="Carbohidratos, edad, peso relativo y proteínas de veinte hombres diabéticos insulinodependientes"}
-(~Carbohydrate, ~Age, ~Weight ,~Protein
-33, 33, 100, 14,
-40, 47, 92, 15,
-37, 49, 135, 18,
-27, 35, 144, 12,
-30, 46, 140, 15,
-43, 52, 101, 15,
-34, 62, 95, 14,
-48, 23, 101, 17,
-30, 32, 98, 15,
-38, 42, 105, 14,
-50, 31, 108, 17,
-51, 61, 85, 19,
-30, 63, 130, 19,
-36, 40, 127, 20,
-41, 50, 109, 15,
-42, 64, 107, 16,
-46, 56, 117, 18,
-24, 61, 100, 13,
-35, 48, 118, 18,
-37, 28, 102, 14)
+#(~Carbohydrate, ~Age, ~Weight ,~Protein
+#33, 33, 100, 14,
+#40, 47, 92, 15,
+#37, 49, 135, 18,
+#27, 35, 144, 12,
+#30, 46, 140, 15,
+#43, 52, 101, 15,
+#34, 62, 95, 14,
+#48, 23, 101, 17,
+#30, 32, 98, 15,
+#38, 42, 105, 14,
+#50, 31, 108, 17,
+#51, 61, 85, 19,
+#30, 63, 130, 19,
+#36, 40, 127, 20,
+#41, 50, 109, 15,
+#42, 64, 107, 16,
+#46, 56, 117, 18,
+#24, 61, 100, 13,
+#35, 48, 118, 18,
+#37, 28, 102, 14)
+```
+
+--->
+
+```{r}
+sessionInfo()
 ```
