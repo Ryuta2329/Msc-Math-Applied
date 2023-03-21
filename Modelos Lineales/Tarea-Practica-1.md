@@ -39,19 +39,34 @@ as_tibble(summary(fit)$coefficients) |>
 	kable_classic(position = "center", latex_options = "hold_position")
 ```
 
-\begin{table}[!h]
-
-\caption{\label{tab:pRLS-01}Resultados de la regresion lineal simple.}
-\centering
-\begin{tabular}[t]{lrrrr}
-\toprule
- & Estimado, $\hat{\beta}$ & Desv. Estándar & $\hat{t}$ & $P(t > \hat{t})$\\
-\midrule
-Reducción de Sólidos & 3,830 & 1,768 & 2,166 & 0,038\\
-Residuales & 0,904 & 0,050 & 18,030 & 0,000\\
-\bottomrule
-\end{tabular}
-\end{table}
+<table class=" lightable-classic" style='font-family: "Arial Narrow", "Source Sans Pro", sans-serif; margin-left: auto; margin-right: auto;'>
+<caption>Resultados de la regresion lineal simple.</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">  </th>
+   <th style="text-align:right;"> Estimado, $\hat{\beta}$ </th>
+   <th style="text-align:right;"> Desv. Estándar </th>
+   <th style="text-align:right;"> $\hat{t}$ </th>
+   <th style="text-align:right;"> $P(t > \hat{t})$ </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Reducción de Sólidos </td>
+   <td style="text-align:right;"> 3,830 </td>
+   <td style="text-align:right;"> 1,768 </td>
+   <td style="text-align:right;"> 2,166 </td>
+   <td style="text-align:right;"> 0,038 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Residuales </td>
+   <td style="text-align:right;"> 0,904 </td>
+   <td style="text-align:right;"> 0,050 </td>
+   <td style="text-align:right;"> 18,030 </td>
+   <td style="text-align:right;"> 0,000 </td>
+  </tr>
+</tbody>
+</table>
 
 Como se observa, ambos estimadores (del coeficiente y de la pendiente) son significativamente distintos de cero, dado el valor de probabilidad asociado para el estadístico $\hat{t}$ que indica que una desviación tan grande solo por azar es improbable. Este estadístico busca contrastar las hipótesis $H_0: \beta_i = 0$ contra la alternativa $H_1: \beta_i \ne 0$ para cada $i=0, 1$. Como la probabilidad asociada es muy pequeña, se concluye que la probabilidad de que $\hat{\beta}_i \sim N(0, \sigma_{\beta_i})$ es muy baja y que estos deben venir de alguna otra distribución con media distinta de cero.  
 Otra forma de validar el modelo de regresión es comparando el modelo planteado con un modelo nulo que no incluye pendiente (es decir, que no incluye la relación lineal con la variable independiente $x$), utilizando una prueba $F$ como se muestra en la tabla \ref{tab:pRLS-04}. 
@@ -67,19 +82,37 @@ broom::tidy(aov(fit)) |>
 	kable_classic(position = "center", latex_options = "hold_position")
 ```
 
-\begin{table}[!h]
-
-\caption{\label{tab:pRLS-04}\label{tab:pRLS-04}Tabla ANOVA para validar el modelo de regresión.}
-\centering
-\begin{tabular}[t]{lrrrrr}
-\toprule
- & df & SS & MS & $\hat{F}$ & $P(F > \hat{F})$\\
-\midrule
-Reducción de Sólidos & 1 & 3.390,551 & 3.390,551 & 325,08 & 0\\
-Residuales & 31 & 323,327 & 10,430 &  & \\
-\bottomrule
-\end{tabular}
-\end{table}
+<table class=" lightable-classic" style='font-family: "Arial Narrow", "Source Sans Pro", sans-serif; margin-left: auto; margin-right: auto;'>
+<caption>\label{tab:pRLS-04}Tabla ANOVA para validar el modelo de regresión.</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">  </th>
+   <th style="text-align:right;"> df </th>
+   <th style="text-align:right;"> SS </th>
+   <th style="text-align:right;"> MS </th>
+   <th style="text-align:right;"> $\hat{F}$ </th>
+   <th style="text-align:right;"> $P(F > \hat{F})$ </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Reducción de Sólidos </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 3.390,551 </td>
+   <td style="text-align:right;"> 3.390,551 </td>
+   <td style="text-align:right;"> 325,08 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Residuales </td>
+   <td style="text-align:right;"> 31 </td>
+   <td style="text-align:right;"> 323,327 </td>
+   <td style="text-align:right;"> 10,430 </td>
+   <td style="text-align:right;">  </td>
+   <td style="text-align:right;">  </td>
+  </tr>
+</tbody>
+</table>
 
 De la tabla se observa que al comparar las varianza del modelo con pendiente y el modelo nulo (solo intercepto), se obtiene un valor de $F$ mucho mas grande que el que se esperaría por azar, y es por ello que se le asocia una probabilidad aproximadamente nula (a 4 espacios decimales, el valor es cero). Esto no da la confianza de escoger el modelo de regresión como un buen modelo de trabajo que permite describir los datos observados, y realizar predicciones. De hecho, es posible calcular y obtener una medida de asociación entre las variables, $R^2$, cuyo valor es 0,9101324, el cual nos permite concluir que el modelo es capaz de explicar un 91% de la varianza observada.
 
@@ -139,19 +172,37 @@ as_tibble(summary(fit2)$coefficients) |>
 	kable_classic(position = "center", latex_options = "hold_position")
 ```
 
-\begin{table}[!h]
-
-\caption{\label{tab:tab:pRLS-06}\label{tab:pRLS-03}Resultados de la regresión lineal ponderada.}
-\centering
-\begin{tabular}[t]{llrrrr}
-\toprule
-  &  & Estimado, $\hat{\beta}$ & Desv. Estándar & $\hat{t}$ & $P(t > \hat{t})$\\
-\midrule
-1 & Reduccion de Solidos & 3,869 & 1,672 & 2,314 & 0,027\\
-2 & Residuales & 0,903 & 0,048 & 18,900 & 0,000\\
-\bottomrule
-\end{tabular}
-\end{table}
+<table class=" lightable-classic" style='font-family: "Arial Narrow", "Source Sans Pro", sans-serif; margin-left: auto; margin-right: auto;'>
+<caption>\label{tab:pRLS-03}Resultados de la regresión lineal ponderada.</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:left;">  </th>
+   <th style="text-align:right;"> Estimado, $\hat{\beta}$ </th>
+   <th style="text-align:right;"> Desv. Estándar </th>
+   <th style="text-align:right;"> $\hat{t}$ </th>
+   <th style="text-align:right;"> $P(t > \hat{t})$ </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> 1 </td>
+   <td style="text-align:left;"> Reduccion de Solidos </td>
+   <td style="text-align:right;"> 3,869 </td>
+   <td style="text-align:right;"> 1,672 </td>
+   <td style="text-align:right;"> 2,314 </td>
+   <td style="text-align:right;"> 0,027 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 2 </td>
+   <td style="text-align:left;"> Residuales </td>
+   <td style="text-align:right;"> 0,903 </td>
+   <td style="text-align:right;"> 0,048 </td>
+   <td style="text-align:right;"> 18,900 </td>
+   <td style="text-align:right;"> 0,000 </td>
+  </tr>
+</tbody>
+</table>
 
 El modelo nuevo, sigue siendo significativo al compararlo con el modelo nulo, e incluso el error cuadrado medio es 10 veces menor en el modelo de regresión ponderado (resultados no mostrados). La superposición de la nueva recta permite darnos cuenta que la mejora no es muy grande, y que la ponderación solo resulta en un aumento de 0,744% en la varianza explicada (aunque el $R^2$ deja de ser una medida de asociación confiable en este caso).
 
@@ -238,19 +289,34 @@ as_tibble(summary(fit3)$coefficients) |>
 	kable_classic(position = "center", latex_options = "hold_position")
 ```
 
-\begin{table}[!h]
-
-\caption{\label{tab:pRLS-11}Resultados de la regresion lineal simple.}
-\centering
-\begin{tabular}[t]{lrrrr}
-\toprule
- & Estimado, $\hat{\beta}$ & Desv. Estándar & $\hat{t}$ & $P(t > \hat{t})$\\
-\midrule
-Intercepto & 12,483 & 1,475 & 8,462 & 0\\
-Reducción de Sólidos & 0,043 & 0,003 & 16,130 & 0\\
-\bottomrule
-\end{tabular}
-\end{table}
+<table class=" lightable-classic" style='font-family: "Arial Narrow", "Source Sans Pro", sans-serif; margin-left: auto; margin-right: auto;'>
+<caption>Resultados de la regresion lineal simple.</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">  </th>
+   <th style="text-align:right;"> Estimado, $\hat{\beta}$ </th>
+   <th style="text-align:right;"> Desv. Estándar </th>
+   <th style="text-align:right;"> $\hat{t}$ </th>
+   <th style="text-align:right;"> $P(t > \hat{t})$ </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Intercepto </td>
+   <td style="text-align:right;"> 12,483 </td>
+   <td style="text-align:right;"> 1,475 </td>
+   <td style="text-align:right;"> 8,462 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Reducción de Sólidos </td>
+   <td style="text-align:right;"> 0,043 </td>
+   <td style="text-align:right;"> 0,003 </td>
+   <td style="text-align:right;"> 16,130 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+</tbody>
+</table>
 
 Al igual que antes, se observa que ambos coeficientes son significativos y el modelo parece explicar la relación entre las variables. Sin embargo, se necesita saber si el nuevo modelo es significativamente distinto del modelo de regresión sin transformar, y validarlo, verificando el comportamiento de los residuales. Esta claro, al observar la tabla \ref{tab:pRLS-12} que en términos de las medidas de bondad de ajuste, el modelo sin transformar es preferible; aunque la discrepancia entre ambos es muy pequeña.
 
@@ -268,19 +334,40 @@ broom::glance(fit) |>
 	kable_classic(position = "center", latex_options = "hold_position")
 ```
 
-\begin{table}[!h]
-
-\caption{\label{tab:pRLS-12}\label{tab:pRLS-12}Tabla ANOVA para validar el modelo de regresion.}
-\centering
-\begin{tabular}[t]{lrrrrrr}
-\toprule
- & SSE & df & MSE & "R" * "2" & AIC & BIC\\
-\midrule
-Reg. Lin. & 323,327 & 31 & 10,430 & 0,91 & 174,961 & 179,451\\
-Reg. Lin. Transf & 395,415 & 31 & 12,755 & 0,89 & 181,603 & 186,093\\
-\bottomrule
-\end{tabular}
-\end{table}
+<table class=" lightable-classic" style='font-family: "Arial Narrow", "Source Sans Pro", sans-serif; margin-left: auto; margin-right: auto;'>
+<caption>\label{tab:pRLS-12}Tabla ANOVA para validar el modelo de regresion.</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">  </th>
+   <th style="text-align:right;"> SSE </th>
+   <th style="text-align:right;"> df </th>
+   <th style="text-align:right;"> MSE </th>
+   <th style="text-align:right;"> "R" * "2" </th>
+   <th style="text-align:right;"> AIC </th>
+   <th style="text-align:right;"> BIC </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Reg. Lin. </td>
+   <td style="text-align:right;"> 323,327 </td>
+   <td style="text-align:right;"> 31 </td>
+   <td style="text-align:right;"> 10,430 </td>
+   <td style="text-align:right;"> 0,91 </td>
+   <td style="text-align:right;"> 174,961 </td>
+   <td style="text-align:right;"> 179,451 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Reg. Lin. Transf </td>
+   <td style="text-align:right;"> 395,415 </td>
+   <td style="text-align:right;"> 31 </td>
+   <td style="text-align:right;"> 12,755 </td>
+   <td style="text-align:right;"> 0,89 </td>
+   <td style="text-align:right;"> 181,603 </td>
+   <td style="text-align:right;"> 186,093 </td>
+  </tr>
+</tbody>
+</table>
 
 Por otro lado, al revisar los gráficos de residuales (figura \ref{fig:pRLS-13}), esta claro que el comportamiento de los mismo es mucho mejor al rededor de la media; aunque se destaca la presencia de un mayor número de datos atípicos y con desviaciones importantes. Parece entonces que la distribución subyacente de los residuales sea una distribución de colas mas pesadas que la normal. 
 
@@ -316,6 +403,38 @@ cowplot::plot_grid(
 
 ![\label{fig:pRLS-13}Gráficos de residuales para validación del modelo de regresion.](Tarea-Practica-1_files/figure-html/fig:pRLS-13-1.png)
 
+<!---
+
+# Regresión múltiple con regresores variables.
+
+Los datos de la tabla  muestran los porcentajes de las calorías totales obtenidas de los carbohidratos complejos para veinte hombres diabéticos insulina-dependientes que habían seguido una dieta alta en carbohidratos durante seis meses. Se pensó que el cumplimiento del régimen estaba relacionado con la edad (en años), el peso corporal (en relación con el peso _ideal_ para la estatura) y otros componentes de la dieta, como el porcentaje de calorías como proteína. Estas otras variables se tratan como variables explicativas.
+
+
+```r
+#(~Carbohydrate, ~Age, ~Weight ,~Protein
+#33, 33, 100, 14,
+#40, 47, 92, 15,
+#37, 49, 135, 18,
+#27, 35, 144, 12,
+#30, 46, 140, 15,
+#43, 52, 101, 15,
+#34, 62, 95, 14,
+#48, 23, 101, 17,
+#30, 32, 98, 15,
+#38, 42, 105, 14,
+#50, 31, 108, 17,
+#51, 61, 85, 19,
+#30, 63, 130, 19,
+#36, 40, 127, 20,
+#41, 50, 109, 15,
+#42, 64, 107, 16,
+#46, 56, 117, 18,
+#24, 61, 100, 13,
+#35, 48, 118, 18,
+#37, 28, 102, 14)
+```
+
+--->
 
 
 ```r
@@ -343,23 +462,27 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] cowplot_1.1.1    broom_1.0.1      dplyr_1.0.10     ggplot2_3.3.6   
-## [5] kableExtra_1.3.4
+##  [1] tsibble_1.1.3    GGally_2.1.2     knitr_1.40       lubridate_1.8.0 
+##  [5] ggfortify_0.4.15 astsa_2.0        cowplot_1.1.1    broom_1.0.1     
+##  [9] dplyr_1.0.10     ggplot2_3.3.6    kableExtra_1.3.4
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] tinytex_0.42      bslib_0.4.1       tidyselect_1.2.0  xfun_0.34        
-##  [5] purrr_0.3.5       splines_4.2.2     lattice_0.20-45   colorspace_2.0-3 
-##  [9] vctrs_0.5.0       generics_0.1.3    htmltools_0.5.3   viridisLite_0.4.1
-## [13] yaml_2.3.6        mgcv_1.8-41       utf8_1.2.2        rlang_1.0.6      
-## [17] jquerylib_0.1.4   pillar_1.8.1      glue_1.6.2        withr_2.5.0      
-## [21] DBI_1.1.3         lifecycle_1.0.3   stringr_1.4.1     munsell_0.5.0    
-## [25] gtable_0.3.1      rvest_1.0.3       evaluate_0.17     labeling_0.4.2   
-## [29] knitr_1.40        fastmap_1.1.0     fansi_1.0.3       highr_0.9        
-## [33] scales_1.2.1      backports_1.4.1   cachem_1.0.6      jsonlite_1.8.3   
-## [37] webshot_0.5.4     farver_2.1.1      systemfonts_1.0.4 digest_0.6.30    
-## [41] stringi_1.7.8     grid_4.2.2        cli_3.4.1         tools_4.2.2      
-## [45] sass_0.4.2        magrittr_2.0.3    tibble_3.1.8      tidyr_1.2.1      
-## [49] pkgconfig_2.0.3   MASS_7.3-58.2     Matrix_1.5-1      xml2_1.3.3       
-## [53] assertthat_0.2.1  rmarkdown_2.17    svglite_2.1.0     httr_1.4.4       
-## [57] rstudioapi_0.14   R6_2.5.1          nlme_3.1-162      compiler_4.2.2
+##  [1] httr_1.4.4         sass_0.4.2         tidyr_1.2.1        jsonlite_1.8.3    
+##  [5] viridisLite_0.4.1  splines_4.2.2      bslib_0.4.1        assertthat_0.2.1  
+##  [9] highr_0.9          yaml_2.3.6         progress_1.2.2     pillar_1.8.1      
+## [13] backports_1.4.1    lattice_0.20-45    glue_1.6.2         digest_0.6.30     
+## [17] RColorBrewer_1.1-3 rvest_1.0.3        colorspace_2.0-3   htmltools_0.5.3   
+## [21] Matrix_1.5-1       plyr_1.8.7         pkgconfig_2.0.3    purrr_0.3.5       
+## [25] scales_1.2.1       webshot_0.5.4      svglite_2.1.0      tibble_3.1.8      
+## [29] mgcv_1.8-41        generics_0.1.3     farver_2.1.1       ellipsis_0.3.2    
+## [33] cachem_1.0.6       withr_2.5.0        cli_3.4.1          magrittr_2.0.3    
+## [37] crayon_1.5.2       evaluate_0.17      fansi_1.0.3        nlme_3.1-162      
+## [41] MASS_7.3-58.2      anytime_0.3.9      xml2_1.3.3         prettyunits_1.1.1 
+## [45] tools_4.2.2        hms_1.1.2          lifecycle_1.0.3    stringr_1.4.1     
+## [49] munsell_0.5.0      compiler_4.2.2     jquerylib_0.1.4    systemfonts_1.0.4 
+## [53] tinytex_0.42       rlang_1.0.6        grid_4.2.2         rstudioapi_0.14   
+## [57] labeling_0.4.2     rmarkdown_2.17     gtable_0.3.1       DBI_1.1.3         
+## [61] reshape_0.8.9      R6_2.5.1           gridExtra_2.3      zoo_1.8-11        
+## [65] fastmap_1.1.0      utf8_1.2.2         latex2exp_0.9.5    stringi_1.7.8     
+## [69] Rcpp_1.0.9         vctrs_0.5.0        tidyselect_1.2.0   xfun_0.34
 ```

@@ -25,7 +25,7 @@ library(kableExtra)
 library(ggplot2)
 library(dplyr)
 
-options(knitr.table.format = "latex", knitr.kable.NA = "", OutDec = ",", scipen=999)
+options(knitr.table.format = ifelse(knitr::is_latex_output(), "latex", "html"), knitr.kable.NA = "", OutDec = ",", scipen=999)
 knitr::opts_chunk$set(warning = FALSE, message = FALSE, 
 	tab.cap.style = "Table Caption", tab.cap.pre = "Tabla ", tab.cap.sep = ". ", 
 	fig.cap.style = "Image Caption", fig.cap.pre = "Figura ", fig.cap.sep = ". ")
