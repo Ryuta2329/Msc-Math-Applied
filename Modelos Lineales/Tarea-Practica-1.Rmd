@@ -5,8 +5,11 @@ date: "`r Sys.Date()`"
 output: 
  pdf_document:
   keep_tex: no
-  keep_md: yes
   fig_caption: yes
+  toc: yes
+ html_document:
+  number_sections: yes
+  keep_md: yes
 tables: yes
 header-includes:
  - \usepackage{tabu}
@@ -71,11 +74,11 @@ df_RLS <- tibble(
 
 Al inspeccionar dicho diagrama se observa que los puntos se acercan mucho a una línea recta, lo cual indica que la suposición de linealidad entre las dos variables parece ser razonable y el sl modelo seleccionado para el análisis.
 
-```{r pRLS-02, fig.cap="Reduccion de la demanda de oxigeno con respecto a la reduccion de solidos totales.", label="pRLS-01", out.width="70%", fig.align='center'}
+```{r pRLS-02, fig.cap="Reducción de la demanda de oxigeno con respecto a la reducción de sólidos totales.", label="pRLS-01", out.width="70%", fig.align='center'}
 ggplot(df_RLS, aes(x=solid_reduction, y=oxigen_reduction)) +
 	geom_point(size=1.8) +
 	geom_smooth(method=lm, se=FALSE) + 
-	xlab("Fuerza del Brazo") + ylab("Levantamiento dinámico") +
+	xlab("Reducción de Sólidos Totales") + ylab("Reducción en la Demanda de Oxígeno") +
 	theme_light()
 ```
 
@@ -85,9 +88,9 @@ Ajustamos un modelo de regresión lineal simple de la forma $y = \beta_0 + \beta
 fit <- lm(oxigen_reduction ~ solid_reduction, df_RLS)
 
 as_tibble(summary(fit)$coefficients) |>
-	tibble::add_column(term=c("Reduccion de Solidos", "Residuales"), .before=1) |>
+	tibble::add_column(term=c("Reducción de Sólidos", "Residuales"), .before=1) |>
 	kable(digits=3, row.names=FALSE, booktabs=TRUE,
-		col.names=c("", "Estimado, $\\hat{\\beta}$", "Desv. Estandar", "$\\hat{t}$", "$P(t > \\hat{t})$"), 
+		col.names=c("", "Estimado, $\\hat{\\beta}$", "Desv. Estándar", "$\\hat{t}$", "$P(t > \\hat{t})$"), 
 		caption="Resultados de la regresion lineal simple.",
 		escape=FALSE, label="pRLS-01", format.args = list(big.mark=".")) %>%
 	kable_classic(position = "center", latex_options = "hold_position")
@@ -98,21 +101,21 @@ Otra forma de validar el modelo de regresión es comparando el modelo planteado 
 
 ```{r pRLS-04}
 broom::tidy(aov(fit)) |>
-	mutate(term=c("Reduccion de Solidos", "Residuales")) |>
+	mutate(term=c("Reducción de Sólidos", "Residuales")) |>
 	kable(digits=3, row.names=FALSE, booktabs=TRUE,
 		col.names=c("", "df", "SS", "MS", "$\\hat{F}$", "$P(F > \\hat{F})$"), 
-		caption="\\label{tab:pRLS-04}Tabla ANOVA para validar el modelo de regresion.",
+		caption="\\label{tab:pRLS-04}Tabla ANOVA para validar el modelo de regresión.",
 		escape=FALSE, format.args = list(big.mark=".")) %>%
 	kable_classic(position = "center", latex_options = "hold_position")
 ```
 
 De la tabla se observa que al comparar las varianza del modelo con pendiente y el modelo nulo (solo intercepto), se obtiene un valor de $F$ mucho mas grande que el que se esperaría por azar, y es por ello que se le asocia una probabilidad aproximadamente nula (a 4 espacios decimales, el valor es cero). Esto no da la confianza de escoger el modelo de regresión como un buen modelo de trabajo que permite describir los datos observados, y realizar predicciones. De hecho, es posible calcular y obtener una medida de asociación entre las variables, $R^2$, cuyo valor es `r broom::glance(fit)$adj.r.squared`, el cual nos permite concluir que el modelo es capaz de explicar un `r round(100 * broom::glance(fit)$adj.r.squared, 1)`% de la varianza observada.
 
-Sin embargo, aun es necesario validar las suposiciones del modelo de regresión, verificando lo valores residuales. Los gráficos mostrados en la figura \ref{fig:pRLS-02} muestran que los residuales no tienen un comportamiento normal: es fácil ver del _QQ-plot_ que varias observaciones se desvían mas de los esperado, tanto por encima como por debajo. 
+Sin embargo, aun es necesario validar las suposiciones del modelo de regresión, verificando lo valores residuales. Los gráficos mostrados en la figura \ref{fig:pRLS-05} muestran que los residuales no tienen un comportamiento normal: es fácil ver del _QQ-plot_ que varias observaciones se desvían mas de los esperado, tanto por encima como por debajo. 
 El gráfico de residuales a la izquierda muestra que aun se percibe cierto grado de linealidad entre los valores esperados y los residuales, y permite constatar la presencia de al menos dos residuales que se desvían mas de dos desviaciones estándar de la media de cero. 
 El tercer gráfico (a la derecha) muestra la información del gráfico de residuales, pero donde cada punto se ha escalado en tamaño usando como factor la influencia que cada punto tiene sobre la estimación. Se puede observar, que las observaciones asociadas a valores grandes o pequeños de sólidos totales tienen la mayor influencia y que uno de los atípicos tiene una gran influencia en la recta estimada.
 
-```{r pRLS-05, fig.cap="\\label{fig:pRLS-02}Graficos de residuales para validacion del modelo de regresion.", label="fig:pRLS-02", fig.height=5, fig.width=13}
+```{r pRLS-05, fig.cap="\\label{fig:pRLS-05}Gráficos de residuales para validación del modelo de regresión.", label="fig:pRLS-05", fig.height=5, fig.width=13}
 augmented_fit <- broom::augment(fit)
 
 cowplot::plot_grid(
@@ -126,7 +129,7 @@ cowplot::plot_grid(
 		stat_qq_line(color="blue") + 
 		theme_light(),
     ggplot(mutate(augmented_fit, .too.large=ifelse(abs(.std.resid) > 1.96, 1, 0)), 
-    		aes(x = .fitted, y = .std.resid)) +
+    		aes(x = .fitted, y = abs(.std.resid))) +
     	geom_point(aes(colour = .too.large, size=.hat * 100), alpha = .8) + 
     	geom_hline(yintercept = c(1.96, 3), linetype = 2, col = c("gray60", "gray50")) + 
     	xlab("Predichos") + ylab("Residuales Estandarizados") +
@@ -137,27 +140,32 @@ cowplot::plot_grid(
 	nrow=1)
 ```
 
-Dado estos resultados, se concluye que el problema no parece ser que el modelo sea incorrecto, sino que no se esta tomando en cuenta la influencia que cada observación (particularmente los atípicos) tienen sobre la estimación de los coeficientes. Es por ello que, en lugar de una transformación de los datos, se prefirió realizar una regresión de mínimos cuadrados ponderados, usando como pesos la varianza residual estimada de cada una de las observaciones:
+Dado estos resultados, se concluye que el problema no parece ser que el modelo sea incorrecto, sino que no se esta tomando en cuenta la influencia que cada observación (particularmente los atípicos) tienen sobre la estimación de los coeficientes. Es por ello que, en lugar de una transformación de los datos, se prefirió realizar una regresión de mínimos cuadrados ponderados.
+
+## Segundo intento: Mínimos Cuadrados Ponderados.
+
+Se realizó una regresión de mínimos cuadrados ponderados, usando como pesos la varianza residual estimada de cada una de las observaciones:
 
 $$w_i = \frac{1}{\hat{\sigma^2}(1 - h_{ii})}$$
 
-donde $h_{ii}$ es la palanca (_leverage_) de la $i$-esima observación. Realizando la regresión ponderada usando estos pesos arroja los resultados mostrados en la tabla \ref{tab:pRLS-03}, donde se observa el cambio ligero en los coeficientes (los cuales aun siguen siendo significativos): aumento de la pendiente y caída del intercepto. 
+donde $h_{ii}$ es la palanca (_leverage_) de la $i$-esima observación. Realizando la regresión ponderada usando estos pesos arroja los resultados mostrados en la tabla \ref{tab:pRLS-06}, donde se observa el cambio ligero en los coeficientes (los cuales aun siguen siendo significativos): aumento de la pendiente y caída del intercepto. 
 
 ```{r pRLS-06}
-fit2 <- lm(oxigen_reduction ~ solid_reduction, df_RLS, weights=1 / (broom::glance(fit)$sigma ** 2 * (1 - augmented_fit$.hat)))
+fit2 <- lm(oxigen_reduction ~ solid_reduction, df_RLS, 
+	weights=1 / (broom::glance(fit)$sigma ** 2 * (1 - augmented_fit$.hat)))
 
 as_tibble(summary(fit2)$coefficients) |>
 	tibble::add_column(term=c("Reduccion de Solidos", "Residuales"), .before=1) |>
 	kable(digits=3, row.names=TRUE, 
-		col.names=c("", "Estimado, $\\hat{\\beta}$", "Desv. Estandar", "$\\hat{t}$", "$P(t > \\hat{t})$"), booktabs=TRUE,
-		escape=FALSE, label="tab:pRLS-03", format.args = list(big.mark="."),
+		col.names=c("", "Estimado, $\\hat{\\beta}$", "Desv. Estándar", "$\\hat{t}$", "$P(t > \\hat{t})$"), booktabs=TRUE,
+		escape=FALSE, label="tab:pRLS-06", format.args = list(big.mark="."),
 		caption="\\label{tab:pRLS-03}Resultados de la regresión lineal ponderada.") %>%
 	kable_classic(position = "center", latex_options = "hold_position")
 ```
 
-El modelo nuevo, sigue siendo significativo al compararlo con el modelo nulo, e incluso el error cuadrado medio es 10 veces menor en el modelo de regresión ponderado (resultados no mostrados). La superposición de la nueva recta permite darnos cuenta que la mejora no es muy grande, y que la ponderación solo resulta en un aumento de `r round(100 * (broom::glance(fit2)$adj.r.squared - broom::glance(fit)$adj.r.squared), 3)`% en la varianza explicada.
+El modelo nuevo, sigue siendo significativo al compararlo con el modelo nulo, e incluso el error cuadrado medio es 10 veces menor en el modelo de regresión ponderado (resultados no mostrados). La superposición de la nueva recta permite darnos cuenta que la mejora no es muy grande, y que la ponderación solo resulta en un aumento de `r round(100 * (broom::glance(fit2)$adj.r.squared - broom::glance(fit)$adj.r.squared), 3)`% en la varianza explicada (aunque el $R^2$ deja de ser una medida de asociación confiable en este caso).
 
-```{r, echo=FALSE, eval=FALSE}
+```{r pRLS-07, echo=FALSE, eval=FALSE}
 broom::tidy(aov(fit2)) |>
 	kable(digits=3, row.names=TRUE, 
 		col.names=c("df", "SS", "MS", "\\hat{F})$", "$P(F > \\hat{F})$"), 
@@ -166,16 +174,122 @@ broom::tidy(aov(fit2)) |>
 	kable_classic(position = "center", latex_options = "hold_position")
 ```
 
-```{r pRLS-07, fig.cap="Reducción de la demanda de oxigeno con respecto a la reducción de sólidos totales.", label="fig:pRLS-07"}
+Sin embargo, otras medidas de bondad de ajuste como el $AIC$ y $BIC$ resultaron ser mayores que los obtenidos para el modelo sin ponderación, de forma que el ajuste ponderado no es preferible al modelos de regresión lineal simple ajustado la primera vez.
+
+```{r pRLS-08, fig.cap="Reducción de la demanda de oxigeno con respecto a la reducción de sólidos totales.", label="fig:pRLS-08"}
 ggplot(df_RLS, aes(x=solid_reduction, y=oxigen_reduction)) +
 	geom_point(size=1.8) +
 	geom_smooth(method=lm, se=FALSE) + 
 	geom_abline(slope=coef(fit2)[[2]], intercept=coef(fit2)[[1]]) + 
-	xlab("Fuerza del Brazo") + ylab("Levantamiento dinámico") +
+	xlab("Reducción de Sólidos Totales") + ylab("Reducción en la Demanda de Oxígeno") +
 	theme_light()
 ```
 
-Dado que no hubo una mejora importante, seria adecuado considerar una regresión a trozos. Una inspección mas cuidadosa de los datos parece indicar que el conjunto de datos se podría dividir en dos regiones, cuyo paso de una región a otra depende de si la cantidad de sólidos totales es mayor o menor a aproximadamente 22.
+## Tercer intento: Transformación tentativa por polinomios.
+
+Al revisar con mayor cuidado el gráfico de dispersión de los datos, se puede notar cierta curvatura al incrementar la reducción de sólidos totales (particularmente, los datos agrupados a magnitudes grandes de ```solid_reduction``` parecen seguir una recta distinta a la cual se accede siguiendo una curva tangente a esta y a una recta distinta que pasa por los datos agrupados para magnitudes pequeñas de ```solid_reduction```).  
+Debido a esto, procedí a construir los gráficos mostrados en la figura \ref{fig:pRLS-09}, los cuales muestran la la relación entre la reducción en la demanda de oxígeno, ```oxigen_reduction```, con respecto a polinomios de la reducción de sólidos totales, ```solid_reduction```, de la forma $x^n$, para $n=1/2, 2, 3$. 
+
+```{r pRLS-09, fig.cap="\\label{fig:pRLS-09}Reducción de la demanda de oxigeno con respecto a la reducción de sólidos totales.", fig.height=5, fig.width=13}
+cowplot::plot_grid(
+	ggplot(df_RLS, aes(x=solid_reduction ** (1/2), y=oxigen_reduction)) +
+		geom_point(size=1.8) +
+		geom_smooth(method=lm, se=FALSE) + 
+		xlab("Reducción de Sólidos Totales") + ylab("Reducción en la Demanda de Oxígeno") +
+		labs(title="n=1/2") +
+		theme_light(),
+	ggplot(df_RLS, aes(x=solid_reduction ** 2, y=oxigen_reduction)) +
+		geom_point(size=1.8) +
+		geom_smooth(method=lm, se=FALSE) + 
+		xlab("Reducción de Sólidos Totales") + ylab("Reducción en la Demanda de Oxígeno") +
+		labs(title="n=2") +
+		theme_light(),
+	ggplot(df_RLS, aes(x=solid_reduction ** 3, y=oxigen_reduction)) +
+		geom_point(size=1.8) +
+		geom_smooth(method=lm, se=FALSE) + 
+		xlab("Reducción de Sólidos Totales") + ylab("Reducción en la Demanda de Oxígeno") +
+		labs(title="n=3") +
+		theme_light(),
+	nrow=1)
+```
+
+Los gráficos muestran en todos los casos una curvatura: en el caso de $n=1/2$ la curvatura es convexa siguiendo algún polinomio de grado entero mayor a 1, mientras que las correspondiente a $n=2$ y $n=3$ la curvatura es cóncava y parece seguir la forma de una función con $n=1/2$. Combinando esta información, se decidió realizar una transformación de la variable independiente de la forma $p/q$ como modelo alternativo. Esta elección la hice de forma arbitraria basándome solo en los tres casos mostrados en la figura \ref{fig:pRLS-09}, pero luego determiné el coeficiente de Box-Cox el cual arrojó un valor de `r MASS::boxcox(lm(solid_reduction  ~ 1, df_RLS))$x[which.max(MASS::boxcox(lm(solid_reduction  ~ 1, df_RLS))$y)]`, el cual esta bastante cercano al valor de $7/4$.
+
+```{r pRLS-10, fig.cap="Reducción de la demanda de oxigeno con respecto a la reducción de sólidos totales transformado con $n=3/2$.", label="fig:pRLS-10"}
+ggplot(df_RLS, aes(x=solid_reduction ** (7/4), y=oxigen_reduction)) +
+	geom_point(size=1.8) +
+	geom_smooth(method=lm, se=FALSE) + 
+	xlab(expression("(Reducción de Sólidos Totales)" ** "3/2")) + 
+	ylab("Reducción en la Demanda de Oxígeno") +
+	theme_light()
+```
+
+Ajustamos un modelo de regresión lineal simple de la forma:
+
+$$y = \beta_0 + \beta_1 x^{7/4}$$
+
+para poder estimar los coeficientes del modelo de regresión $\beta_0$ y $\beta_1$
+
+```{r pRLS-11}
+df_RLS |> 
+    mutate(solid_transformed=solid_reduction ** (7/4)) -> df_RLS
+
+fit3 <- lm(oxigen_reduction ~ solid_transformed, df_RLS)
+
+as_tibble(summary(fit3)$coefficients) |>
+	tibble::add_column(term=c("Intercepto", "Reducción de Sólidos"), .before=1) |>
+	kable(digits=3, row.names=FALSE, booktabs=TRUE,
+		col.names=c("", "Estimado, $\\hat{\\beta}$", "Desv. Estándar", "$\\hat{t}$", "$P(t > \\hat{t})$"), 
+		caption="Resultados de la regresion lineal simple.",
+		escape=FALSE, label="pRLS-11", format.args = list(big.mark=".")) %>%
+	kable_classic(position = "center", latex_options = "hold_position")
+```
+
+Al igual que antes, se observa que ambos coeficientes son significativos y el modelo parece explicar la relación entre las variables. Sin embargo, se necesita saber si el nuevo modelo es significativamente distinto del modelo de regresión sin transformar, y validarlo, verificando el comportamiento de los residuales. Esta claro, al observar la tabla \ref{tab:pRLS-12} que en términos de las medidas de bondad de ajuste, el modelo sin transformar es preferible; aunque la discrepancia entre ambos es muy pequeña.
+
+```{r pRLS-12}
+broom::glance(fit) |>
+	bind_rows(broom::glance(fit3)) |>
+	mutate(SSE=sigma ** 2 * df.residual, MSE=sigma ** 2) |>
+	select(SSE, df.residual, MSE, adj.r.squared, AIC, BIC) |>
+	tibble::add_column(Model=c("Reg. Lin.", "Reg. Lin. Transf"), .before=1) |>
+	kable(digits=3, row.names=FALSE, booktabs=TRUE,
+		col.names=c("", "SSE", "df", "MSE", bquote("R" * "2"), "AIC", "BIC"), 
+		caption="\\label{tab:pRLS-12}Tabla ANOVA para validar el modelo de regresion.",
+		escape=FALSE, format.args = list(big.mark=".")) %>%
+	kable_classic(position = "center", latex_options = "hold_position")
+```
+
+Por otro lado, al revisar los gráficos de residuales (figura \ref{fig:pRLS-13}), esta claro que el comportamiento de los mismo es mucho mejor al rededor de la media; aunque se destaca la presencia de un mayor número de datos atípicos y con desviaciones importantes. Parece entonces que la distribución subyacente de los residuales sea una distribución de colas mas pesadas que la normal. 
+
+```{r pRLS-13, fig.cap="\\label{fig:pRLS-13}Gráficos de residuales para validación del modelo de regresion.", label="fig:pRLS-13", fig.height=5, fig.width=13}
+augmented_fit3 <- broom::augment(fit3)
+
+cowplot::plot_grid(
+	ggplot(augmented_fit3, aes(x=.fitted, y=.std.resid)) +
+		geom_point(size=1.8) +
+		xlab("Predichos") + ylab("Residuales") +
+		geom_hline(yintercept=c(0, -1.96, 1.96), linetype=c(1, 2, 2)) + 
+		theme_light() +
+		geom_text(aes(label=ifelse(.std.resid > 1.96, as.character(paste(round(solid_transformed, 2), oxigen_reduction, sep=", ")), '')), 
+    		hjust=0, vjust=0) + 
+		geom_text(aes(label=ifelse(.std.resid < -1.96, as.character(paste(round(solid_transformed, 2), oxigen_reduction, sep=", ")), '')), 
+    		hjust=0, vjust=0),
+	ggplot(augmented_fit3, aes(sample = .resid)) + 
+		stat_qq() + 
+		stat_qq_line(color="blue") + 
+		theme_light(),
+    ggplot(mutate(augmented_fit3, .too.large=ifelse(abs(.std.resid) > 1.96, 1, 0)), 
+    		aes(x = .fitted, y = abs(.std.resid))) +
+    	geom_point(aes(colour = .too.large, size=.hat * 100), alpha = .8) + 
+    	geom_hline(yintercept = c(1.96, 3), linetype = 2, col = c("gray60", "gray50")) + 
+    	xlab("Predichos") + ylab("Residuales Estandarizados") +
+    	theme_bw() +
+    	theme(legend.position="none") +
+    	geom_text(aes(label=ifelse(.std.resid > 1.96, as.character(paste(round(solid_transformed, 2), oxigen_reduction, sep=", ")), '')), 
+    		hjust=0, vjust=0),
+	nrow=1)
+```
 
 <!---
 

@@ -2,9 +2,15 @@
 title: Ejemplo de contaminación, temperatura y mortalidad cardiovascular.
 date: "`r Sys.Date()`"
 output:
+ html_document:
+  number_sections: yes
+  keep_md: yes
+header-includes:
+ - \usepackage{amsmath}
+lang: es
 ---
 
-```{r setup}
+```{r setup-1}
 library(astsa)
 
 if (!require("GGally"))
@@ -68,8 +74,8 @@ fitted_models <- tibble(models=
 		Mortalidad ~ trend + diff_Temp + diff_Temp_Square, 
 		Mortalidad ~ trend + diff_Temp + diff_Temp_Square + Particulas)) %>%
 	mutate(fit=purrr::map(models, ~lm(., data=df_ts_tidy)),
-		glanced = map(fit, glance)) %>%
-  unnest(glanced)
+		glanced = purrr::map(fit, glance)) %>%
+  tidyr::unnest(glanced)
 
 fitted_models %>%
 	mutate(SSE=sigma ** 2 * df.residual, MSE=sigma ** 2) %>%

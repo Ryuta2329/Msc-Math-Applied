@@ -17,8 +17,8 @@ library(ggfortify)
 library(kableExtra)
 ```
 
-* Ejercicios del [capitulo 1](#capitulo-1). Caracteristicas de series temporales.
-* Ejercicios del [capitulo 2](#capitulo-2). Analisis de datos exploratorio.
+* Ejercicios del [capitulo 1](#capitulo-1). Características de series temporales.
+* Ejercicios del [capitulo 2](#capitulo-2). Análisis de datos exploratorio.
 * Ejercicios del [capitulo 3](#capitulo-3). Modelos ARIMA.
 
 # Capitulo 1.
@@ -586,7 +586,7 @@ library(lubridate)
 # Transformando ls datos para obtener y_t
 # y generar los regresores t y Q_i
 df_jj <- jj |>
-	as_tsibble(key=c("Q1", "Q2", "Q3", "Q4")) |>
+	tsibble::as_tsibble(key=c("Q1", "Q2", "Q3", "Q4")) |>
 	mutate(log_Earnings = log(value), 
 		year = year(index), 
 		quarter=factor(quarter(index)), 
@@ -663,7 +663,7 @@ El gráfico para el modelo se observa en la figura \@ref(fig:p02-02), donde se o
 ```{r p02-01-05, label="fig:p02-02"}
 augmented_df <- left_join(df_jj, augment(mod))
 
-ggplot(df_jj[, c("index", "log_Earnings")], aes(x=index, y=log_Earnings)) +
+ggplot(df_jj[, c("index", "log_Earnings")], aes(x=as.Date(index), y=log_Earnings)) +
 	geom_line() + geom_point() + 
 	geom_line(aes(y=.fitted), 
 		data=augmented_df[, c("index", ".fitted")],
@@ -770,7 +770,7 @@ Este valor de $F$ tiene una probabilidad asociada de $F(5, 498) = `r round(1 - p
 Al realizar los gráficos de dispersión con los pares de variables del modelo, y calcular el coeficiente de correlación de estas, se puede observar que la correlación entre $M_t$ y $P_t$ versus $M_t$ y $P_{t−4}$, es bastante similar, siendo mayor par el ultimo caso. Dada esta correlación, seria mas apropiado elegir un modelo en el cual solo se haga una relación entre $M_t$ y $P_{t−4}$, eliminando el termino de $P_t$.
 
 ```{r p02-02-03, label="fig:p02-02-03"}
-if (!required("GGally"))
+if (!require("GGally"))
 	install.packages("GGally")
 
 pt_4 |> GGally::ggpairs()
@@ -782,3 +782,12 @@ _b)_ Genere cuatro series de longitud $n = 100$ que sean de tendencia lineal má
 _c)_ Comente (qué aprendió de esta tarea).
 
 # Capitulo 3.
+
+
+
+https://www.youtube.com/playlist?list=PLiv5ffCNWCxMkGQft64hJFuo-I1EWtMqA
+
+https://www.youtube.com/watch?v=emF1iBcni0U&ab_channel=AnaMetriks
+https://liclourdescuellar.ruplayers.com/s5NplbrGgJuuoWg/c-mo-importar-datos-de-yahoo-finance-a-rstudio-finanzas-cuantitativas-con-quantmod.html
+https://liclourdescuellar.ruplayers.com/
+https://www.freecodecamp.org/news/download-trim-mp3-from-youtube-with-python/
