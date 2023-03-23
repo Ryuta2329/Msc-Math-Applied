@@ -8,7 +8,7 @@ Soluciones a los ejercicios del libro _Time Series Analysis and its Applications
  * [Capitulo 3.](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/Shumway-Stoffer-Solutions.md#capitulo-3) Modelos ARIMA.
  
 2. Ejemplos Practicos:   
- * Mortalidad cardiovascular y particulas contaminantes.
+ * [Mortalidad cardiovascular y particulas contaminantes.](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/Pollution-Mortality-example.md)
  * Precios del Pollo en USA
  * Varvas glaciales paleoclimáticas.
  
