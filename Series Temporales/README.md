@@ -3,9 +3,9 @@
 Soluciones a los ejercicios del libro _Time Series Analysis and its Applications_ de Shumway y Stoffer.
  
 1. Solucion a problemas de final de capitulo.  
- * [Capitulo 1.]() Caracteristicas de series temporales.
- * [Capitulo 2.]() Analisis de datos exploratorio.
- * [Capitulo 3.]() Modelos ARIMA.
+ * [Capitulo 1.](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/Shumway-Stoffer-Solutions.md#capitulo-1) Caracteristicas de series temporales.
+ * [Capitulo 2.](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/Shumway-Stoffer-Solutions.md#capitulo-2) Analisis de datos exploratorio.
+ * [Capitulo 3.](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/Shumway-Stoffer-Solutions.md#capitulo-3) Modelos ARIMA.
  
 2. Ejemplos Practicos:   
  * Mortalidad cardiovascular y particulas contaminantes.
