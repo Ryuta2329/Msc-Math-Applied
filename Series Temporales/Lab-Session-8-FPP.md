@@ -1,12 +1,27 @@
-# Sesión de Laboratorio: Modelos SARIMA.
+---
+title: "Sesión de Laboratorio: Modelos SARIMA."
+author: "Marcelo Molinatti"
+date: "2023-03-25"
+output:
+ html_document:
+  number_sections: yes
+  keep_md: yes
+ md_document:
+  preserve_yaml: no
+  number_sections: yes
+  toc: yes
+ pdf_document:
+  keep_tex: no
+  fig_caption: yes
+  toc: yes
+---
 
-### Marcelo Molinatti
 
 
 Elija una de las siguientes series temporales estacionales: ```condmilk```, ```hsales```, ```usolec```  
 * ¿Es necesario transformar los datos? Si es así, encuentre un transformación adecuado.
 * ¿Son estacionarios los datos? Si no, encuentre una diferenciación apropiada que produce datos estacionarios.
-* Identifique un par de modelos ARIMA que podrían ser útiles en describir la serie de tiempo. ¿Cuál de sus modelos es el mejor de acuerdo con sus valores AIC?
+* Identifique un par de modelos ARIMA que podrían ser útiles en describir la serie de tiempo. ¿Cuál de sus modelos es el mejor de acuerdo con sus valores $AIC$?
 * Estime los parámetros de su mejor modelo y haga un diagnóstico pruebas en los residuos. ¿Los residuos se parecen al ruido blanco? Si no es así, intente encontrar otro modelo ARIMA que le quede mejor.
 * Pronostique los próximos 24 meses de datos usando su modelo preferido.
 * Compare los pronósticos obtenidos usando ```ets()```.
@@ -19,10 +34,13 @@ Los datos seleccionados corresponden a una serie temporal de Inventarios de Manu
 autoplot(condmilk, colour="dodgerblue3") +
   geom_point(aes(y=y), colour="dodgerblue3") + 
   theme_light() + 
-  xlab('Tiempo') + ylab('Numero en el Inventario')
+  xlab('Tiempo') + ylab('Numero en el Inventario') + 
+  geom_smooth()
 ```
 
-<img src="Lab-Session-8-FPP_files/figure-html/tseries-plot-1.png" style="display: block; margin: auto;" />
+<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/Lab-Session-8-FPP_files/figure-html/tseries-plot-1.png" style="display: block; margin: auto;" />
+
+En el gráfico se observa claramente dos componentes estacionales, que fluctúa ligeramente empezando a mediados de un año y terminando a mediados del siguiente; y también parecen haber picos de mayor magnitud cada tres años. 
 
 Para un primer análisis del comportamiento de la serie, verificamos las ACF y PACF:
 
@@ -55,12 +73,14 @@ cowplot::plot_grid(
   nrow=1)
 ```
 
-<img src="Lab-Session-8-FPP_files/figure-html/acf-pacf-1.png" style="display: block; margin: auto;" />
+<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/Lab-Session-8-FPP_files/figure-html/acf-pacf-1.png" style="display: block; margin: auto;" />
 
 Al observar las funciones de autocorrelación, es inmediatamente evidente que existe un componente estacional. Al ver la PACF, el siguiente pico significativo ocurre en el _lag_ 6, lo cual podría indicar un modelo con periodo 6, en el cual se repite el comportamiento general de la serie cada 6 meses. 
-También es posible observar que entre periodos, la ACF se hace estadísticamente igual a cero, lo cual implica una diferencia de orden 1 en el componente estacional. Esto es corroborado por los resultados de la prueba de Dickey-Fuller para comprobar estacionaridad de la serie, de la cual se concluye que la serie no es estacionaria (-6,994, 0,01).
-Además, dado que la ACF no cae en ningún momento (no hay _cut off_), pero el PACF si cae rápidamente, se elige un modelo autoregresivo. El orden es difícil puntualizarlo dado el componente estacional, pero se elige un modelo sencillo que involucre la menor cantidad de parámetros por parsimonia, por lo que se prueba un modelo de orden 1 y 2. 
+También es posible observar que entre periodos, la ACF se hace estadísticamente igual a cero, lo cual implica una diferencia de orden 1 en el componente estacional. 
 En cuanto a los parámetros del componente estacional, las funciones parecen indicar que sería necesario ajustar un modelo de promedio móvil que, de nuevo, por parsimonia, se ajusta un modelo de orden 1 o 2. 
+Además, dado que la ACF no cae en ningún momento (no hay _cut off_), pero el PACF si cae rápidamente, se elige un modelo autoregresivo. El orden es difícil puntualizarlo dado el componente estacional, pero se elige un modelo sencillo que involucre la menor cantidad de parámetros, por parsimonia, por lo que se prueba un modelo de orden 1 y 2. 
+Los resultados de la prueba de Dickey-Fuller para comprobar estacionaridad de la serie muestran que la serie es estacionaria (-6,994, 0,01).
+
 
 Se ajusta entonces los modelos $ARIMA(1, 0, 0)(0, 1, 1)_6$, $ARIMA(2, 0, 0)(0, 1, 1)_6$, $ARIMA(1, 0, 0)(0, 1, 2)_6$ y $ARIMA(2, 0, 0)(0, 1, 2)_6$. Los resultados de los ajustes se muestran en
 la tabla \@ref(tab:fitting-sarima), los cuales indican que los primeros tres modelos podrían ser adecuados para el ajuste de la serie. Los primeros dos modelos son los de menor varianza residual, los cuales presentan, además, los menores valores de $AIC$ y $BIC$. Por lo que se seleccionan los modelos $ARIMA(1, 0, 0)(0, 1, 1)_6$ y $ARIMA(2, 0, 0)(0, 1, 1)_6$ como candidatos, de acuerdo a los estadísticos de bondad de ajuste.
@@ -68,9 +88,9 @@ la tabla \@ref(tab:fitting-sarima), los cuales indican que los primeros tres mod
 
 ```r
 sarima_mod_1 <- arima(condmilk, order=c(1,0,0), 
-    seasonal=list(order=c(0, 1, 1), period(12)))
+    seasonal=list(order=c(0, 1, 1), period(6)))
 sarima_mod_2 <- arima(condmilk, order=c(2,0,0), 
-    seasonal=list(order=c(0, 1, 1), period(12)))
+    seasonal=list(order=c(0, 1, 1), period(6)))
 sarima_mod_3 <- arima(condmilk, order=c(1,0,0), 
     seasonal=list(order=c(0, 1, 2), period(6)))
 sarima_mod_4 <- arima(condmilk, order=c(2,0,0), 
@@ -81,7 +101,7 @@ bind_rows(
       broom::glance)
 ) %>% 
   tibble::add_column(model=latex2exp::TeX(paste("$ARIMA(", c(1,2,1,2), ", 0, 0)(0, 1, ", c(1,1,2,2), ")_6$", sep="")), .before=1) %>%
-  kable(digits=2, row.name=TRUE, align='ccccc',
+  kable(digits=2, row.name=TRUE, align='ccccc', escape=FALSE,
         caption="Estadísticos de bondad de ajuste de los modelos SARIMA ajustados.")
 ```
 
@@ -140,6 +160,20 @@ bind_rows(
 
 
 ```r
+# Utilizando como modelo nulo el generado por auto.arima
+#mod <- forecast::auto.arima(condmilk, stepwise=FALSE, approximation =FALSE, max.P=5, max.Q=5)
+#summary(mod)
+box_test <- Box.test(residuals(sarima_mod_1), type="Ljung-Box")
+```
+Al verificar el comportamiento de los residuales, las pruebas y gráficos no parecen mostrar patrones o desviaciones de la normalidad, mas allá de la presencia de ciertas observaciones atípicas. 
+De hecho, los resultados de la prueba de Ljung-Box para comprobar que el ruido corresponde a ruido blanco, indican que no hay razones para sospechar de que los residuales no sean un proceso de ruido blanco independiente e identicamente distribuido (0,236, 0,6272). 
+Esta conclusión es también posible observarla en el _QQ-plot_ para ambos modelos ajustados, donde solo 4 observaciones parecen alejarse de la recta teórica normal. 
+
+Sin embargo, los residuales, aunque parecen comportarse de forma aleatoria, se puede observar cierto comportamiento ondulatorio de los mismos, y la variación de un punto a otro parece ser aun violenta, pudiendo indicar un problema de identificación. 
+Las funciones de autocorrelación y autocorrelación parcial no parecen indicar ningún problema de autocorrelación residual o dentro de la serie, pero si parece haber algún tipo de problema de aleatoriedad, dado que parece haber una tendencia sistemática a correlaciones negativas. 
+
+
+```r
 diagnostics <- list(sarima_mod_1, sarima_mod_2) %>%
   purrr::map(function(x) {
     res <- residuals(x) 
@@ -149,7 +183,7 @@ diagnostics <- list(sarima_mod_1, sarima_mod_2) %>%
       xlab("Tiempo") +
       ylab("Residuales Estandarizados") + 
       geom_hline(yintercept=0) +
-      theme_light()
+      theme_light() 
 
     res_qq_plot <- ggplot(res, aes(sample = Data)) + 
       stat_qq() + stat_qq_line(color="blue") + theme_light()
@@ -181,9 +215,9 @@ cowplot::plot_grid(
   nrow=1)
 ```
 
-<img src="Lab-Session-8-FPP_files/figure-html/residuals-of-candidate-1.png" style="display: block; margin: auto;" />
+<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/Lab-Session-8-FPP_files/figure-html/residuals-of-candidate-1.png" style="display: block; margin: auto;" />
 
-
+Al revisar el gráfico de residuales versus los valores predichos por el modelo, es posible ver que existe cierto componente de tendencia ene l modelo que no se esta tomando en cuenta y que estaba oculto en la serie observada debido al patrón estacional.
 
 
 ```r
@@ -191,23 +225,32 @@ df_augmented <- as_tsibble(condmilk) %>%
   mutate(.fitted=stats::fitted(sarima_mod_1),
     .resid=residuals(sarima_mod_1))
 
-cowplot::plot_grid(
-  ggplot(df_augmented, aes(x=as.Date(index), y=value)) +
-    geom_line() + geom_point() + 
-    geom_line(aes(y=.fitted), color="orange") + 
-    geom_point(aes(y=.fitted), color="orange") +
-    xlab("Año") +
-    ylab("Numero en el Inventario") + 
-    theme_light(), 
-  ggplot(df_augmented, aes(x=.fitted, y=.resid)) +
-    geom_point(colour="200") + geom_line(colour="200") +
-    geom_smooth(se=FALSE, colour="orange") +
-    geom_hline(yintercept=0) +
-      theme_light(), 
-  nrow=1)
+ggplot(df_augmented, aes(x=.fitted, y=.resid)) +
+  geom_point(colour="200") + geom_line(colour="200") +
+  geom_smooth(se=FALSE, colour="orange") +
+  geom_hline(yintercept=0) +
+  theme_light()
 ```
 
-<img src="Lab-Session-8-FPP_files/figure-html/fitted-versus-residuals-1.png" style="display: block; margin: auto;" />
+<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/Lab-Session-8-FPP_files/figure-html/fitted-versus-residuals-1.png" style="display: block; margin: auto;" />
+
+
+
+Debido a la simplicidad del modelo, y las pocas diferencias entre ambos, se decidió elegir el modelo $ARMA(1,0,0)(0,1,1)_6$. Las predicciones para los próximos 24 meses obtenidas a partir del modelo se muestran a continuación:
+
+
+```r
+autoplot(forecast::forecast(sarima_mod_1,h=24)) + 
+  theme_light() + 
+  xlab('Tiempo') + ylab('Numero en el Inventario') +
+  ggtitle(expression("Prediccion de los proximos 24 meses de SARIMA(1, 0, 0)(0, 1, 1)"[6]))
+```
+
+<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/Lab-Session-8-FPP_files/figure-html/forecast-plot-1.png" style="display: block; margin: auto;" />
+
+donde se puede verificar que el componente estacional persiste en esos meses de acuerdo al modelo, pero no se captura el ciclo de cada tres años que se muestra en la serie temporal observada.
+
+
 
 
 
