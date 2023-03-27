@@ -1,6 +1,22 @@
-# Sesión de Laboratorio: Modelos SARIMA.
+---
+title: "Sesión de Laboratorio: Modelos SARIMA."
+author: "Marcelo Molinatti"
+date: "2023-03-25"
+output:
+ html_document:
+  number_sections: yes
+  keep_md: yes
+ md_document:
+  preserve_yaml: no
+  number_sections: yes
+  toc: yes
+ pdf_document:
+  keep_tex: no
+  fig_caption: yes
+  toc: yes
+---
 
-### Marcelo Molinatti
+
 
 Elija una de las siguientes series temporales estacionales: ```condmilk```, ```hsales```, ```usolec```  
 * ¿Es necesario transformar los datos? Si es así, encuentre un transformación adecuado.

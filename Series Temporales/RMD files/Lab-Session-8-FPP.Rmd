@@ -68,7 +68,7 @@ Elija una de las siguientes series temporales estacionales: ```condmilk```, ```h
 
 Los datos seleccionados corresponden a una serie temporal de Inventarios de Manufactura de leche condensada evaporada y endulzada, recolectados mensualmente desde 1971 a 1980, como se muestra en el gráfico siguiente.
 
-```{r tseries-plot, fig.height=7, fig.width=7}
+```{r tseries-plot}
 # Grafico de la serie temporal
 autoplot(condmilk, colour="dodgerblue3") +
   geom_point(aes(y=y), colour="dodgerblue3") + 
