@@ -37,7 +37,7 @@ autoplot(condmilk, colour="dodgerblue3") +
   xlab('Tiempo') + ylab('Numero en el Inventario')
 ```
 
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/Lab-Session-8-FPP_files/figure-html/tseries-plot-1.png" style="display: block; margin: auto;" />
+<img src="Lab-Session-8-FPP_files/figure-html/tseries-plot-1.png" style="display: block; margin: auto;" />
 
 Para un primer análisis del comportamiento de la serie, verificamos las ACF y PACF:
 
