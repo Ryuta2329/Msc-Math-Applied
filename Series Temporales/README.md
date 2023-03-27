@@ -18,3 +18,6 @@ Soluciones a los ejercicios del libro _Time Series Analysis and its Applications
  * Datos de habla.
  * Promedio industrial de Dow Jones.
  * El Niño y la poblacion de peces.
+
+4. Sesiones de laboratorio.
+ * [Sesión de Laboratorio: Modelos SARIMA.](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/Lab-Session-8-FPP.md)

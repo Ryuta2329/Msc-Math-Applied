@@ -1,21 +1,6 @@
----
-title: "Sesión de Laboratorio: Modelos SARIMA."
-author: "Marcelo Molinatti"
-date: "2023-03-25"
-output:
- html_document:
-  number_sections: yes
-  keep_md: yes
- md_document:
-  preserve_yaml: no
-  number_sections: yes
-  toc: yes
- pdf_document:
-  keep_tex: no
-  fig_caption: yes
-  toc: yes
----
+# Sesión de Laboratorio: Modelos SARIMA.
 
+### Marcelo Molinatti
 
 
 Elija una de las siguientes series temporales estacionales: ```condmilk```, ```hsales```, ```usolec```  
@@ -70,7 +55,7 @@ cowplot::plot_grid(
   nrow=1)
 ```
 
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/Lab-Session-8-FPP_files/figure-html/acf-pacf-1.png" style="display: block; margin: auto;" />
+<img src="Lab-Session-8-FPP_files/figure-html/acf-pacf-1.png" style="display: block; margin: auto;" />
 
 Al observar las funciones de autocorrelación, es inmediatamente evidente que existe un componente estacional. Al ver la PACF, el siguiente pico significativo ocurre en el _lag_ 6, lo cual podría indicar un modelo con periodo 6, en el cual se repite el comportamiento general de la serie cada 6 meses. 
 También es posible observar que entre periodos, la ACF se hace estadísticamente igual a cero, lo cual implica una diferencia de orden 1 en el componente estacional. Esto es corroborado por los resultados de la prueba de Dickey-Fuller para comprobar estacionaridad de la serie, de la cual se concluye que la serie no es estacionaria (-6,994, 0,01).
@@ -153,15 +138,6 @@ bind_rows(
 </tbody>
 </table>
 
-```
-## 
-## 	Box-Ljung test
-## 
-## data:  residuals(sarima_mod_1)
-## X-squared = 0,23587, df = 1, p-value = 0,6272
-```
-
-
 
 ```r
 diagnostics <- list(sarima_mod_1, sarima_mod_2) %>%
@@ -205,7 +181,7 @@ cowplot::plot_grid(
   nrow=1)
 ```
 
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/Lab-Session-8-FPP_files/figure-html/residuals-of-candidate-1.png" style="display: block; margin: auto;" />
+<img src="Lab-Session-8-FPP_files/figure-html/residuals-of-candidate-1.png" style="display: block; margin: auto;" />
 
 
 
@@ -231,7 +207,7 @@ cowplot::plot_grid(
   nrow=1)
 ```
 
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/Lab-Session-8-FPP_files/figure-html/fitted-versus-residuals-1.png" style="display: block; margin: auto;" />
+<img src="Lab-Session-8-FPP_files/figure-html/fitted-versus-residuals-1.png" style="display: block; margin: auto;" />
 
 
 
