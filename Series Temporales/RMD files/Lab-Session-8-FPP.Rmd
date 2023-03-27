@@ -73,8 +73,7 @@ Los datos seleccionados corresponden a una serie temporal de Inventarios de Manu
 autoplot(condmilk, colour="dodgerblue3") +
   geom_point(aes(y=y), colour="dodgerblue3") + 
   theme_light() + 
-  xlab('Tiempo') + ylab('Numero en el Inventario') + 
-  geom_smooth()
+  xlab('Tiempo') + ylab('Numero en el Inventario')
 ```
 
 En el gráfico se observa claramente dos componentes estacionales, que fluctúa ligeramente empezando a mediados de un año y terminando a mediados del siguiente; y también parecen haber picos de mayor magnitud cada tres años. 
@@ -117,7 +116,7 @@ Los resultados de la prueba de Dickey-Fuller para comprobar estacionaridad de la
 
 
 Se ajusta entonces los modelos $ARIMA(1, 0, 0)(0, 1, 1)_6$, $ARIMA(2, 0, 0)(0, 1, 1)_6$, $ARIMA(1, 0, 0)(0, 1, 2)_6$ y $ARIMA(2, 0, 0)(0, 1, 2)_6$. Los resultados de los ajustes se muestran en
-la tabla \@ref(tab:fitting-sarima), los cuales indican que los primeros tres modelos podrían ser adecuados para el ajuste de la serie. Los primeros dos modelos son los de menor varianza residual, los cuales presentan, además, los menores valores de $AIC$ y $BIC$. Por lo que se seleccionan los modelos $ARIMA(1, 0, 0)(0, 1, 1)_6$ y $ARIMA(2, 0, 0)(0, 1, 1)_6$ como candidatos, de acuerdo a los estadísticos de bondad de ajuste.
+la tabla siguiente, los cuales indican que los primeros tres modelos podrían ser adecuados para el ajuste de la serie. Los primeros dos modelos son los de menor varianza residual, los cuales presentan, además, los menores valores de $AIC$ y $BIC$. Por lo que se seleccionan los modelos $ARIMA(1, 0, 0)(0, 1, 1)_6$ y $ARIMA(2, 0, 0)(0, 1, 1)_6$ como candidatos, de acuerdo a los estadísticos de bondad de ajuste.
 
 ```{r fitting-sarima}
 sarima_mod_1 <- arima(condmilk, order=c(1,0,0), 
@@ -129,12 +128,14 @@ sarima_mod_3 <- arima(condmilk, order=c(1,0,0),
 sarima_mod_4 <- arima(condmilk, order=c(2,0,0), 
     seasonal=list(order=c(0, 1, 2), period(6)))
 
+models <- c(expression("ARIMA(1,0,0)(0,1,1)"["6"]), expression("ARIMA(2,0,0)(0,1,1)"["6"]), expression("ARIMA(1,0,0)(0,1,2)"["6"]), expression("ARIMA(2,0,0)(0,1,2)"["6"]))
+
 bind_rows(
   purrr::map(list(sarima_mod_1, sarima_mod_2, sarima_mod_3, sarima_mod_4),
       broom::glance)
 ) %>% 
-  tibble::add_column(model=latex2exp::TeX(paste("$ARIMA(", c(1,2,1,2), ", 0, 0)(0, 1, ", c(1,1,2,2), ")_6$", sep="")), .before=1) %>%
-  kable(digits=2, row.name=TRUE, align='ccccc', escape=FALSE,
+  tibble::add_column(model=models, .before=1) %>%
+  kable(digits=2, row.name=TRUE, align='ccccc',
         caption="Estadísticos de bondad de ajuste de los modelos SARIMA ajustados.")
 ```
 
@@ -193,9 +194,9 @@ cowplot::plot_grid(
   nrow=1)
 ```
 
-Al revisar el gráfico de residuales versus los valores predichos por el modelo, es posible ver que existe cierto componente de tendencia ene l modelo que no se esta tomando en cuenta y que estaba oculto en la serie observada debido al patrón estacional.
+Al revisar el gráfico de residuales versus los valores predichos por el modelo, es posible ver que existe cierto componente de tendencia en el modelo que no se esta tomando en cuenta y que estaba oculto en la serie observada debido al patrón estacional.
 
-```{r fitted-versus-residuals, fig.height=7, fig.width=7}
+```{r fitted-versus-residuals, fig.height=5, fig.width=7}
 df_augmented <- as_tsibble(condmilk) %>%
   mutate(.fitted=stats::fitted(sarima_mod_1),
     .resid=residuals(sarima_mod_1))

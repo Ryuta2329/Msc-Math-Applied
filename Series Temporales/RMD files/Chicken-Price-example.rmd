@@ -6,8 +6,6 @@ output:
 
 ```{r setup}
 library(astsa)
-
-
 ```
 
 # Precios mensuales del pollo en USA.
@@ -16,9 +14,8 @@ Considere el precio mensual (por libra) de un pollo en los EE. UU. desde mediado
 
 $$x_t = \beta_0 + \beta_1 z_t + w_t, \quad zt = 2001\frac{7}{12}, 2001\frac{8}{12}, \ldots, 2016\frac{6}{12}$$
 
-
 ```{r chiken-plot-1, label="fig:chicken-plot-1"}
-fit <- lm(chicken~time(chicken))
+fit <- lm(chicken ~ time(chicken))
 
 autoplot(chicken) + 
   ggtitle("Precio mensual de pollo en USA") +
