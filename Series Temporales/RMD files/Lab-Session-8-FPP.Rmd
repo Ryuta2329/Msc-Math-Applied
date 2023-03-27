@@ -3,6 +3,9 @@ title: "Sesión de Laboratorio: Modelos SARIMA."
 author: "Marcelo Molinatti"
 date: "2023-03-25"
 output:
+ html_document:
+  number_sections: yes
+  keep_md: yes
  md_document:
   preserve_yaml: no
   number_sections: yes
@@ -68,7 +71,7 @@ Los datos seleccionados corresponden a una serie temporal de Inventarios de Manu
 ```{r tseries-plot, fig.height=7, fig.width=7}
 # Grafico de la serie temporal
 autoplot(condmilk, colour="dodgerblue3") +
-  geom_point(colour="dodgerblue3") + 
+  geom_point(aes(y=y), colour="dodgerblue3") + 
   theme_light() + 
   xlab('Tiempo') + ylab('Numero en el Inventario')
 ```
@@ -143,7 +146,7 @@ diagnostics <- list(sarima_mod_1, sarima_mod_2) %>%
     res <- residuals(x) 
 
     res_series <- autoplot(res / sqrt(x$sigma2), colour="orange") +
-      geom_point(colour="orange") +
+      geom_point(aes(y=y), colour="orange") +
       xlab("Tiempo") +
       ylab("Residuales Estandarizados") + 
       geom_hline(yintercept=0) +
@@ -183,7 +186,7 @@ cowplot::plot_grid(
 
 ```{r fitted-versus-residuals}
 df_augmented <- as_tsibble(condmilk) %>%
-  mutate(.fitted= fitted(sarima_mod_1),
+  mutate(.fitted=stats::fitted(sarima_mod_1),
     .resid=residuals(sarima_mod_1))
 
 cowplot::plot_grid(
