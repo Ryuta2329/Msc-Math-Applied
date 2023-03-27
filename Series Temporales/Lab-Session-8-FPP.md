@@ -1,21 +1,6 @@
----
-title: "Sesión de Laboratorio: Modelos SARIMA."
-author: "Marcelo Molinatti"
-date: "2023-03-25"
-output:
- html_document:
-  number_sections: yes
-  keep_md: yes
- md_document:
-  preserve_yaml: no
-  number_sections: yes
-  toc: yes
- pdf_document:
-  keep_tex: no
-  fig_caption: yes
-  toc: yes
----
+# Sesión de Laboratorio: Modelos SARIMA.
 
+### Marcelo Molinatti
 
 
 Elija una de las siguientes series temporales estacionales: ```condmilk```, ```hsales```, ```usolec```  
@@ -38,7 +23,7 @@ autoplot(condmilk, colour="dodgerblue3") +
   geom_smooth()
 ```
 
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/Lab-Session-8-FPP_files/figure-html/tseries-plot-1.png" style="display: block; margin: auto;" />
+<img src="Lab-Session-8-FPP_files/figure-html/tseries-plot-1.png" style="display: block; margin: auto;" />
 
 En el gráfico se observa claramente dos componentes estacionales, que fluctúa ligeramente empezando a mediados de un año y terminando a mediados del siguiente; y también parecen haber picos de mayor magnitud cada tres años. 
 
@@ -73,7 +58,7 @@ cowplot::plot_grid(
   nrow=1)
 ```
 
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/Lab-Session-8-FPP_files/figure-html/acf-pacf-1.png" style="display: block; margin: auto;" />
+<img src="Lab-Session-8-FPP_files/figure-html/acf-pacf-1.png" style="display: block; margin: auto;" />
 
 Al observar las funciones de autocorrelación, es inmediatamente evidente que existe un componente estacional. Al ver la PACF, el siguiente pico significativo ocurre en el _lag_ 6, lo cual podría indicar un modelo con periodo 6, en el cual se repite el comportamiento general de la serie cada 6 meses. 
 También es posible observar que entre periodos, la ACF se hace estadísticamente igual a cero, lo cual implica una diferencia de orden 1 en el componente estacional. 
@@ -215,7 +200,7 @@ cowplot::plot_grid(
   nrow=1)
 ```
 
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/Lab-Session-8-FPP_files/figure-html/residuals-of-candidate-1.png" style="display: block; margin: auto;" />
+<img src="Lab-Session-8-FPP_files/figure-html/residuals-of-candidate-1.png" style="display: block; margin: auto;" />
 
 Al revisar el gráfico de residuales versus los valores predichos por el modelo, es posible ver que existe cierto componente de tendencia ene l modelo que no se esta tomando en cuenta y que estaba oculto en la serie observada debido al patrón estacional.
 
@@ -232,7 +217,7 @@ ggplot(df_augmented, aes(x=.fitted, y=.resid)) +
   theme_light()
 ```
 
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/Lab-Session-8-FPP_files/figure-html/fitted-versus-residuals-1.png" style="display: block; margin: auto;" />
+<img src="Lab-Session-8-FPP_files/figure-html/fitted-versus-residuals-1.png" style="display: block; margin: auto;" />
 
 
 
@@ -246,7 +231,7 @@ autoplot(forecast::forecast(sarima_mod_1,h=24)) +
   ggtitle(expression("Prediccion de los proximos 24 meses de SARIMA(1, 0, 0)(0, 1, 1)"[6]))
 ```
 
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/Lab-Session-8-FPP_files/figure-html/forecast-plot-1.png" style="display: block; margin: auto;" />
+<img src="Lab-Session-8-FPP_files/figure-html/forecast-plot-1.png" style="display: block; margin: auto;" />
 
 donde se puede verificar que el componente estacional persiste en esos meses de acuerdo al modelo, pero no se captura el ciclo de cada tres años que se muestra en la serie temporal observada.
 
