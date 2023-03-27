@@ -115,7 +115,7 @@ plot_list <- apply(sims, 2, function(ts) {
 	  xlab("Índice") + ylab("") + 
 	  aes(linetype = plot_group) +
 	  scale_linetype_manual(name="", labels=c(expression("x"["t"]), expression("v"["t"])), values=c(1, 2)) +
-  	  scale_colour_manual(name="", values=c("20","1"), labels=c(expression("x"["t"]), expression("v"["t"]))) + 
+  	scale_colour_manual(name="", values=c("20","1"), labels=c(expression("x"["t"]), expression("v"["t"]))) + 
 	  theme_light()
 
 	  legend <<- cowplot::get_legend(p1 + theme(legend.box.margin = margin(0, 0, 0, 1)))
@@ -448,7 +448,6 @@ $$
 
 Si $A > 0$, entonces $\rho(l) = 1$, dado que se esta correlacion seria entre $x_t$ y ella misma. Si $A < 0$, la correlacion es negativa, debido al sogno de $A$, pero seria la minima posible ya que la correlacion seria aun entre $x_t$ y ella misma, de forma que se escribe $\rho(l) = -1$
 
-<!---
 **Problema 1.11** Considere el proceso lineal definido en (1.31), como:
 
 $$x_t = \mu + \sum_{j=-\infty}^\infty \psi_jw_{t-j}, \qquad \sum_{j=-\infty}^\infty \vert\psi_j\vert < \infty$$
@@ -457,9 +456,10 @@ _a)_ Verifique que la función de autocovarianza del proceso está dada por (1.3
 
 $$\gamma_x(h) = \sigma_w^2 \sum_{j=-\infty}^\infty \psi_{j+h}\psi_j$$
 
-Use el resultado para verificar su respuesta al Problema 1.7. Pista: Para $h \ge 0$, $cov(x_{t+h}, x_t) = cov(\sum_k \psi_k w_{t+h−k}, \sum_j \psi_jw_{t−j})$. Para cada $j \in Z$, el único _superviviente_ será cuando $k = h + j$.
+Use el resultado para verificar su respuesta al Problema 1.7. _Pista_: Para $h \ge 0$, $cov(x_{t+h}, x_t) = cov(\sum_k \psi_k w_{t+h−k}, \sum_j \psi_jw_{t−j})$. Para cada $j \in Z$, el único _superviviente_ será cuando $k = h + j$.  
 _b)_ Demuestre que $x_t$ existe como un límite en el cuadrado medio (vea el Apéndice A).
 
+<!---
 **Problema 1.12** Para dos series débilmente estacionarias $x_t$ e $y_t$, verifique (1.30): $\rho_{xy}(h) = \rho_{yx}(−h)$.
 
 **Problema 1.13** Considere las dos series $x_t = w_t$ y $y_t = w_t − \theta w_{t−1} + u_t$, donde $w_t$ y $u_t$ son series de ruido blanco independientes con varianzas $\sigma_w^2$ y $\sigma_u^2$, respectivamente, y $\theta$ es una constante no especificada.  
@@ -777,9 +777,18 @@ pt_4 |> GGally::ggpairs()
 ```
 
 **Problema 2.3** En este problema, exploramos la diferencia entre una caminata aleatoria y un proceso estacionario de tendencia.  
-_a)_ Genere cuatro series que sean paseo aleatorio con deriva, de longitud $n = 100$ con $\delta = {,}01$ y $\sigma_w = 1$. Llame a los datos $x_t$ para $t = 1, \ldots, 100$. Ajuste la regresión $x_t = \beta t + w_t$ usando mínimos cuadrados. Grafique los datos, la función media verdadera (es decir, $\mu t = {,}01 t$) y la línea ajustada, $\hat{x}_t = \hat{\beta} t$, en el mismo gráfico. 
-_b)_ Genere cuatro series de longitud $n = 100$ que sean de tendencia lineal más ruido, digamos $y_t = {,}01 t + w_t$, donde $t$ y $w_t$ son como en la parte _a)_. Ajuste la regresión $y_t = \beta t + w_t$ usando mínimos cuadrados. Grafique los datos, la función media verdaderay la línea ajustada.
-_c)_ Comente (qué aprendió de esta tarea).
+_a)_ Genere cuatro series que sean paseo aleatorio con deriva, de longitud $n = 100$ con $\delta = {,}01$ y $\sigma_w = 1$. Llame a los datos $x_t$ para $t = 1, \ldots, 100$. Ajuste la regresión $x_t = \beta t + w_t$ usando mínimos cuadrados. Grafique los datos, la función media verdadera (es decir, $\mu t = {,}01 t$) y la línea ajustada, $\hat{x}_t = \hat{\beta} t$, en el mismo gráfico.   
+_b)_ Genere cuatro series de longitud $n = 100$ que sean de tendencia lineal más ruido, digamos $y_t = {,}01 t + w_t$, donde $t$ y $w_t$ son como en la parte _a)_. Ajuste la regresión $y_t = \beta t + w_t$ usando mínimos cuadrados. Grafique los datos, la función media verdadera y la línea ajustada.   
+_c)_ Comente (qué aprendió de esta tarea).   
+
+```{r p02-03-01}
+xt_1 <- rnorm(100, 0, 1)
+xt_2 <- rnorm(100, 0, 1)
+xt_3 <- rnorm(100, 0, 1)
+xt_4 <- rnorm(100, 0, 1)
+```
+
+
 
 # Capitulo 3.
 

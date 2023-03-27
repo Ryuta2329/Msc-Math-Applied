@@ -109,10 +109,10 @@ Al verificar los residuales, se puede observar un comportamiento violento alrede
 augmented_df <- augment(fitted_models$fit[[4]])
 
 ggplot(augmented_df[, c(".fitted", ".std.resid")], 
-	aes(x=.fitted, y=.std.resid)) +
-	geom_line() + geom_point() +
-	geom_hline(yintercept=0) +
-	xlab("Valores Estimados") +
+  aes(x=.fitted, y=.std.resid)) +
+  geom_line() + geom_point() +
+  geom_hline(yintercept=0) +
+  xlab("Valores Estimados") +
   ylab("Residuales Estandarizados") + 
   theme_light()
 ```
@@ -130,13 +130,13 @@ cowplot::plot_grid(
 	  geom_point() +
 	  geom_hline(aes(yintercept = 0)) +
 	  geom_segment(mapping = aes(xend = lag, yend = 0)) +
-	  geom_hline(yintercept = c(1/sqrt(nrow(df_ts_tidy)), -1/sqrt(nrow(df_ts_tidy))), linetype=2, color='blue') +
+	  geom_hline(yintercept = c(1.96/sqrt(nrow(df_ts_tidy)), -1.96/sqrt(nrow(df_ts_tidy))), linetype=2, color='blue') +
 	  ylab(latex2exp::TeX("$\\rho(s, t)$")) +
 	  theme_light(), 
   ggplot(data = df_values, mapping = aes(x = lag, y = pacf_vals)) +
 	  geom_point() +
 	  geom_hline(aes(yintercept = 0)) +
-	  geom_hline(yintercept = c(1/sqrt(nrow(df_ts_tidy)), -1/sqrt(nrow(df_ts_tidy))), linetype=2, color='blue') +
+	  geom_hline(yintercept = c(1.96/sqrt(nrow(df_ts_tidy)), -1.96/sqrt(nrow(df_ts_tidy))), linetype=2, color='blue') +
 	  geom_segment(mapping = aes(xend = lag, yend = 0)) +
 	  ylab(latex2exp::TeX("$\\rho(s, t)$")) +
 	  theme_light(), 

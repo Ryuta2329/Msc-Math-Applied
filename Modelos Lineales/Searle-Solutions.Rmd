@@ -1,0 +1,28 @@
+---
+title: "Soluciones a los problemas de  _Linear Models_ (Searle _et al.,_ 1997)."
+author: Marcelo Molinatti
+output: pdf_document
+header-includes:
+ - \usepackage{amsmath}
+---
+
+# Ejercicios del Capitulo 1.
+
+1. Reduce las matrices: $A = \left(\begin{pmatrix}\end{pmatrix}\right)$  y $B = \left(\begin{pmatrix}\end{pmatrix}\right)$ a forma diagonal y encuentra la inversa generalizada de cada una. 
+
+2. Encuentra inversas generalizadas de A y B en el ejercicio 1, al invertir menores no singulares.
+3. Encuentra una inversa generalizada de cada una de las siguientes matrices:   
+ * _a)_ PAQ cuando P y Q son no singulares.  
+ * _b)_ GA cuando G es una inversa generalizada de A.  
+ * _c)_ kA, cuando k es un escalar.
+ * _d)_ ABA, cuando ABA es indempotente.  
+ * _e)_ J, cuando J es cuadrada, con cada elemento la unidad.
+ 
+4. ¿Qué tipo de matrices:  
+  * son su propia unversa generalizada?  
+  * tiene su traspuesta como inversa generalizada?  
+  * tienen la matriz identidad como inversa generalizada?  
+  * tiene cada matriz de orden $p\times q$ por uan inversa generalziada?  
+  * tiene solo inversas generalizadas no singulares?
+
+5. Prueba que, en general ninguna, ni ambas, de las transposiciones de matrices  in los pasos _iii)_ y _v)_ del algoritmo de inversion puede omitirse, pero que cuando $M=M\'$ la transposicion en _iii)_ se puede hacer. 
