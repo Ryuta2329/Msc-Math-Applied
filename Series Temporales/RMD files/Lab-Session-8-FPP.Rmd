@@ -7,7 +7,7 @@ output:
   number_sections: no
   toc: yes
   keep_md: yes
-  pandoc_args: "--lua-filter=../lua-filters/relative_path.lua"
+  pandoc_args: ["--lua-filter", "../lua-filters/relative_path.lua"]
  bookdown::markdown_document2:
   preserve_yaml: no
   number_sections: yes
@@ -16,13 +16,9 @@ output:
   keep_tex: no
   fig_caption: yes
   toc: yes
+header-includes:
+ - \usepackage{amsmath}
 ---
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-  TeX: { equationNumbers: { autoNumber: "AMS" } }
-});
-</script>
 
 ```{r setup, include=FALSE}
 options(knitr.table.format = ifelse(knitr::is_latex_output(), "latex", "html"), 
@@ -55,9 +51,9 @@ Elija una de las siguientes series temporales estacionales: ```condmilk```, ```h
 source("../R/Lab-Session-8-FPP.R")
 ```
 
-Los datos seleccionados corresponden a una serie temporal de Inventarios de Manufactura de leche condensada evaporada y endulzada, recolectados mensualmente desde 1971 a 1980, como se muestra en el gráfico de la figura `\@ref(fig:tseries-plot)`.
+Los datos seleccionados corresponden a una serie temporal de Inventarios de Manufactura de leche condensada evaporada y endulzada, recolectados mensualmente desde 1971 a 1980, como se muestra en el gráfico de la figura \ref{fig:tseries-plot}.
 
-```{r tseries-plot, fig.height=7, fig.width=7, fig.caption='Cambio temporal en el número de unidades de leche condensada entre 1971-1980. Se muestra el patrón anual y la estacionaridad de la serie usando un suavizado de _kernel_ (línea sólida gris) y _loess_ (línea fragmentada gris), respectivamente.'}
+```{r tseries-plot, fig.height=7, fig.width=7, fig.caption='\\label{fig:tseries-plot}Cambio temporal en el número de unidades de leche condensada entre 1971-1980. Se muestra el patrón anual y la estacionaridad de la serie usando un suavizado de _kernel_ (línea sólida gris) y _loess_ (línea fragmentada gris), respectivamente.'}
 # Grafico de la serie temporal
 autoplot(condmilk, colour="dodgerblue3") +
   geom_point(aes(y=value), colour="dodgerblue3") + 
@@ -142,24 +138,21 @@ el cual se expande como:
 
 $$
   r_t = \phi r_{t-1} + r_{t-12} + \phi r_{t-13} + w_t + \Theta w_{t-1}
-  (\#eq:model)
+  \label{eq:model}
 $$
 
 ### Estadísticos de Bondad de Ajuste.
 
-Los resultados de los ajustes se muestran en la tabla \@ref(tab:fitting-sarima), los cuales indican que el modelo dado en la ecuación \@ref(eq:model) no difiere demasiado del modelo encontrado al tantear el espacio de parámetros, en términos de robustez y precisión, dada la varianza residual, RMSE y MAE similares. 
+Los resultados de los ajustes se muestran en la tabla \@ref(tab:fitting-sarima), los cuales indican que el modelo dado en la ecuación \ref{eq:model} no difiere demasiado del modelo encontrado al tantear el espacio de parámetros, en términos de robustez y precisión, dada la varianza residual, RMSE y MAE similares. 
 Además, el modelo $ARIMA(2, 0, 2)(0, 1, 1)_{12}$ parece ser preferible según los valores obtenidos en términos de la información proveída por el modelo (AIC, AICc y BIC). Esto se debe (dada la similitud de varianzas residuales), solo al aumento en la penalización consecuencia de la mayor cantidad de parámetros estimados en el modelo $ARIMA(2, 0, 2)(0, 1, 1)_{12}$.
 
 ```{r fitting-sarima}
-.model <- c(
-  expression("ARIMA(1,0,0)(0,1,1)"["12"]), 
-  expression("ARIMA(2,0,2)(0,1,1)"["12"])
-)
+.model <- c("$ARIMA(1,0,0)(0,1,1)_12$", "ARIMA(2,0,2)(0,1,1)_12")
 
 information_based %>%
   left_join(error_based) %>%
-  select(.model:BIC, ME:MAE) %>%
-  mutate(.model=.model) %>%
+  select(sigma2:BIC, ME:MAE) %>%
+  tibble::add_column(.model=.model, .before=1) %>%
   knitr::kable(digits=c(NA, 4, 2, 1, 1, 1, 4, 4, 4), 
     align='lcccccccccc', escape=FALSE,
     col.names=c("Modelo", "$\\sigma^2$", "Func. Verosim.", "AIC", "AICc", "BIC", "ME", "RMSE", "MAE"),
@@ -272,9 +265,8 @@ donde $\omega = \phi r_{t-1} + \phi r_{t-12} + \phi r_{t-13} + w_t + \Theta w_{t
 
 ```{r lagged-regression}
 models_xreg <- c(.model, 
-  expression("ARIMA(1,0,0)(0,1,1)"["6"] ~ "(no lineal con r"["t-5"] ~ "^2)"), 
-  expression("ARIMA(1,0,0)(0,1,1)"["6"] ~ "(a trozos)")
-)
+  "$ARIMA(1,0,0)(0,1,1)_12 \\text{ (no lineal con }r_{t-5}^2\\text{)}$", 
+  "$ARIMA(1,0,0)(0,1,1)_6 \\text{ (a trozos)}$")
 
 information_based_2 %>%
   left_join(error_based_2) %>%

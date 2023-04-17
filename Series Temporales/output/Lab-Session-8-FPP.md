@@ -1,29 +1,6 @@
----
-title: "Sesión de Laboratorio: Modelos SARIMA."
-author: "Marcelo Molinatti"
-date: "2023-03-25"
-output:
- bookdown::html_document2:
-  number_sections: no
-  toc: yes
-  keep_md: yes
-  pandoc_args: "--lua-filter=../lua-filters/relative_path.lua"
- bookdown::markdown_document2:
-  preserve_yaml: no
-  number_sections: yes
-  toc: yes
- bookdown::pdf_document2:
-  keep_tex: no
-  fig_caption: yes
-  toc: yes
----
+# Sesión de Laboratorio: Modelos SARIMA.
 
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-  TeX: { equationNumbers: { autoNumber: "AMS" } }
-});
-</script>
-
+### Marcelo Molinatti
 
 
 Elija una de las siguientes series temporales estacionales: ```condmilk```, ```hsales```, ```usolec```  
@@ -43,7 +20,7 @@ Elija una de las siguientes series temporales estacionales: ```condmilk```, ```h
 source("../R/Lab-Session-8-FPP.R")
 ```
 
-Los datos seleccionados corresponden a una serie temporal de Inventarios de Manufactura de leche condensada evaporada y endulzada, recolectados mensualmente desde 1971 a 1980, como se muestra en el gráfico de la figura `\@ref(fig:tseries-plot)`.
+Los datos seleccionados corresponden a una serie temporal de Inventarios de Manufactura de leche condensada evaporada y endulzada, recolectados mensualmente desde 1971 a 1980, como se muestra en el gráfico de la figura \ref{fig:tseries-plot}.
 
 
 ```r
@@ -58,7 +35,7 @@ autoplot(condmilk, colour="dodgerblue3") +
   xlab('Tiempo') + ylab('Numero de Unidades')
 ```
 
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Lab-Session-8-FPP_files/figure-html/tseries-plot-1.png" style="display: block; margin: auto;" />
+<img src="/Series Temporales/output/Lab-Session-8-FPP_files/figure-html/tseries-plot-1.png" style="display: block; margin: auto;" />
 
 En el gráfico se observa claramente dos componentes estacionales: uno anual obvio, que fluctúa ligeramente, observándose una disrrupción a mediados de 1973 que rompe de alguna manera el patrón unimodal de los picos anuales; y también parece haber un componente trimestral de repeticiones de picos y valles importantes, cuya amplitud disminuye con el tiempo, indicando un amortiguamiento de las variaciones o fluctuaciones importantes en la serie. 
 
@@ -115,7 +92,7 @@ cm_transf %>%
 cowplot::plot_grid(acf, pacf, nrow=1)
 ```
 
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Lab-Session-8-FPP_files/figure-html/acf-pacf-1.png" style="display: block; margin: auto;" />
+<img src="/Series Temporales/output/Lab-Session-8-FPP_files/figure-html/acf-pacf-1.png" style="display: block; margin: auto;" />
 
 * 💹 La ACF indica que seria apropiada una diferencia de orden $D=1$ para el componente estacional, y un parámetro autoregresivo de orden $P=1$. También se observa que el periodo debería ser $s=6$, dado que los picos de mayor magnitud se registran en $6k$ para $k=1,2,\ldots$. Sin embargo, como el patrón es anual, se elige un periodo de $s=12$ dado que en un intervalo de 12 meses se completa un ciclo en la ACF.
 * 💹 La PACF confirma que se debería elegir $P=1$, dada la correlación significativa en el $h=6$, pero en más ningún múltiplo de 6.
@@ -139,25 +116,22 @@ el cual se expande como:
 
 $$
   r_t = \phi r_{t-1} + r_{t-12} + \phi r_{t-13} + w_t + \Theta w_{t-1}
-  (\#eq:model)
+  \label{eq:model}
 $$
 
 ### Estadísticos de Bondad de Ajuste.
 
-Los resultados de los ajustes se muestran en la tabla \@ref(tab:fitting-sarima), los cuales indican que el modelo dado en la ecuación \@ref(eq:model) no difiere demasiado del modelo encontrado al tantear el espacio de parámetros, en términos de robustez y precisión, dada la varianza residual, RMSE y MAE similares. 
+Los resultados de los ajustes se muestran en la tabla \@ref(tab:fitting-sarima), los cuales indican que el modelo dado en la ecuación \ref{eq:model} no difiere demasiado del modelo encontrado al tantear el espacio de parámetros, en términos de robustez y precisión, dada la varianza residual, RMSE y MAE similares. 
 Además, el modelo $ARIMA(2, 0, 2)(0, 1, 1)_{12}$ parece ser preferible según los valores obtenidos en términos de la información proveída por el modelo (AIC, AICc y BIC). Esto se debe (dada la similitud de varianzas residuales), solo al aumento en la penalización consecuencia de la mayor cantidad de parámetros estimados en el modelo $ARIMA(2, 0, 2)(0, 1, 1)_{12}$.
 
 
 ```r
-.model <- c(
-  expression("ARIMA(1,0,0)(0,1,1)"["12"]), 
-  expression("ARIMA(2,0,2)(0,1,1)"["12"])
-)
+.model <- c("$ARIMA(1,0,0)(0,1,1)_12$", "ARIMA(2,0,2)(0,1,1)_12")
 
 information_based %>%
   left_join(error_based) %>%
-  select(.model:BIC, ME:MAE) %>%
-  mutate(.model=.model) %>%
+  select(sigma2:BIC, ME:MAE) %>%
+  tibble::add_column(.model=.model, .before=1) %>%
   knitr::kable(digits=c(NA, 4, 2, 1, 1, 1, 4, 4, 4), 
     align='lcccccccccc', escape=FALSE,
     col.names=c("Modelo", "$\\sigma^2$", "Func. Verosim.", "AIC", "AICc", "BIC", "ME", "RMSE", "MAE"),
@@ -181,7 +155,7 @@ information_based %>%
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;"> ARMA(1,0,0)(0,1,1)_{12} </td>
+   <td style="text-align:left;"> $ARIMA(1,0,0)(0,1,1)_12$ </td>
    <td style="text-align:center;"> 0,0034 </td>
    <td style="text-align:center;"> 143,79 </td>
    <td style="text-align:center;"> -281,6 </td>
@@ -192,7 +166,7 @@ information_based %>%
    <td style="text-align:center;"> 0,0372 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> non_stationaty </td>
+   <td style="text-align:left;"> ARIMA(2,0,2)(0,1,1)_12 </td>
    <td style="text-align:center;"> 0,0033 </td>
    <td style="text-align:center;"> 148,93 </td>
    <td style="text-align:center;"> -285,9 </td>
@@ -390,9 +364,8 @@ donde $\omega = \phi r_{t-1} + \phi r_{t-12} + \phi r_{t-13} + w_t + \Theta w_{t
 
 ```r
 models_xreg <- c(.model, 
-  expression("ARIMA(1,0,0)(0,1,1)"["6"] ~ "(no lineal con r"["t-5"] ~ "^2)"), 
-  expression("ARIMA(1,0,0)(0,1,1)"["6"] ~ "(a trozos)")
-)
+  "$ARIMA(1,0,0)(0,1,1)_12 \\text{ (no lineal con }r_{t-5}^2\\text{)}$", 
+  "$ARIMA(1,0,0)(0,1,1)_6 \\text{ (a trozos)}$")
 
 information_based_2 %>%
   left_join(error_based_2) %>%
@@ -421,7 +394,7 @@ information_based_2 %>%
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;"> "ARIMA(1,0,0)(0,1,1)"["12"] </td>
+   <td style="text-align:left;"> $ARIMA(1,0,0)(0,1,1)_12$ </td>
    <td style="text-align:center;"> 0,0033 </td>
    <td style="text-align:center;"> 148,93 </td>
    <td style="text-align:center;"> -285,9 </td>
@@ -432,7 +405,7 @@ information_based_2 %>%
    <td style="text-align:center;"> 0,0376 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> "ARIMA(2,0,2)(0,1,1)"["12"] </td>
+   <td style="text-align:left;"> ARIMA(2,0,2)(0,1,1)_12 </td>
    <td style="text-align:center;"> 0,0026 </td>
    <td style="text-align:center;"> 147,67 </td>
    <td style="text-align:center;"> -285,3 </td>
@@ -443,7 +416,7 @@ information_based_2 %>%
    <td style="text-align:center;"> 0,0339 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> "ARIMA(1,0,0)(0,1,1)"["6"] ~ "(no lineal con r"["t-5"] ~ "^2)" </td>
+   <td style="text-align:left;"> $ARIMA(1,0,0)(0,1,1)_12 \text{ (no lineal con }r_{t-5}^2\text{)}$ </td>
    <td style="text-align:center;"> 0,0026 </td>
    <td style="text-align:center;"> 148,38 </td>
    <td style="text-align:center;"> -284,8 </td>
@@ -454,7 +427,7 @@ information_based_2 %>%
    <td style="text-align:center;"> 0,0336 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> "ARIMA(1,0,0)(0,1,1)"["6"] ~ "(a trozos)" </td>
+   <td style="text-align:left;"> $ARIMA(1,0,0)(0,1,1)_6 \text{ (a trozos)}$ </td>
    <td style="text-align:center;"> 0,0034 </td>
    <td style="text-align:center;"> 143,79 </td>
    <td style="text-align:center;"> -281,6 </td>
