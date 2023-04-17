@@ -33,11 +33,11 @@ adf_test <- tseries::adf.test(univariate_ts)
 full <- cm_transf %>%
   model(non_stationaty=ARIMA(prop_change, 
   	  stepwise=FALSE, 
-  	  method="CSS-ML", optim.method="BFGS"),
-	stationary=ARIMA(prop_change,
-  	  order_constraint=(d + D) == 0,
-  	  stepwise=FALSE,
-  	  method="CSS-ML", optim.method="BFGS"))
+  	  method="CSS-ML", optim.method="BFGS"))#,
+#	stationary=ARIMA(prop_change,
+#  	  order_constraint=(d + D) == 0,
+#  	  stepwise=FALSE,
+#  	  method="CSS-ML", optim.method="BFGS"))
 
 ## @knitr first_fitting
 

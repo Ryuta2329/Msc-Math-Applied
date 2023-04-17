@@ -41,7 +41,7 @@ Elija una de las siguientes series temporales estacionales: ```condmilk```, ```h
 
 ## Descripción de la serie.
 
-```{r sourcing-r-code, cache=TRUE}
+```{r sourcing-r-code}
 # Sourcing R code
 source("../R/Lab-Session-8-FPP.R")
 ```
