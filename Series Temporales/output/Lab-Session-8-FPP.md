@@ -33,7 +33,7 @@ autoplot(condmilk, colour="dodgerblue3") +
   xlab('Tiempo') + ylab('Numero de Unidades')
 ```
 
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Lab-Session-8-FPP_files/figure-html/tseries-plot-1.png" style="display: block; margin: auto;" />
+<img src="/Series Temporales/output/Lab-Session-8-FPP_files/figure-html/tseries-plot-1.png" style="display: block; margin: auto;" />
 
 En el gráfico se observa claramente dos componentes estacionales: uno anual obvio, que fluctúa ligeramente, observándose una disrrupción a mediados de 1973 que rompe de alguna manera el patrón unimodal de los picos anuales; y también parece haber un componente trimestral de repeticiones de picos y valles importantes, cuya amplitud disminuye con el tiempo, indicando un amortiguamiento de las variaciones o fluctuaciones importantes en la serie. 
 
