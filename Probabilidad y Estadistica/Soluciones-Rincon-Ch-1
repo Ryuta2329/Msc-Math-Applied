@@ -1,0 +1,184 @@
+---
+title: Introducción a la Probabilidad
+subtitle: Capítulo 1.
+author: Marcelo J. Molinatti
+date: "`r Sys.Date()`"
+output:
+ github_document:
+  number_sections: yes
+  html_preview: no
+  pandoc_args: ["--webtex=https://latex.codecogs.com/svg.image?"]
+ html_document:
+  number_sections: yes
+  keep_md: yes
+ pdf_document:
+  keep_tex: yes
+  number_sections: yes
+ rdocx_document:
+  base_format: bookdown::word_document2
+  number_sections: yes
+  plots:
+   align: center
+  #pandoc_args: ["-Fpandoc-crossref"]
+header-includes:
+ - \usepackage{amsmath}
+lang: es
+---
+
+# Sección 1.12: Análisis combinatorio.
+
+69. Un dado equilibrado se lanza 6 veces consecutivas. ¿Cual es la probabilidad de que
+a) aparezcan las seis caras del dado en orden creciente o decreciente?
+b) aparezcan las seis caras del dado en cualquier orden?
+c) s´olo aparezcan n´umeros pares?
+d) aparezcan n´umeros pares e impares alternados?
+70. ¿Cu´antos enteros positivos de a lo sumo cinco d´ıgitos son divisibles
+por 2? ¿Y de ellos, cu´antos hay que empiecen con el d´ıgito 1?
+71. El problema de los cumplea˜nos. Calcule la probabilidad de que en
+un grupo de n personas al menos dos de ellas tengan la misma fecha
+de cumplea˜nos.
+72. Sea n ě 1 un entero. Considere el intervalo r0, Ls, dividido en n partes
+de id´entica longitud. V´ease la Figura 1.23 en donde n “ 4. Se escogen
+n puntos al azar, uno por uno, en el intervalo r0, Ls, de manera independiente uno de otro. Calcule la probabilidad de que exactamente
+un punto caiga en cada subintervalo.
+
+73. Se lanza un dado equilibrado tres veces. Calcule la probabilidad de
+obtener tres n´umeros distintos en orden ascendente, no necesariamente
+consecutivos.
+74. Sean A, B y C tres eventos de un experimento aleatorio tales que cualquiera de sus intersecciones es no vac´ıa. Determine el n´umero m´aximo
+de formas distintas en las que el evento A Y B Y C puede expresarse
+como la uni´on de tres eventos disjuntos. Suponga que la descomposici´on admite el conjunto vac´ıo como alguno de sus componentes y que
+es relevante el orden de los componentes.
+75. Suponga que se desea dibujar en un diagrama de Venn el evento
+A1 Y A2 Y ¨ ¨ ¨ Y An. Determine el n´umero m´aximo de regiones simples
+disjuntas de las que consta este evento. Corrobore su respuesta en los
+casos n “ 2 y n “ 3.
+76. Corredores. ¿De cu´antas maneras diferentes pueden clasificarse los
+tres primeros lugares de una carrera de n corredores? Suponga que no
+hay empates.
+77. Mesa circular. ¿De cu´antas maneras diferentes pueden sentarse n
+personas en una mesa circular?
+78. Estacionamiento. Suponga que los conductores de 8 autom´oviles
+estacionan sus coches completamente al azar en un estacionamiento
+de 12 lugares y que la configuraci´on del estacionamiento es lineal.
+V´ease la Figura 1.24. Determine la probabilidad de que los lugares no
+ocupados sean adyacentes.
+
+79. Rumores. En un pueblo de n ` 1 habitantes, uno de ellos le rumorea
+algo a una segunda persona, ´esta, a su vez, se lo cuenta a una tercera
+persona (que puede ser la primera persona), y as´ı sucesivamente. Determine la probabilidad de que el rumor se transmita r veces sin que
+regrese a la primera persona.
+80. Calcule la probabilidad de que la suma de los resultados de lanzar dos
+dados equilibrados sea 8, suponiendo que:
+a) los dados son distinguibles.
+b) los dados son indistinguibles.
+81. Funciones. Sean A y B dos conjuntos finitos con cardinalidades n y
+m, respectivamente, como se muestra en la Figura 1.25. Determine el
+n´umero total de funciones f de A en B tal que
+a) no tienen restricci´on alguna.
+b) son inyectivas (uno a uno), suponiendo n ď m.
+c) son suprayectivas (sobre), suponiendo m ď n.
+82. Un panadero elabora 100 panes en un d´ıa, en donde 10 de ellos pesan
+menos de lo que deber´ıan. Un inspector pesa 5 panes tomados al azar.
+Calcule la probabilidad de que el inspector encuentre en su muestra
+exactamente un pan de peso incorrecto.
+83. Sean k, n, m n´umeros naturales tales que k ď n ` m. Demuestre que
+ÿ
+i,j
+ˆni˙ˆmj ˙ “ ˆn `k m˙,
+en donde la suma se efect´ua sobre valores enteros de i y j tales que
+0 ď i ď n, 0 ď j ď m e i ` j “ k.
+84. Tri´angulo de Pascal. Sean k y n n´umeros naturales tales que k ă n.
+Demuestre que
+ˆnk˙ “ ˆnk ´´ 11˙ ` ˆn ´k 1˙.
+A partir de esta f´ormula se construye el tri´angulo de Pascal. M´as
+generalmente, demuestre que
+ˆk1 k2 n¨ ¨ ¨ km˙ “ ˆk1 ´ 1nk´2 1¨ ¨ ¨ km˙ ` ˆk1 k2 ´n ´1 1¨ ¨ ¨ km˙
+` ¨ ¨ ¨ ` ˆk1 k2 n¨ ¨ ¨ ´ 1km ´ 1˙,
+en donde
+ˆk1 k2 n¨ ¨ ¨ km˙ “ k1! k2!n¨ ¨ ¨ ! km!.
+85. Teorema del multinomio. Sean n y m dos n´umeros enteros positivos
+y sean x1, . . . , xm n´umeros reales cualesquiera. Demuestre que
+px1 ` ¨ ¨ ¨ ` xmqn “ ÿ ˆk1 k2 n¨ ¨ ¨ km˙xk 11 ¨ ¨ ¨ xk mm, (1.2)
+
+en donde la suma se realiza sobre todos los posibles n´umeros enteros
+k1, . . . , km tales que 0 ď ki ď n, para i “ 1, . . . , m, y
+k1 ` ¨ ¨ ¨ ` km “ n.
+86. ¿Cu´antos sumandos aparecen en la f´ormula (1.2)? Es decir, ¿cu´antos
+distintos vectores existen de la forma pk1, . . . , kmq, en donde cada entrada es un n´umero entero mayor o igual a cero y la suma de todos
+ellos es n?
+87. Sea f : Rn Ñ R una funci´on de n variables que es infinitamente
+diferenciable, es decir, tiene derivadas de todos los ´ordenes. ¿Cu´antas
+derivadas parciales hay de orden m?
+88. Sea n ě 2 un n´umero natural fijo. Determine la cantidad de parejas
+px, yq que existen de n´umeros naturales x y y tales que
+1 ď x ď y ď n.
+89. Sean k y n dos n´umeros naturales tales que 1 ď k ď n. Determine
+la cantidad de parejas de n´umeros naturales px, yq que existen de tal
+forma que
+1 ď x, y ď n y |x ´ y| ě k.
+90. Sean k y n dos n´umeros naturales tales que 1 ď k ď n. Determine la
+cantidad de vectores que existen de la forma px1, . . . , xkq de tal manera
+que cada entrada de este vector es un n´umero entero xi que satisface
+1 ď xi ď n y adem´as cumplen la condici´on
+a) 1 ď x1 ă ¨ ¨ ¨ ă xk ď n.
+b) 1 ď x1 ď ¨ ¨ ¨ ď xk ď n.
+91. Sean k, n ě 1 dos n´umeros enteros fijos. ¿Cu´antas soluciones enteras
+no negativas tiene la ecuaci´on
+a) x1 ` x2 ` ¨ ¨ ¨ ` xk “ n?
+b) x1 ` x2 ` ¨ ¨ ¨ ` xk ď n?
+c) x1 ` x2 ` ¨ ¨ ¨ ` xk ě n?
+
+92. Las cajas de cerillos de Banach4. Una persona tiene dos cajas de
+cerillos, cada una de las cuales contiene n cerillos. La persona coloca
+una caja en cada uno de sus bolsillos izquierdo y derecho, y cada vez
+que requiere un cerillo elije una de sus bolsillos al azar y toma de la
+caja correspondiente uno de los cerillos. ¿Cu´al es la probabilidad de
+que en el momento en el que la persona se da cuenta de que la caja
+del bolsillo izquierdo est´a vac´ıa, en la caja del bolsillo derecho haya
+exactamente r cerillos?
+93. Se lanzan tres dados equilibrados. Encuentre la probabilidad de que
+exactamente en dos de ellos aparezca la cara “1”, suponiendo que:
+a) los dados son distinguibles.
+b) los dados son indistinguibles.
+94. Se lanzan dos dados id´enticos y equilibrados a un mismo tiempo.
+Calcule la probabilidad de que la suma de las dos caras sea igual a
+x “ 2, 3, . . . , 12. Compruebe que la suma de todas estas probabilidades
+es 1.
+95. Zapatos. Una mujer tiene n pares de zapatos en desorden y en un
+viaje intempestivo escoge al azar 2r zapatos (2r ď 2n). Calcule la
+probabilidad de que en el conjunto escogido:
+a) no haya ning´un par completo.
+b) haya exactamente un par completo.
+c) haya r pares completos.
+96. Llaves. Una persona tiene n llaves, de las cuales ´unicamente una
+ajusta a la cerradura pero no sabe cu´al de ellas es la correcta. Procede
+a tomar las llaves al azar, una por una, hasta encontrar la correcta.
+Calcule la probabilidad de encontrar la llave correcta en el n-´esimo
+intento suponiendo que
+a) retira las llaves que no funcionaron.
+b) no retira las llaves que no funcionaron.
+
+97. Diagonales en pol´ıgonos. ¿Cu´antas diagonales se pueden trazar
+en un pol´ıgono convexo de n lados (n ě 3)? O bien, al terminar
+una reuni´on de n personas, ´estas se despiden con un saludo, ¿cu´antos
+saludos habr´a?
+98. ¿Cu´al es el n´umero m´aximo de regiones en las que
+a) n l´ıneas rectas pueden dividir un plano?
+b) n c´ırculos pueden dividir un plano?
+c) n planos pueden dividir el espacio?
+d) n esferas pueden dividir el espacio?
+99. Sean p y q dos n´umeros primos distintos y sean n y m dos n´umeros
+naturales. ¿Cu´antos divisores diferentes tiene el n´umero pnqm?
+100. ¿De cu´antas formas diferentes se pueden ordenar los elementos del
+conjunto t1, 2, . . . , 2n ` 1u de tal forma que
+a) cada n´umero impar ocupe una posici´on impar?
+b) cada n´umero impar ocupe una posici´on impar y de forma ascendente?
+c) los n´umeros pares queden de forma ascendente?
+d) los n´umeros impares queden de forma descendente?
+101. La f´ormula de inclusi´on y exclusi´on para la probabilidad de la uni´on
+arbitraria de n eventos aparece en el Ejercicio 55, en la p´agina 46.
+En general, ¿cu´antos sumandos aparecen en el lado derecho de esta
+f´ormula?
+
+# Sección 1.13: Probabilidad condicional.

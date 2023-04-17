@@ -1,0 +1,26 @@
+library(quantmod)
+
+#getSymbols("BTC-USD")
+#getSymbols("PFE", src="google")
+#getSymbols("WBD", src="google")
+#getSymbols("ETR: BAS", src="google")
+
+
+https://github.com/jennybc/here_here
+https://r4ds.had.co.nz/workflow-projects.html
+https://usethis.r-lib.org/reference/create_package.html
+https://magrittr.tidyverse.org/reference/index.html
+https://alexd106.github.io/intro2R/project_setup.html
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1852464/
+https://www.gapminder.org/data/
+https://r-pkgs.org/description.html
+https://stackoverflow.com/questions/65425366/here-issue-in-r-scripts
+https://www.howtogeek.com/719058/how-to-use-here-documents-in-bash-on-linux/
+
+setwd("I:/MEGA Nube/codes/temp_dir")
+usethis::create_project("JR-Analysis")
+here::i_am("JR-Analysis/R/JR-Mortalidad-2021.R")
+usethis::proj_sitrep()
+usethis::proj_get()
+usethis::proj_path("R", "foo", ext = "R")
+usethis::proj_set()

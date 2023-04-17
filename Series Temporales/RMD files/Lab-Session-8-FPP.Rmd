@@ -3,34 +3,20 @@ title: "Sesión de Laboratorio: Modelos SARIMA."
 author: "Marcelo Molinatti"
 date: "2023-03-25"
 output:
- html_document:
+ bookdown::html_document2:
   number_sections: yes
   keep_md: yes
- md_document:
+ bookdown::markdown_document2:
   preserve_yaml: no
   number_sections: yes
   toc: yes
- pdf_document:
+ bookdown::pdf_document2:
   keep_tex: no
   fig_caption: yes
   toc: yes
 ---
 
 ```{r setup, include=FALSE}
-library(dplyr)
-if (!require(ggfortify)) {
-  install.packages("ggfortify")
-  library(ggfortify)
-}
-
-if (!require(fpp3)) {
-  install.packages("fpp3")
-  library(fpp3)
-}
-# library(forecast) # auto.arima
-# library(tseries)
-library(kableExtra)
-
 options(knitr.table.format = ifelse(knitr::is_latex_output(), "latex", "html"), 
   knitr.kable.NA = "", 
   OutDec = ",", scipen=999)
@@ -38,190 +24,369 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE, fig.pos = "!h", fig.alig
   tab.cap.style = "Table Caption", tab.cap.pre = "Tabla ", tab.cap.sep = ". ", 
   fig.cap.style = "Image Caption", fig.cap.pre = "Figura ", fig.cap.sep = ". ")
 
-# Manufacturer's Stocks of evaporated and sweetened condensed milk.
-data(condmilk, package="fma")
+library(ggplot2)
 
-if (!require(cowplot)) {
-  install.packages("cowplot")
-}
-if (!require(broom)) {
-  install.packages("broom")
-}
-if (!require(purrr)) {
-  install.packages("purrr")
-}
-if (!require(tseries)) {
-  install.packages("tseries")
-}
-if (!require(latex2exp)) {
-  install.packages("latex2exp")
-}
+agree <- emo::ji("check")
+chart <- emo::ji("chart")
+watch <- emo::ji("watch")
 ```
 
 Elija una de las siguientes series temporales estacionales: ```condmilk```, ```hsales```, ```usolec```  
-* ¿Es necesario transformar los datos? Si es así, encuentre un transformación adecuado.
-* ¿Son estacionarios los datos? Si no, encuentre una diferenciación apropiada que produce datos estacionarios.
-* Identifique un par de modelos ARIMA que podrían ser útiles en describir la serie de tiempo. ¿Cuál de sus modelos es el mejor de acuerdo con sus valores $AIC$?
-* Estime los parámetros de su mejor modelo y haga un diagnóstico pruebas en los residuos. ¿Los residuos se parecen al ruido blanco? Si no es así, intente encontrar otro modelo ARIMA que le quede mejor.
-* Pronostique los próximos 24 meses de datos usando su modelo preferido.
-* Compare los pronósticos obtenidos usando ```ets()```.
+* `r agree` ¿Es necesario transformar los datos? Si es así, encuentre un transformación adecuado.
+* `r agree` ¿Son estacionarios los datos? Si no, encuentre una diferenciación apropiada que produce datos estacionarios.
+* `r agree` Identifique un par de modelos ARIMA que podrían ser útiles en describir la serie de tiempo. ¿Cuál de sus modelos es el mejor de acuerdo con sus valores $AIC$?
+* `r agree` Estime los parámetros de su mejor modelo y haga un diagnóstico de los residuos. ¿Los residuos se parecen al ruido blanco? Si no es así, intente encontrar otro modelo ARIMA que le quede mejor.
+* `r agree` Pronostique los próximos 24 meses de datos usando su modelo preferido.
+* `r agree` Compare los pronósticos obtenidos, usando ```ets()```.
 
-Los datos seleccionados corresponden a una serie temporal de Inventarios de Manufactura de leche condensada evaporada y endulzada, recolectados mensualmente desde 1971 a 1980, como se muestra en el gráfico siguiente.
+## Descripción de la serie.
 
-```{r tseries-plot, fig.height=7, fig.width=7}
+```{r sourcing-r-code, cache=TRUE}
+# Sourcing R code
+source("../R/Lab-Session-8-FPP.R")
+```
+
+Los datos seleccionados corresponden a una serie temporal de Inventarios de Manufactura de leche condensada evaporada y endulzada, recolectados mensualmente desde 1971 a 1980, como se muestra en el gráfico de la figura \@ref(fig:tseries-plot).
+
+```{r tseries-plot, fig.height=7, fig.width=7, fig.caption='Cambio temporal en el número de unidades de leche condensada entre 1971-1980. Se muestra el patrón anual y la estacionaridad de la serie usando un suavizado de _kernel_ (línea sólida gris) y _loess_ (línea fragmentada gris), respectivamente.'}
 # Grafico de la serie temporal
 autoplot(condmilk, colour="dodgerblue3") +
-  geom_point(aes(y=y), colour="dodgerblue3") + 
+  geom_point(aes(y=value), colour="dodgerblue3") + 
   theme_light() + 
-  xlab('Tiempo') + ylab('Numero en el Inventario')
+  geom_line(
+    aes(y=ksmooth(time(condmilk %>% as.ts()), condmilk %>% as.ts(), "normal", bandwidth=.5)$y), 
+    colour="200", lwd=1) +
+  geom_smooth(aes(y=value), method=loess, se=FALSE, color="200", linetype=2) +
+  xlab('Tiempo') + ylab('Numero de Unidades')
 ```
 
-En el gráfico se observa claramente dos componentes estacionales, que fluctúa ligeramente empezando a mediados de un año y terminando a mediados del siguiente; y también parecen haber picos de mayor magnitud cada tres años. 
+En el gráfico se observa claramente dos componentes estacionales: uno anual obvio, que fluctúa ligeramente, observándose una disrrupción a mediados de 1973 que rompe de alguna manera el patrón unimodal de los picos anuales; y también parece haber un componente trimestral de repeticiones de picos y valles importantes, cuya amplitud disminuye con el tiempo, indicando un amortiguamiento de las variaciones o fluctuaciones importantes en la serie. 
 
-Para un primer análisis del comportamiento de la serie, verificamos las ACF y PACF:
+Se resaltan en el componente trimestral: 
+_i)_ picos de mayor magnitud cada tres años, a mediados de los años 1971, 1974 y 1977, mostrando un cambio periódico en la amplitud de los ciclos (aunque no se observa pico a mediados de 1980); 
+_ii)_ valles profundos cada 3 años, en los años 1973, 1976 y 1979, con una ligera fluctuación mensual, en donde el número de unidades cae por debajo de las 50 unidades y cuya amplitud, al igual que la de los picos, se va amortiguando cada vez que aparece.
 
-```{r acf-pacf, fig.height=6, fig.width=14}
-# Verificando estacionareidad
-# El p-valor muestra que la serie no es estacionaria.
-# Pero no se verifica si es sobre el componente estacional o no
-adf_test <- tseries::adf.test(condmilk)
+También se observa una pequeña tendencia decreciente durante la primera parte de la serie, que es muy perceptible debido al comportamiento anormal durante el año 1973; pero que desaparece durante la segunda parte de la serie. 
 
-df_values <- tibble(lag=1:30,
-    acf_vals=acf(condmilk, plot=FALSE, lag=30)$acf[,,1][1:30],
-    pacf_vals=pacf(condmilk, plot=FALSE, lag=30)$acf[,,1])
+## Transformación de la serie.
 
-cowplot::plot_grid(
-  ggplot(data = df_values, mapping = aes(x = lag, y = acf_vals)) +
-    geom_point() +
-    geom_hline(aes(yintercept = 0)) +
-    geom_segment(mapping = aes(xend = lag, yend = 0)) +
-    geom_hline(yintercept = c(1.96/sqrt(length(condmilk)), -1.96/sqrt(length(condmilk))), linetype=2, color='blue') +
-    ylab(latex2exp::TeX("$\\rho(s, t)$")) +
-    theme_light(), 
-  ggplot(data = df_values, mapping = aes(x = lag, y = pacf_vals)) +
-    geom_point() +
-    geom_hline(aes(yintercept = 0)) +
-    geom_hline(yintercept = c(1.96/sqrt(length(condmilk)), -1.96/sqrt(length(condmilk))), linetype=2, color='blue') +
-    geom_segment(mapping = aes(xend = lag, yend = 0)) +
-    ylab(latex2exp::TeX("$\\rho(s, t)$")) +
-    theme_light(), 
-  nrow=1)
+Dada la descripción anterior, se decide optar por transformar los datos usando una función logarítmica, con la finalidad de hacer mas obvias las desviaciones importantes que aparecen en la serie; y en lugar de modelar la serie original transformada, se modela la serie que resulta de la diferencia de valores adyacentes (elimina el componente con tendencia en la primer tercio de la serie original):
+
+$$log(x_t) - log(x_{t-1}) = log(\frac{x_t}{x_{t-1}}) = log(1 + r_t)$$
+
+donde $r_t$ es el incremento o decremento proporcional de la unidad en el año $t$ con respecto al valor en el año anterior, $t-1$. Dado que la magnitud de $r_t$ es pequeña, se puede aproximar $log(1 + r_t) \approx r_t$. La serie $r_t$ se muestra en la figura \@ref(fig:transform).
+
+```{r transform, fig.caption='Cambio proporcional anual en las unidades de leche condensada. Se muestra el patrón anual y la estacionaridad de la serie usando un suavizado de _kernel_ (línea sólida gris) y _loess_ (línea fragmentada gris), respectivamente.'}
+autoplot(cm_transf, colour="dodgerblue3") +
+  geom_point(aes(y=prop_change), colour="dodgerblue3") + 
+  theme_light() + 
+  geom_line(
+    aes(y=ksmooth(time(cm_transf %>% as.ts()), cm_transf %>% as.ts(), "normal", bandwidth=.5)$y), 
+    colour="200", lwd=1) +
+  geom_smooth(aes(y=prop_change), method=loess, se=FALSE, color="200", linetype=2) + 
+  xlab('Tiempo') + ylab('Cambio proporcional')
 ```
 
-Al observar las funciones de autocorrelación, es inmediatamente evidente que existe un componente estacional. Al ver la PACF, el siguiente pico significativo ocurre en el _lag_ 6, lo cual podría indicar un modelo con periodo 6, en el cual se repite el comportamiento general de la serie cada 6 meses. 
-También es posible observar que entre periodos, la ACF se hace estadísticamente igual a cero, lo cual implica una diferencia de orden 1 en el componente estacional. 
-En cuanto a los parámetros del componente estacional, las funciones parecen indicar que sería necesario ajustar un modelo de promedio móvil que, de nuevo, por parsimonia, se ajusta un modelo de orden 1 o 2. 
-Además, dado que la ACF no cae en ningún momento (no hay _cut off_), pero el PACF si cae rápidamente, se elige un modelo autoregresivo. El orden es difícil puntualizarlo dado el componente estacional, pero se elige un modelo sencillo que involucre la menor cantidad de parámetros, por parsimonia, por lo que se prueba un modelo de orden 1 y 2. 
-Los resultados de la prueba de Dickey-Fuller para comprobar estacionaridad de la serie muestran que la serie es estacionaria (`r round(adf_test$statistic, 3)`, `r round(adf_test$p.value, 4)`).
+Como se muestra, el patrón anual persiste en la serie, y se hacen mas visibles las desviaciones que antes estaban ocultas por el componente estacional. Dos observaciones destacan como valores atípicos en la serie, al inicio del primer pico a mediados de 1971, y en el primer valle en 1973. 
 
+## Elección de un modelo.
 
-Se ajusta entonces los modelos $ARIMA(1, 0, 0)(0, 1, 1)_6$, $ARIMA(2, 0, 0)(0, 1, 1)_6$, $ARIMA(1, 0, 0)(0, 1, 2)_6$ y $ARIMA(2, 0, 0)(0, 1, 2)_6$. Los resultados de los ajustes se muestran en
-la tabla siguiente, los cuales indican que los primeros tres modelos podrían ser adecuados para el ajuste de la serie. Los primeros dos modelos son los de menor varianza residual, los cuales presentan, además, los menores valores de $AIC$ y $BIC$. Por lo que se seleccionan los modelos $ARIMA(1, 0, 0)(0, 1, 1)_6$ y $ARIMA(2, 0, 0)(0, 1, 1)_6$ como candidatos, de acuerdo a los estadísticos de bondad de ajuste.
+Para un primer análisis de la correlación serial de la serie, verificamos las ACF y PACF (figura \@ref(fig:acf-pacf)).
+
+```{r acf-pacf, fig.height=6, fig.width=14, fig.caption='ACF y PACF de la serie mostrada en la figura \\@ref(fig:tseries-plot)', message=FALSE, warning=FALSE}
+cm_transf %>%
+  ACF(prop_change, lag_max=50) %>%
+  autoplot() +
+    theme_light() +
+    xlab("lag") + 
+    ylab(latex2exp::TeX("$\\rho(s, t)$")) -> acf
+
+cm_transf %>%
+  PACF(prop_change, lag_max=50) %>%
+  autoplot() +
+    theme_light() +
+    xlab("lag") + 
+    ylab(latex2exp::TeX("$\\rho(s, t)$"))-> pacf
+
+cowplot::plot_grid(acf, pacf, nrow=1)
+```
+
+* `r chart` La ACF indica que seria apropiada una diferencia de orden $D=1$ para el componente estacional, y un parámetro autoregresivo de orden $P=1$. También se observa que el periodo debería ser $s=6$, dado que los picos de mayor magnitud se registran en $6k$ para $k=1,2,\ldots$. Sin embargo, como el patrón es anual, se elige un periodo de $s=12$ dado que en un intervalo de 12 meses se completa un ciclo en la ACF.
+* `r chart` La PACF confirma que se debería elegir $P=1$, dada la correlación significativa en el _lag_ 6, pero en más ningún múltiplo de 6.
+* `r chart` Dado que la ACF es decayente en los _lags_ mostrados, y que la PACF se corta en el _lag_ 1, se usa un orden $p=1$ para la parte $ARMA$.
+* Se observan un par de correlaciones significativas en la PACF, donde la correlación en $h=4$ es la mas importante. La otra se encuentra en $h=22$. Estas correlaciones aparecen significativas probablemente debido al patrón anual oscilante combinado con los cambios abruptos durante los picos y valles de la serie: en estos _lags_ se encuentran espaciados casi 2 años, y coinciden con la entrada a los picos y valles de la serie original.
+
+Los resultados de la prueba de Dickey-Fuller aumentada para comprobar estacionaridad de la serie muestran que el incremento proporcional de unidades es estacionaria (`r round(adf_test$statistic, 3)`, `r round(adf_test$p.value, 4)`), por lo que no es necesario una diferencia en el componente ARMA. 
+
+Se ajusta entonces un modelo $ARIMA(1, 0, 0)(0, 1, 1)_{12}$, y se compara con un modelo $ARIMA(2, 0, 2)(0, 1, 1)_{12}$ estimado minimizando la sumatoria de cuadrados condicional, encontrado por medio de una búsqueda del mejor modelo en el espacio de parámetros (mejor en el sentido de sumatoria de cuadrados mínima).
+
+Se escribe el modelo inferido de los descriptivos:
+
+$$
+\begin{aligned}
+  \Delta_{12}\phi(B)r_t = \Theta(B) w_t  & \Rightarrow \\
+    & \Rightarrow (1 - B^12)(1 - \phi B) r_t = (1 - \Theta B) w_t \\
+\end{aligned}
+$$
+
+el cual se expande como:
+
+$$
+r_t = \phi r_{t-1} + r_{t-12} + \phi r_{t-13} + w_t + \Theta w_{t-1}
+ (\#eq:model)
+$$
+
+### Estadísticos de Bondad de Ajuste.
+
+Los resultados de los ajustes se muestran en la tabla \@ref(tab:fitting-sarima), los cuales indican que el modelo dado en la ecuación \@ref(eq:model) no difiere demasiado del modelo encontrado al tantear el espacio de parámetros, en términos de robustez y precisión, dada la varianza residual, RMSE y MAE similares. 
+Además, el modelo $ARIMA(2, 0, 2)(0, 1, 1)_{12}$ parece ser preferible según los valores obtenidos en términos de la información proveída por el modelo (AIC, AICc y BIC). Esto se debe (dada la similitud de varianzas residuales), solo al aumento en la penalización consecuencia de la mayor cantidad de parámetros estimados en el modelo $ARIMA(2, 0, 2)(0, 1, 1)_{12}$.
 
 ```{r fitting-sarima}
-sarima_mod_1 <- arima(condmilk, order=c(1,0,0), 
-    seasonal=list(order=c(0, 1, 1), period(6)))
-sarima_mod_2 <- arima(condmilk, order=c(2,0,0), 
-    seasonal=list(order=c(0, 1, 1), period(6)))
-sarima_mod_3 <- arima(condmilk, order=c(1,0,0), 
-    seasonal=list(order=c(0, 1, 2), period(6)))
-sarima_mod_4 <- arima(condmilk, order=c(2,0,0), 
-    seasonal=list(order=c(0, 1, 2), period(6)))
+.model <- c(
+  expression("ARIMA(1,0,0)(0,1,1)"["12"]), 
+  expression("ARIMA(2,0,2)(0,1,1)"["12"])
+)
 
-models <- c(expression("ARIMA(1,0,0)(0,1,1)"["6"]), expression("ARIMA(2,0,0)(0,1,1)"["6"]), expression("ARIMA(1,0,0)(0,1,2)"["6"]), expression("ARIMA(2,0,0)(0,1,2)"["6"]))
-
-bind_rows(
-  purrr::map(list(sarima_mod_1, sarima_mod_2, sarima_mod_3, sarima_mod_4),
-      broom::glance)
-) %>% 
-  tibble::add_column(model=models, .before=1) %>%
-  kable(digits=2, row.name=TRUE, align='ccccc',
-        caption="Estadísticos de bondad de ajuste de los modelos SARIMA ajustados.")
+information_based %>%
+  left_join(error_based) %>%
+  select(.model:BIC, ME:MAE) %>%
+  knitr::kable(digits=c(NA, 4, 2, 1, 1, 1, 4, 4, 4), 
+    align='lcccccccccc', escape=FALSE,
+    col.names=c("Modelo", "$\\sigma^2$", "Func. Verosim.", "AIC", "AICc", "BIC", "ME", "RMSE", "MAE"),
+    caption="Estadísticos de bondad de ajuste de los modelos SARIMA ajustados.")
 ```
 
-```{r ljung-box-testS}
-# Utilizando como modelo nulo el generado por auto.arima
-#mod <- forecast::auto.arima(condmilk, stepwise=FALSE, approximation =FALSE, max.P=5, max.Q=5)
-#summary(mod)
-box_test <- Box.test(residuals(sarima_mod_1), type="Ljung-Box")
-```
-Al verificar el comportamiento de los residuales, las pruebas y gráficos no parecen mostrar patrones o desviaciones de la normalidad, mas allá de la presencia de ciertas observaciones atípicas. 
-De hecho, los resultados de la prueba de Ljung-Box para comprobar que el ruido corresponde a ruido blanco, indican que no hay razones para sospechar de que los residuales no sean un proceso de ruido blanco independiente e identicamente distribuido (`r round(box_test$statistic, 3)`, `r round(box_test$p.value, 4)`). 
-Esta conclusión es también posible observarla en el _QQ-plot_ para ambos modelos ajustados, donde solo 4 observaciones parecen alejarse de la recta teórica normal. 
+### Gráficos diagnósticos de residuales.
 
-Sin embargo, los residuales, aunque parecen comportarse de forma aleatoria, se puede observar cierto comportamiento ondulatorio de los mismos, y la variación de un punto a otro parece ser aun violenta, pudiendo indicar un problema de identificación. 
-Las funciones de autocorrelación y autocorrelación parcial no parecen indicar ningún problema de autocorrelación residual o dentro de la serie, pero si parece haber algún tipo de problema de aleatoriedad, dado que parece haber una tendencia sistemática a correlaciones negativas. 
+Al verificar el comportamiento de los residuales para el modelo candidato, $ARIMA(1,0,0)(0,1,1)_{12}$, se obtiene que los residuales no parecen estar correlacionados entre si, evaluando con respecto al retraso 12, aunque el valor de probabilidad obtenido es apenas marginal (`r round(box_test$lb_stat, 3)`, `r box_test$lb_pvalue`). 
+En el gráfico para ACF y PACF se muestra un pico de correlación significativa con respeto al _lag_ 5, lo cual indica la falta de un retraso en el modelo considerado. 
 
-```{r residuals-of-candidate, fig.height=14, fig.width=7}
-diagnostics <- list(sarima_mod_1, sarima_mod_2) %>%
-  purrr::map(function(x) {
-    res <- residuals(x) 
+```{r diagnostics-plots, fig.width=20, fig.height=5, fig.caption='Gráficos diagnósticos de residuales: _a)_ ACF, _b)_ PACF, _c)_ gráficos de residuales, y _d)_ gráfico _QQ_'}
+augmented_data %>%
+  ACF(.innov, lag_max=50) %>%
+  autoplot() +
+    theme_light() +
+    xlab("lag") + 
+    ylab(latex2exp::TeX("$\\rho(s, t)$")) -> acf
 
-    res_series <- autoplot(res / sqrt(x$sigma2), colour="orange") +
-      geom_point(aes(y=y), colour="orange") +
-      xlab("Tiempo") +
-      ylab("Residuales Estandarizados") + 
-      geom_hline(yintercept=0) +
-      theme_light() 
+augmented_data %>%
+  PACF(.innov, lag_max=50) %>%
+  autoplot() +
+    theme_light() +
+    xlab("lag") + 
+    ylab(latex2exp::TeX("$\\rho(s, t)$"))-> pacf 
 
-    res_qq_plot <- ggplot(res, aes(sample = Data)) + 
-      stat_qq() + stat_qq_line(color="blue") + theme_light()
+res_series <- augmented_data %>%
+  autoplot(.std.resid, colour="orange") +
+  geom_point(aes(y=.std.resid), colour="orange") +
+  scale_x_yearmonth(date_labels = "%Y") +
+  xlab("Tiempo") +
+  ylab("Residuales Estandarizados") + 
+  geom_hline(yintercept=c(0, 1.96, -1.96), 
+    color=c("black", 200, 200), linetype=c(1, 2, 2)) +
+  theme_light() 
 
-    res_acf <- ggplot(data=cbind(lag=1:30, acf=acf(res, plot=FALSE, lag=30)$acf[,,1][1:30]), 
-        mapping = aes(x = lag, y = acf)) +
-      geom_point() +
-      geom_hline(aes(yintercept = 0)) +
-      geom_segment(mapping = aes(xend = lag, yend = 0)) +
-      geom_hline(yintercept = c(1.96/sqrt(length(condmilk)), -1.96/sqrt(length(condmilk))), linetype=2, color='blue') +
-      ylab(latex2exp::TeX("$\\rho(s, t)$")) +
-      theme_light()
-
-    res_pacf <- ggplot(data=cbind(lag=1:30, pacf=pacf(res, plot=FALSE, lag=30)$acf[,,1][1:30]), 
-        mapping = aes(x=lag, y=pacf)) +
-      geom_point() +
-      geom_hline(aes(yintercept = 0)) +
-      geom_segment(mapping = aes(xend = lag, yend = 0)) +
-      geom_hline(yintercept = c(1.96/sqrt(length(condmilk)), -1.96/sqrt(length(condmilk))), linetype=2, color='blue') +
-      ylab(latex2exp::TeX("$\\rho(s, t)$")) +
-      theme_light()
-
-    list(res_series, res_qq_plot, res_acf, res_pacf)
-  })
-
-cowplot::plot_grid(
-  cowplot::plot_grid(plotlist=diagnostics[[1]], ncol=1, rel_heights=c(2,2,1,1)),
-  cowplot::plot_grid(plotlist=diagnostics[[2]], ncol=1, rel_heights=c(2,2,1,1)), 
-  nrow=1)
-```
-
-Al revisar el gráfico de residuales versus los valores predichos por el modelo, es posible ver que existe cierto componente de tendencia en el modelo que no se esta tomando en cuenta y que estaba oculto en la serie observada debido al patrón estacional.
-
-```{r fitted-versus-residuals, fig.height=5, fig.width=7}
-df_augmented <- as_tsibble(condmilk) %>%
-  mutate(.fitted=stats::fitted(sarima_mod_1),
-    .resid=residuals(sarima_mod_1))
-
-ggplot(df_augmented, aes(x=.fitted, y=.resid)) +
-  geom_point(colour="200") + geom_line(colour="200") +
-  geom_smooth(se=FALSE, colour="orange") +
-  geom_hline(yintercept=0) +
+res_qq_plot <- augmented_data %>% 
+  ggplot(aes(sample = .resid)) + 
+  stat_qq() + stat_qq_line(color="red") + 
   theme_light()
+
+cowplot::plot_grid(acf, pacf, res_series, res_qq_plot, 
+  nrow=1, align="h",
+  labels=c("a)", "b)", "c)", "d)"), 
+  label_size=11, 
+  label_fontface="italic")
 ```
 
+Más aun, el gráfico de residuales estandarizados y el gráfico _QQ_ muestran claramente que los residuales no son normales. 
+Se observa un patrón no aleatorio de distribución de los residuales alrededor de la media (secciones donde las observaciones caen mucho por encima de la media, y secciones donde caen por debajo). Además, se pueden notar observaciones atípicas, 8 de ellas específicamente, como se muestra en la tabla \@ref{tab:outliers}. 
+Se puede notar claramente que 3 de ellas caen en 1973, donde el comportamiento de la serie es anormal comparado con los otros años, y el resto corresponden a puntos de entrada a los picos y a los picos observados luego de 1973.
 
-
-Debido a la simplicidad del modelo, y las pocas diferencias entre ambos, se decidió elegir el modelo $ARMA(1,0,0)(0,1,1)_6$. Las predicciones para los próximos 24 meses obtenidas a partir del modelo se muestran a continuación:
-
-```{r forecast-plot}
-autoplot(forecast::forecast(sarima_mod_1,h=24)) + 
-  theme_light() + 
-  xlab('Tiempo') + ylab('Numero en el Inventario') +
-  ggtitle(expression("Prediccion de los proximos 24 meses de SARIMA(1, 0, 0)(0, 1, 1)"[6]))
+```{r outliers}
+augmented_data %>%
+  filter(
+    .resid < quantile(.resid, 0.25) - 1.5 * IQR(.resid) |
+    .resid > quantile(.resid, 0.75) + 1.5 * IQR(.resid)
+  ) %>%
+  select(-.resid) %>%
+  knitr::kable(digits=c(NA, 0, 4, 4, 3, 3, 2),
+    escape=FALSE, align='lcccccc',
+    col.names=c("Modelo", "Año", "$r_t$", "Predicho", "Residuo", "Res. Estand."),
+    caption="Observaciones atípicas registradas para los cambios proporcionales en el número de unidades en inventario de leche condensada.")
 ```
 
-donde se puede verificar que el componente estacional persiste en esos meses de acuerdo al modelo, pero no se captura el ciclo de cada tres años que se muestra en la serie temporal observada.
+Todo lo mencionado, parece indicar que aun existe una estructura de dependencia dentro de la serie que no se ha especificado, y que se debe optar por un modelo distinto. Los resultados parecen indicar que se debe considerar un modelo con el quinto _lag_ como regresor.
 
+### Análisis de correlaciones de $r_t$ y $r_{t-h}$.
 
+Dado los resultados encontrados para el primer modelo ajustado, se decide hacer un análisis de correlación entre la serie temporal con respecto a las series temporales retrasadas (figura \@ref(fig:bivariate-lag)).
 
+```{r bivariate-lag, fig.width=12, fig.height=10, fig.caption='Gráficos bivariados que relacionan la serie en $t$ con su valor retrasado en $t-h$, para $h=1$ a $12$.'}
+tscleaned %>%
+  gg_lag(prop_change, period=12, lags=1:12, geom="point") +
+  theme_light() +
+  theme(legend.position="none") +
+  facet_wrap(~.lag, 
+    labeller=as_labeller(setNames(paste("h =", 1:12), paste("lag", 1:12)))) +
+  xlab('lag(Cambio proporcional, h)') + 
+  ylab('Cambio proporcional')
+```
+
+La dependencia de la serie en $t$ con respecto a los valores en $t-1$ se toma en cuenta dentro del modelo ajustado antes, al considerar un modelo autoregresivo de orden $p=1$, al igual que la correlación positiva con respecto al 12vo retraso. 
+La correlación con $h=3$ no es significativa, y en $h=2$ y $h=4$ las correlaciones son pequeñas, comparadas con las correlaciones observadas en $h=5$ y $h=6$ (las cuales son negativas y más importantes), y que parecen ser no lineales para valores mayores a $0{,}05$. 
+
+Para estas variables retrasadas, la correlación negativa puede modelarse de dos formas: _i)_ considerando un solo modelo con regresores $r_{t-5}$ y $r_{t-5}^2$, dada la curvatura y forma no lineal de la serie; o _ii)_ generando un modelo a trozos con un regresor lineal $r_{t-6}$, cuyo coeficiente asociado cambia dependiendo de si $r_t$ es mayor a $0{,}05$. 
+
+## Regresión con variables retrasadas.
+
+Se busca modelar, en el primer caso, un modelo de la forma:
+
+$$
+r_t = \phi r_{t-1} + \phi r_{t-12} + \phi r_{t-13} + \beta_1 r_{t-5} + \beta_2 r_{t-5}^2 + w_t + \Theta w_{t-1}
+ (\#eq:model-reg)
+$$
+
+donde $\beta_1$ y $\beta_2$ son los coeficientes de regresión. En el segundo caso, se necesita de una variable _dummy_ $D_{t-5}$ la cual es 0 si $r_{t-6} < 0{,}05$ y 1 de otra forma, generando el modelo a trozos:
+
+$$
+r_t = \begin{cases}
+  \omega + \beta_1 r_{t-5} &  r_{t-5} < 0{,}05 \\
+  \omega + \beta_2 + (\beta_1 + \beta_3) r_{t-5} & r_{t-5} \ge 0{,}05
+\end{cases}
+ (\#eq:model-reg-trozos)
+$$
+
+donde $\omega = \phi r_{t-1} + \phi r_{t-12} + \phi r_{t-13} + w_t + \Theta w_{t-1}$ es el componente ARIMA y, de nuevo, $\beta_1$ y $\beta_2$ son los coeficientes de regresión para $r_{t-5}$ y $D_{t-5}$, y $\beta_3$ es el coeficiente de la interacción $D_{t-5}r_{t-5}$.
+
+### Estadísticos de Bondad de Ajuste.
+
+```{r lagged-regression}
+models_xreg <- c(.model, 
+  expression("ARIMA(1,0,0)(0,1,1)"["6"] ~ "(no lineal con r"["t-5"] ~ "^2)"), 
+  expression("ARIMA(1,0,0)(0,1,1)"["6"] ~ "(a trozos)")
+)
+
+information_based_2 %>%
+  left_join(error_based_2) %>%
+  select(.model:BIC, ME:MAE) %>%
+  knitr::kable(digits=c(NA, 4, 2, 1, 1, 1, 4, 4, 4), 
+    align='lcccccccccc', escape=FALSE,
+    col.names=c("Modelo", "$\\sigma^2$", "Func. Verosim.", "AIC", "AICc", "BIC", "ME", "RMSE", "MAE"),
+    caption="Estadísticos de bondad de ajuste de los modelos SARIMA ajustados.")
+```
+
+Los estadístico de bondad de ajuste muestran que las varianzas residuales de los modelos mostrados en las ecuaciones \@ref(eq:model-reg) y \@ref(eq:model-reg-trozos) son menores a la varianza residual del modelo $ARIMA(1,0,0)(0,1,1)_6$ sin regresores. 
+De igual forma, las demás medidas basadas en residuales RMSE, MAE y ME, no varían demasiado con respecto a los encontrados para el primer modelo ajustado, pero son, claro, menores. 
+Por otro lado, los valores de AIC y BIC para el modelo de regresión a trozos y el que usa una dependencia cuadrática son menores que los del primer modelo ajustado anteriormente (sin regresores). 
+
+### Gráficos diagnósticos de residuales.
+
+Los gráficos de residuales se muestran en la figura \@ref(fig:diagnostics-plots-2) para el modelo de la ecuación \@ref(eq:model-reg), con la dependencia cuadrática (el cual se selecciona al revisar los residuales). 
+Se puede observar que ya no existen correlaciones significativas, aunque se observa, principalmente en el PACF, que hay una cantidad inusualmente grande de correlaciones negativas en una sección en la primera mitad del gráfico. 
+
+```{r diagnostics-plots-2, fig.width=20, fig.height=5, fig.caption='Gráficos diagnósticos de residuales para el modelo regrsivo de la ecuacion (\\#eq:model-reg): _a)_ ACF, _b)_ PACF, _c)_ gráficos de residuales, y _d)_ gráfico _QQ_'}
+augmented_data_2 %>%
+  ACF(.innov, lag_max=50) %>%
+  autoplot() +
+    theme_light() +
+    xlab("lag") + 
+    ylab(latex2exp::TeX("$\\rho(s, t)$")) -> acf
+
+augmented_data_2 %>%
+  PACF(.innov, lag_max=50) %>%
+  autoplot() +
+    theme_light() +
+    xlab("lag") + 
+    ylab(latex2exp::TeX("$\\rho(s, t)$"))-> pacf 
+
+res_series <- augmented_data_2 %>%
+  autoplot(.std.resid, colour="orange") +
+  geom_point(aes(y=.std.resid), colour="orange") +
+  scale_x_yearmonth(date_labels = "%Y") +
+  xlab("Tiempo") +
+  ylab("Residuales Estandarizados") + 
+  geom_hline(yintercept=c(0, 1.96, -1.96), 
+    color=c("black", 200, 200), linetype=c(1, 2, 2)) +
+  theme_light() 
+
+res_qq_plot <- augmented_data_2 %>% 
+  ggplot(aes(sample = .resid)) + 
+  stat_qq() + stat_qq_line(color="red") + 
+  theme_light()
+
+cowplot::plot_grid(acf, pacf, res_series, res_qq_plot, 
+  nrow=1, align="h",
+  labels=c("a)", "b)", "c)", "d)"), 
+  label_size=11, 
+  label_fontface="italic")
+```
+
+Por otro lado, el gráfico _QQ_ muestra una mejora significativa en el comportamiento de los residuales, comparado con el modelo anterior. La distribución de estos alrededor de la media se percibe mas aleatoria, y a excepción de los atípicos, se ajustan bien a la recta teórica en el gráfico _QQ_. 
+Aun es posible observar quiebres estructurales consecuencia de las observaciones atípicas: en total se observan 5 atípicos, con más de dos desviaciones estándar, y al menos 9-10 observaciones con desviaciones importantes dentro del intervalo de una desviación estándar. 
+
+```{r outliers-two}
+augmented_data_2 %>%
+  filter(
+    .resid < quantile(.resid, 0.25) - 1.5 * IQR(.resid) |
+    .resid > quantile(.resid, 0.75) + 1.5 * IQR(.resid)
+  ) %>%
+  select(-.resid) %>%
+  knitr::kable(digits=c(NA, 0, 4, 4, 3, 2),
+    escape=FALSE, align='lcccccc',
+    col.names=c("Modelo", "Año", "$r_t$", "Predicho", "Residuo", "Res. Estand."),
+    caption="Observaciones atípicas registradas para los cambios proporcionales en el número de unidades en inventario de leche condensada.")
+```
+
+Es interesante notar varias características del gráfico de residuales:
+
+* `r watch` Durante el año 1973, donde la series es anormal en su comportamiento anual, y al inicio del cual ocurre el primer valle, de mayor magnitud, el comportamiento de la serie esta algo desviado de la aleatoriedad general de la serie, y es donde ocurren dos de los atípicos observado (uno en el valle, y uno justo en la anormalidad a mediados de año, donde hay una caída inesperada de las unidades en inventario).
+* `r watch` A inicios de 1974, existe un atípico al entrar al pico de este año, y el valor en el pico, aunque no es atípico, tiene una magnitud cercana al limite de $2\sigma$. 
+* `r watch` El siguiente atípico corresponde al segundo valle de 1976, el cual sigue en magnitud al del año 1973.
+* `r watch` El ultimo atípico que se registra en la serie se da a mediados del año 1977, en el ultimo pico registrado en la serie, y al cual corresponde al pico de menor magnitud.
+
+### Parámetros estimados para el modelo escogido.
+
+```{r parametters-table}
+new_models %>% 
+  select(`Lagged with sq`) %>%
+  tidy() %>%
+  select(-.model) %>%
+  mutate(term=c("$\\phi$", "$\\Theta$", "$\\beta_1$", "$\\beta_2$")) %>%
+  knitr::kable(digits=c(3, 3, 2, 4), align='lcccc', escape=FALSE,
+    col.names=c("Coef.", "Estimado", "Desv. Est.", "Estadístico", "$p$"),
+    caption="Parámetros estimados para el modelo de regresión con errores ARMA.")
+```
+
+## Predicción de los próximos 24 meses.
+
+Las predicciones para los próximos 24 meses obtenidas a partir del modelo se muestran a continuación:
+
+```{r forecast-plot, fig.width=7, fig.height=5, fig.caption='Predicción de los próximos 24 meses de la serie para los cambios proporcionales en las unidades de inventario, utilizando el modelo de la ecuación \\@ref(eq:model-reg)'}
+autoplot(cm_transf, colour="dodgerblue3") +
+    autolayer(forecast_24_month, colour="orange") +
+    scale_x_yearmonth(date_labels = "%Y") +
+    theme_light() + 
+    xlab('Tiempo') + ylab('Cambio proporcional') +
+    theme(legend.position="none")
+```
+
+### Predicción usando suavizado exponencial.
+
+Ahora se ajusta un modelo usando suavizado exponencial, minimizando la sumatoria de cuadrados, usando solo componentes aditivos para la estacionalidad y la tendencia, obteniéndose un modelo con un RMSE de `r RMSE(augment(ets_models)$.resid)` y MAE de `r MAE(augment(ets_models)$.resid)`, comparables a los obtenidos para el modelo ajustado inicialmente, sin regresores, mostrado en la ecuación \@ref(eq:model). 
+Los valores de AIC y BIC son un orden de magnitud mayor para el modelo ajustado usando ETS. 
+
+Los valores estimados para los parámetros de suavizados son: $\alpha= `r tidy(ets_models) %>% filter(term == "alpha") %>% pull(estimate) %>% round(4)`$, $\beta= `r tidy(ets_models) %>% filter(term == "beta") %>% pull(estimate) %>% round(4)`$, y $\gamma= `r tidy(ets_models) %>% filter(term == "gamma") %>% pull(estimate) %>% round(4)`$. Los valores tan pequeños para estos parámetros indican que el nivel, tendencia, y estacionalidad apenas varían con el tiempo.
+
+Las predicciones se muestran en la figura \@ref(fig:ets-forecast-plot), junto con la predicción obtenida antes en la figura \@ref(fig:forecast-plot) (linea gris a trozos), donde se observa que el modelo ETS ajustado predice de forma similar la serie durante los 24 meses siguientes.
+
+```{r ets-forecast-plot, fig.width=7, fig.height=5, fig.caption='Predicción de los próximos 24 meses de la serie para los cambios proporcionales en las unidades de inventario, utilizando un modelo ETS (las predicciones obtenidas de la ecuación \\@ref(eq:model-reg) se superpone (linea gris a trozos) sobre las predicciones del modelo ETS)'}
+autoplot(cm_transf, colour="dodgerblue3") +
+    autolayer(ets_forecast, colour="orange") +
+    autolayer(forecast_24_month, level=NULL, colour="200", linetype=2) +
+    scale_x_yearmonth(date_labels = "%Y") +
+    theme_light() + 
+    xlab('Tiempo') + ylab('Cambio proporcional') +
+    theme(legend.position="none")
+```
 
 
