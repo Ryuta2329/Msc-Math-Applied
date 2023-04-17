@@ -134,10 +134,10 @@ $$
 
 el cual se expande como:
 
-$$
-r_t = \phi r_{t-1} + r_{t-12} + \phi r_{t-13} + w_t + \Theta w_{t-1}
- (\#eq:model)
-$$
+\begin{equation} 
+  r_t = \phi r_{t-1} + r_{t-12} + \phi r_{t-13} + w_t + \Theta w_{t-1}
+  (\#eq:model)
+\end{equation}
 
 ### Estadísticos de Bondad de Ajuste.
 
