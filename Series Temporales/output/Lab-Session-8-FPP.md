@@ -1,6 +1,30 @@
-# Sesión de Laboratorio: Modelos SARIMA.
+---
+title: "Sesión de Laboratorio: Modelos SARIMA."
+author: "Marcelo Molinatti"
+date: "2023-03-25"
+output:
+ bookdown::html_document2:
+  number_sections: no
+  toc: yes
+  keep_md: yes
+  pandoc_args: "--lua-filter=../lua-filters/relative_path.lua"
+ bookdown::markdown_document2:
+  preserve_yaml: no
+  number_sections: yes
+  toc: yes
+ bookdown::pdf_document2:
+  keep_tex: no
+  fig_caption: yes
+  toc: yes
+---
 
-_Marcelo Molinatti_
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+
+
 
 Elija una de las siguientes series temporales estacionales: ```condmilk```, ```hsales```, ```usolec```  
 
@@ -19,7 +43,7 @@ Elija una de las siguientes series temporales estacionales: ```condmilk```, ```h
 source("../R/Lab-Session-8-FPP.R")
 ```
 
-Los datos seleccionados corresponden a una serie temporal de Inventarios de Manufactura de leche condensada evaporada y endulzada, recolectados mensualmente desde 1971 a 1980, como se muestra en el gráfico de la figura \@ref(fig:tseries-plot).
+Los datos seleccionados corresponden a una serie temporal de Inventarios de Manufactura de leche condensada evaporada y endulzada, recolectados mensualmente desde 1971 a 1980, como se muestra en el gráfico de la figura `\@ref(fig:tseries-plot)`.
 
 
 ```r
@@ -34,7 +58,7 @@ autoplot(condmilk, colour="dodgerblue3") +
   xlab('Tiempo') + ylab('Numero de Unidades')
 ```
 
-<img src="/Series Temporales/output/Lab-Session-8-FPP_files/figure-html/tseries-plot-1.png" style="display: block; margin: auto;" />
+<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Lab-Session-8-FPP_files/figure-html/tseries-plot-1.png" style="display: block; margin: auto;" />
 
 En el gráfico se observa claramente dos componentes estacionales: uno anual obvio, que fluctúa ligeramente, observándose una disrrupción a mediados de 1973 que rompe de alguna manera el patrón unimodal de los picos anuales; y también parece haber un componente trimestral de repeticiones de picos y valles importantes, cuya amplitud disminuye con el tiempo, indicando un amortiguamiento de las variaciones o fluctuaciones importantes en la serie. 
 
@@ -64,7 +88,7 @@ autoplot(cm_transf, colour="dodgerblue3") +
   xlab('Tiempo') + ylab('Cambio proporcional')
 ```
 
-<img src="/Series Temporales/output/Lab-Session-8-FPP_files/figure-html/transform-1.png" style="display: block; margin: auto;" />
+<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Lab-Session-8-FPP_files/figure-html/transform-1.png" style="display: block; margin: auto;" />
 
 Como se muestra, el patrón anual persiste en la serie, y se hacen mas visibles las desviaciones que antes estaban ocultas por el componente estacional. Dos observaciones destacan como valores atípicos en la serie, al inicio del primer pico a mediados de 1971, y en el primer valle en 1973. 
 
@@ -91,14 +115,14 @@ cm_transf %>%
 cowplot::plot_grid(acf, pacf, nrow=1)
 ```
 
-<img src="/Series Temporales/output/Lab-Session-8-FPP_files/figure-html/acf-pacf-1.png" style="display: block; margin: auto;" />
+<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Lab-Session-8-FPP_files/figure-html/acf-pacf-1.png" style="display: block; margin: auto;" />
 
 * 💹 La ACF indica que seria apropiada una diferencia de orden $D=1$ para el componente estacional, y un parámetro autoregresivo de orden $P=1$. También se observa que el periodo debería ser $s=6$, dado que los picos de mayor magnitud se registran en $6k$ para $k=1,2,\ldots$. Sin embargo, como el patrón es anual, se elige un periodo de $s=12$ dado que en un intervalo de 12 meses se completa un ciclo en la ACF.
-* 💹 La PACF confirma que se debería elegir $P=1$, dada la correlación significativa en el _lag_ 6, pero en más ningún múltiplo de 6.
-* 💹 Dado que la ACF es decayente en los _lags_ mostrados, y que la PACF se corta en el _lag_ 1, se usa un orden $p=1$ para la parte $ARMA$.
-* Se observan un par de correlaciones significativas en la PACF, donde la correlación en $h=4$ es la mas importante. La otra se encuentra en $h=22$. Estas correlaciones aparecen significativas probablemente debido al patrón anual oscilante combinado con los cambios abruptos durante los picos y valles de la serie: en estos _lags_ se encuentran espaciados casi 2 años, y coinciden con la entrada a los picos y valles de la serie original.
+* 💹 La PACF confirma que se debería elegir $P=1$, dada la correlación significativa en el $h=6$, pero en más ningún múltiplo de 6.
+* 💹 Dado que la ACF es decayente en los _lags_ mostrados, y que la PACF se corta en el $h=1$, se usa un orden $p=1$ para la parte $ARMA$.
+* 💹 Se observan un par de correlaciones significativas en la PACF, donde la correlación en $h=4$ es la mas importante. La otra se encuentra en $h=22$. Estas correlaciones aparecen significativas probablemente debido al patrón anual oscilante combinado con los cambios abruptos durante los picos y valles de la serie: en estos _lags_ se encuentran espaciados casi 2 años, y coinciden con la entrada a los picos y valles de la serie original.
 
-Los resultados de la prueba de Dickey-Fuller aumentada para comprobar estacionaridad de la serie muestran que el incremento proporcional de unidades es estacionaria (-6,95, 0,01), por lo que no es necesario una diferencia en el componente ARMA. 
+Los resultados de la prueba de Dickey-Fuller aumentada para comprobar estacionaridad de la serie muestran que el incremento proporcional de unidades es estacionaria ($DF_T=-6,95$, $p=0,01$), por lo que no es necesario una diferencia en el componente ARMA. 
 
 Se ajusta entonces un modelo $ARIMA(1, 0, 0)(0, 1, 1)_{12}$, y se compara con un modelo $ARIMA(2, 0, 2)(0, 1, 1)_{12}$ estimado minimizando la sumatoria de cuadrados condicional, encontrado por medio de una búsqueda del mejor modelo en el espacio de parámetros (mejor en el sentido de sumatoria de cuadrados mínima).
 
@@ -113,10 +137,10 @@ $$
 
 el cual se expande como:
 
-\begin{equation} 
+$$
   r_t = \phi r_{t-1} + r_{t-12} + \phi r_{t-13} + w_t + \Theta w_{t-1}
   (\#eq:model)
-\end{equation}
+$$
 
 ### Estadísticos de Bondad de Ajuste.
 
@@ -133,6 +157,7 @@ Además, el modelo $ARIMA(2, 0, 2)(0, 1, 1)_{12}$ parece ser preferible según l
 information_based %>%
   left_join(error_based) %>%
   select(.model:BIC, ME:MAE) %>%
+  mutate(.model=.model) %>%
   knitr::kable(digits=c(NA, 4, 2, 1, 1, 1, 4, 4, 4), 
     align='lcccccccccc', escape=FALSE,
     col.names=c("Modelo", "$\\sigma^2$", "Func. Verosim.", "AIC", "AICc", "BIC", "ME", "RMSE", "MAE"),
@@ -236,10 +261,10 @@ augmented_data %>%
     .resid < quantile(.resid, 0.25) - 1.5 * IQR(.resid) |
     .resid > quantile(.resid, 0.75) + 1.5 * IQR(.resid)
   ) %>%
-  select(-.resid) %>%
-  knitr::kable(digits=c(NA, 0, 4, 4, 3, 3, 2),
+  select(-.resid, -.model) %>%
+  knitr::kable(digits=c(0, 4, 4, 3, 3, 2),
     escape=FALSE, align='lcccccc',
-    col.names=c("Modelo", "Año", "$r_t$", "Predicho", "Residuo", "Res. Estand."),
+    col.names=c("Año", "$r_t$", "Predicho", "Residuo", "Res. Estand."),
     caption="Observaciones atípicas registradas para los cambios proporcionales en el número de unidades en inventario de leche condensada.")
 ```
 
@@ -247,8 +272,7 @@ augmented_data %>%
 <caption>(\#tab:outliers)Observaciones atípicas registradas para los cambios proporcionales en el número de unidades en inventario de leche condensada.</caption>
  <thead>
   <tr>
-   <th style="text-align:left;"> Modelo </th>
-   <th style="text-align:center;"> Año </th>
+   <th style="text-align:left;"> Año </th>
    <th style="text-align:center;"> $r_t$ </th>
    <th style="text-align:center;"> Predicho </th>
    <th style="text-align:center;"> Residuo </th>
@@ -257,64 +281,56 @@ augmented_data %>%
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;"> ARMA(1,0,0)(0,1,1)_{12} </td>
-   <td style="text-align:center;"> 1972 abr </td>
+   <td style="text-align:left;"> 1972 abr </td>
    <td style="text-align:center;"> 0,0969 </td>
    <td style="text-align:center;"> -0,0623 </td>
    <td style="text-align:center;"> 0,159 </td>
    <td style="text-align:center;"> 2,735 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> ARMA(1,0,0)(0,1,1)_{12} </td>
-   <td style="text-align:center;"> 1973 mar </td>
+   <td style="text-align:left;"> 1973 mar </td>
    <td style="text-align:center;"> -0,1899 </td>
    <td style="text-align:center;"> -0,0469 </td>
    <td style="text-align:center;"> -0,143 </td>
    <td style="text-align:center;"> -2,457 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> ARMA(1,0,0)(0,1,1)_{12} </td>
-   <td style="text-align:center;"> 1973 abr </td>
+   <td style="text-align:left;"> 1973 abr </td>
    <td style="text-align:center;"> 0,1979 </td>
    <td style="text-align:center;"> 0,0543 </td>
    <td style="text-align:center;"> 0,144 </td>
    <td style="text-align:center;"> 2,467 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> ARMA(1,0,0)(0,1,1)_{12} </td>
-   <td style="text-align:center;"> 1973 ago </td>
+   <td style="text-align:left;"> 1973 ago </td>
    <td style="text-align:center;"> -0,2990 </td>
    <td style="text-align:center;"> -0,0383 </td>
    <td style="text-align:center;"> -0,261 </td>
    <td style="text-align:center;"> -4,477 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> ARMA(1,0,0)(0,1,1)_{12} </td>
-   <td style="text-align:center;"> 1974 mar </td>
+   <td style="text-align:left;"> 1974 mar </td>
    <td style="text-align:center;"> 0,0338 </td>
    <td style="text-align:center;"> -0,0807 </td>
    <td style="text-align:center;"> 0,115 </td>
    <td style="text-align:center;"> 1,967 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> ARMA(1,0,0)(0,1,1)_{12} </td>
-   <td style="text-align:center;"> 1974 ago </td>
+   <td style="text-align:left;"> 1974 ago </td>
    <td style="text-align:center;"> 0,0297 </td>
    <td style="text-align:center;"> -0,0885 </td>
    <td style="text-align:center;"> 0,118 </td>
    <td style="text-align:center;"> 2,032 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> ARMA(1,0,0)(0,1,1)_{12} </td>
-   <td style="text-align:center;"> 1976 mar </td>
+   <td style="text-align:left;"> 1976 mar </td>
    <td style="text-align:center;"> 0,0635 </td>
    <td style="text-align:center;"> -0,0613 </td>
    <td style="text-align:center;"> 0,125 </td>
    <td style="text-align:center;"> 2,145 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> ARMA(1,0,0)(0,1,1)_{12} </td>
-   <td style="text-align:center;"> 1977 ago </td>
+   <td style="text-align:left;"> 1977 ago </td>
    <td style="text-align:center;"> 0,0761 </td>
    <td style="text-align:center;"> -0,0359 </td>
    <td style="text-align:center;"> 0,112 </td>
@@ -354,7 +370,7 @@ Se busca modelar, en el primer caso, un modelo de la forma:
 
 $$
 r_t = \phi r_{t-1} + \phi r_{t-12} + \phi r_{t-13} + \beta_1 r_{t-5} + \beta_2 r_{t-5}^2 + w_t + \Theta w_{t-1}
- (\#eq:model-reg)
+(\\#eq:model-reg)
 $$
 
 donde $\beta_1$ y $\beta_2$ son los coeficientes de regresión. En el segundo caso, se necesita de una variable _dummy_ $D_{t-5}$ la cual es 0 si $r_{t-6} < 0{,}05$ y 1 de otra forma, generando el modelo a trozos:
@@ -380,7 +396,8 @@ models_xreg <- c(.model,
 
 information_based_2 %>%
   left_join(error_based_2) %>%
-  select(.model:BIC, ME:MAE) %>%
+  select(sigma2:BIC, ME:MAE) %>%
+  tibble::add_column(model=models_xreg, .before=1) %>%
   knitr::kable(digits=c(NA, 4, 2, 1, 1, 1, 4, 4, 4), 
     align='lcccccccccc', escape=FALSE,
     col.names=c("Modelo", "$\\sigma^2$", "Func. Verosim.", "AIC", "AICc", "BIC", "ME", "RMSE", "MAE"),
@@ -404,7 +421,7 @@ information_based_2 %>%
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;"> non_stationaty </td>
+   <td style="text-align:left;"> "ARIMA(1,0,0)(0,1,1)"["12"] </td>
    <td style="text-align:center;"> 0,0033 </td>
    <td style="text-align:center;"> 148,93 </td>
    <td style="text-align:center;"> -285,9 </td>
@@ -415,7 +432,7 @@ information_based_2 %>%
    <td style="text-align:center;"> 0,0376 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> Lagged with sq </td>
+   <td style="text-align:left;"> "ARIMA(2,0,2)(0,1,1)"["12"] </td>
    <td style="text-align:center;"> 0,0026 </td>
    <td style="text-align:center;"> 147,67 </td>
    <td style="text-align:center;"> -285,3 </td>
@@ -426,7 +443,7 @@ information_based_2 %>%
    <td style="text-align:center;"> 0,0339 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> Lagged by pieces </td>
+   <td style="text-align:left;"> "ARIMA(1,0,0)(0,1,1)"["6"] ~ "(no lineal con r"["t-5"] ~ "^2)" </td>
    <td style="text-align:center;"> 0,0026 </td>
    <td style="text-align:center;"> 148,38 </td>
    <td style="text-align:center;"> -284,8 </td>
@@ -437,7 +454,7 @@ information_based_2 %>%
    <td style="text-align:center;"> 0,0336 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> ARMA(1,0,0)(0,1,1)_{12} </td>
+   <td style="text-align:left;"> "ARIMA(1,0,0)(0,1,1)"["6"] ~ "(a trozos)" </td>
    <td style="text-align:center;"> 0,0034 </td>
    <td style="text-align:center;"> 143,79 </td>
    <td style="text-align:center;"> -281,6 </td>
@@ -509,10 +526,10 @@ augmented_data_2 %>%
     .resid < quantile(.resid, 0.25) - 1.5 * IQR(.resid) |
     .resid > quantile(.resid, 0.75) + 1.5 * IQR(.resid)
   ) %>%
-  select(-.resid) %>%
-  knitr::kable(digits=c(NA, 0, 4, 4, 3, 2),
+  select(-.resid, -.model) %>%
+  knitr::kable(digits=c(0, 4, 4, 3, 2),
     escape=FALSE, align='lcccccc',
-    col.names=c("Modelo", "Año", "$r_t$", "Predicho", "Residuo", "Res. Estand."),
+    col.names=c("Año", "$r_t$", "Predicho", "Residuo", "Res. Estand."),
     caption="Observaciones atípicas registradas para los cambios proporcionales en el número de unidades en inventario de leche condensada.")
 ```
 
@@ -520,8 +537,7 @@ augmented_data_2 %>%
 <caption>(\#tab:outliers-two)Observaciones atípicas registradas para los cambios proporcionales en el número de unidades en inventario de leche condensada.</caption>
  <thead>
   <tr>
-   <th style="text-align:left;"> Modelo </th>
-   <th style="text-align:center;"> Año </th>
+   <th style="text-align:left;"> Año </th>
    <th style="text-align:center;"> $r_t$ </th>
    <th style="text-align:center;"> Predicho </th>
    <th style="text-align:center;"> Residuo </th>
@@ -530,40 +546,35 @@ augmented_data_2 %>%
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;"> Lagged with sq </td>
-   <td style="text-align:center;"> 1973 mar </td>
+   <td style="text-align:left;"> 1973 mar </td>
    <td style="text-align:center;"> -0,1899 </td>
    <td style="text-align:center;"> -0,0679 </td>
    <td style="text-align:center;"> -0,122 </td>
    <td style="text-align:center;"> -2,40 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> Lagged with sq </td>
-   <td style="text-align:center;"> 1973 ago </td>
+   <td style="text-align:left;"> 1973 ago </td>
    <td style="text-align:center;"> -0,2990 </td>
    <td style="text-align:center;"> -0,0799 </td>
    <td style="text-align:center;"> -0,219 </td>
    <td style="text-align:center;"> -4,31 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> Lagged with sq </td>
-   <td style="text-align:center;"> 1974 mar </td>
+   <td style="text-align:left;"> 1974 mar </td>
    <td style="text-align:center;"> 0,0338 </td>
    <td style="text-align:center;"> -0,0830 </td>
    <td style="text-align:center;"> 0,117 </td>
    <td style="text-align:center;"> 2,30 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> Lagged with sq </td>
-   <td style="text-align:center;"> 1976 mar </td>
+   <td style="text-align:left;"> 1976 mar </td>
    <td style="text-align:center;"> 0,0635 </td>
    <td style="text-align:center;"> -0,0725 </td>
    <td style="text-align:center;"> 0,136 </td>
    <td style="text-align:center;"> 2,68 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> Lagged with sq </td>
-   <td style="text-align:center;"> 1977 ago </td>
+   <td style="text-align:left;"> 1977 ago </td>
    <td style="text-align:center;"> 0,0761 </td>
    <td style="text-align:center;"> -0,0330 </td>
    <td style="text-align:center;"> 0,109 </td>
