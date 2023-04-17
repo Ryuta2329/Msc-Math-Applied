@@ -4,8 +4,10 @@ author: "Marcelo Molinatti"
 date: "2023-03-25"
 output:
  bookdown::html_document2:
-  number_sections: yes
+  number_sections: no
+  toc: yes
   keep_md: yes
+  pandoc_args: ["--lua-filter=../lua-filters/relative_path.lua"]
  bookdown::markdown_document2:
   preserve_yaml: no
   number_sections: yes
@@ -32,6 +34,7 @@ watch <- emo::ji("watch")
 ```
 
 Elija una de las siguientes series temporales estacionales: ```condmilk```, ```hsales```, ```usolec```  
+
 * `r agree` ¿Es necesario transformar los datos? Si es así, encuentre un transformación adecuado.
 * `r agree` ¿Son estacionarios los datos? Si no, encuentre una diferenciación apropiada que produce datos estacionarios.
 * `r agree` Identifique un par de modelos ARIMA que podrían ser útiles en describir la serie de tiempo. ¿Cuál de sus modelos es el mejor de acuerdo con sus valores $AIC$?
@@ -158,7 +161,7 @@ information_based %>%
 
 ### Gráficos diagnósticos de residuales.
 
-Al verificar el comportamiento de los residuales para el modelo candidato, $ARIMA(1,0,0)(0,1,1)_{12}$, se obtiene que los residuales no parecen estar correlacionados entre si, evaluando con respecto al retraso 12, aunque el valor de probabilidad obtenido es apenas marginal (`r round(box_test$lb_stat, 3)`, `r box_test$lb_pvalue`). 
+Al verificar el comportamiento de los residuales para el modelo candidato, $ARIMA(1,0,0)(0,1,1)_{12}$, se obtiene que los residuales no parecen estar correlacionados entre si, evaluando con respecto al retraso 12, aunque el valor de probabilidad obtenido es apenas marginal ($Q=`r round(box_test$lb_stat, 3)`$, $p=`r box_test$lb_pvalue`$). 
 En el gráfico para ACF y PACF se muestra un pico de correlación significativa con respeto al _lag_ 5, lo cual indica la falta de un retraso en el modelo considerado. 
 
 ```{r diagnostics-plots, fig.width=20, fig.height=5, fig.caption='Gráficos diagnósticos de residuales: _a)_ ACF, _b)_ PACF, _c)_ gráficos de residuales, y _d)_ gráfico _QQ_'}

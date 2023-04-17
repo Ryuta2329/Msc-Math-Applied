@@ -21,18 +21,21 @@
         exponencial.](#predicción-usando-suavizado-exponencial.)
 
 Elija una de las siguientes series temporales estacionales: `condmilk`,
-`hsales`, `usolec`  
-\* ✅ ¿Es necesario transformar los datos? Si es así, encuentre un
-transformación adecuado. \* ✅ ¿Son estacionarios los datos? Si no,
-encuentre una diferenciación apropiada que produce datos estacionarios.
-\* ✅ Identifique un par de modelos ARIMA que podrían ser útiles en
-describir la serie de tiempo. ¿Cuál de sus modelos es el mejor de
-acuerdo con sus valores *A**I**C*? \* ✅ Estime los parámetros de su
-mejor modelo y haga un diagnóstico de los residuos. ¿Los residuos se
-parecen al ruido blanco? Si no es así, intente encontrar otro modelo
-ARIMA que le quede mejor. \* ✅ Pronostique los próximos 24 meses de
-datos usando su modelo preferido. \* ✅ Compare los pronósticos
-obtenidos, usando `ets()`.
+`hsales`, `usolec`
+
+-   ✅ ¿Es necesario transformar los datos? Si es así, encuentre un
+    transformación adecuado.
+-   ✅ ¿Son estacionarios los datos? Si no, encuentre una diferenciación
+    apropiada que produce datos estacionarios.
+-   ✅ Identifique un par de modelos ARIMA que podrían ser útiles en
+    describir la serie de tiempo. ¿Cuál de sus modelos es el mejor de
+    acuerdo con sus valores *A**I**C*?
+-   ✅ Estime los parámetros de su mejor modelo y haga un diagnóstico de
+    los residuos. ¿Los residuos se parecen al ruido blanco? Si no es
+    así, intente encontrar otro modelo ARIMA que le quede mejor.
+-   ✅ Pronostique los próximos 24 meses de datos usando su modelo
+    preferido.
+-   ✅ Compare los pronósticos obtenidos, usando `ets()`.
 
 0.1 Descripción de la serie.
 ----------------------------
@@ -316,9 +319,10 @@ Al verificar el comportamiento de los residuales para el modelo
 candidato, *A**R**I**M**A*(1, 0, 0)(0, 1, 1)<sub>12</sub>, se obtiene
 que los residuales no parecen estar correlacionados entre si, evaluando
 con respecto al retraso 12, aunque el valor de probabilidad obtenido es
-apenas marginal (15,289, 0,0537708). En el gráfico para ACF y PACF se
-muestra un pico de correlación significativa con respeto al *lag* 5, lo
-cual indica la falta de un retraso en el modelo considerado.
+apenas marginal (*Q* = 15, 289, *p* = 0, 0537708). En el gráfico para
+ACF y PACF se muestra un pico de correlación significativa con respeto
+al *lag* 5, lo cual indica la falta de un retraso en el modelo
+considerado.
 
     augmented_data %>%
       ACF(.innov, lag_max=50) %>%
