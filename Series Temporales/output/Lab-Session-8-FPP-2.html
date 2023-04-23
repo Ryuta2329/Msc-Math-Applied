@@ -372,7 +372,8 @@ library(feasts)
 # Manufacturer&#39;s Stocks of evaporated and sweetened condensed milk.
 data(condmilk, package=&quot;fma&quot;)
 condmilk &lt;- as_tsibble(condmilk)</code></pre>
-<p>Los datos seleccionados corresponden a una serie temporal de Inventarios de Manufactura de leche condensada evaporada y endulzada, recolectados mensualmente desde 1971 a 1980, como se muestra en el gráfico de la figura <a href="#fig:tseries-plot">1.1</a>.</p>
+<p>Los datos seleccionados corresponden a una serie temporal de Inventarios de Manufactura de leche condensada evaporada y endulzada, recolectados mensualmente desde 1971 a 1980, como se muestra en el gráfico de la figura <a href="#tseries-plot">figura 1</a>.</p>
+<p><a name="tseries-plot"></a></p>
 <pre class="r"><code># Grafico de la serie temporal
 autoplot(condmilk, colour=&quot;dodgerblue3&quot;) +
   geom_point(aes(y=value), colour=&quot;dodgerblue3&quot;) + 
@@ -398,7 +399,8 @@ Figure 1.1: Cambio temporal en el número de unidades de leche condensada entre 
 <h2><span class="header-section-number">1.2</span> Transformación de la serie.</h2>
 <p>Dada la descripción anterior, se decide optar por transformar los datos usando una función logarítmica, con la finalidad de hacer mas obvias las desviaciones importantes que aparecen en la serie; y en lugar de modelar la serie original transformada, se modela la serie que resulta de la diferencia de valores adyacentes (elimina el componente con tendencia en la primer tercio de la serie original):</p>
 <p><span class="math display">\[log(x_t) - log(x_{t-1}) = log(\frac{x_t}{x_{t-1}}) = log(1 + r_t)\]</span></p>
-<p>donde <span class="math inline">\(r_t\)</span> es el incremento o decremento proporcional de la unidad en el año <span class="math inline">\(t\)</span> con respecto al valor en el año anterior, <span class="math inline">\(t-1\)</span>. Dado que la magnitud de <span class="math inline">\(r_t\)</span> es pequeña, se puede aproximar <span class="math inline">\(log(1 + r_t) \approx r_t\)</span>. La serie <span class="math inline">\(r_t\)</span> se muestra en la figura <a href="#fig:transform">1.2</a>.</p>
+<p>donde <span class="math inline">\(r_t\)</span> es el incremento o decremento proporcional de la unidad en el año <span class="math inline">\(t\)</span> con respecto al valor en el año anterior, <span class="math inline">\(t-1\)</span>. Dado que la magnitud de <span class="math inline">\(r_t\)</span> es pequeña, se puede aproximar <span class="math inline">\(log(1 + r_t) \approx r_t\)</span>. La serie <span class="math inline">\(r_t\)</span> se muestra en la figura <a href="#transform">figure 1</a>.</p>
+<p><a name="transform"></a></p>
 <pre class="r"><code># Transformando: se usa el log en base 10
 cm_transf &lt;- condmilk %&gt;%
   mutate(prop_change=difference(log10(value)), .keep = &quot;unused&quot;) %&gt;%

@@ -20,6 +20,6 @@ Soluciones a los ejercicios del libro _Time Series Analysis and its Applications
  * [El Niño y la poblacion de peces.](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/colab-nb/SOI-Recruitment-example.ipynb)
 
 4. Sesiones de laboratorio.
- * [Sesión de Laboratorio: Modelos SARIMA.](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/output/Lab-Session-8-FPP.md) Analisis de la sere ```condmilk```.
+ * [Sesión de Laboratorio: Modelos SARIMA.](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/output/Lab-Session-8-FPP-2.md) Analisis de la sere ```condmilk```.
  * [Sesión de Laboratorio: Modelos GARCH.](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/output/TSLA-example.md) Amalisis de los precios de la bolsa de Tesla.
  
