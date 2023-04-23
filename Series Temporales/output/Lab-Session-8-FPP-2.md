@@ -125,7 +125,7 @@ cowplot::plot_grid(acf, pacf, nrow=1)
 
 Los resultados de la prueba de Dickey-Fuller aumentada para comprobar estacionaridad de la serie muestran que el incremento proporcional de unidades es estacionaria ($DF_T =$ -6,95, $p =$ 0,01), por lo que no es necesario una diferencia en el componente $ARMA$. 
 
-Se ajusta entonces un modelo $ARIMA(1{,} 0{,} 0)(0{,} 1{,} 1)_{12}$, y se compara con un modelo $ARIMA(2{,} 0{,} 2)(0{,} 1{,} 1)_{12}$ estimado minimizando la sumatoria de cuadrados condicional, encontrado por medio de una búsqueda del mejor modelo en el espacio de parámetros (mejor en el sentido de sumatoria de cuadrados mínima).
+Se ajusta entonces un modelo $ARIMA(1,0,0)(0,1,1)_{12}$, y se compara con un modelo $ARIMA(2,0,2)(0,1,1)_{12}$ estimado minimizando la sumatoria de cuadrados condicional, encontrado por medio de una búsqueda del mejor modelo en el espacio de parámetros (mejor en el sentido de sumatoria de cuadrados mínima).
 
 
 ```r
@@ -147,9 +147,7 @@ $$
 el cual se expande como:
 
 <a name="eq-model"></a>
-$$
-r_t = \phi r_{t-1} + r_{t-12} + \phi r_{t-13} + w_t + \Theta w_{t-1}
-$$
+$$r_t = \phi r_{t-1} + r_{t-12} + \phi r_{t-13} + w_t + \Theta w_{t-1}$$
 
 ### Estadísticos de Bondad de Ajuste.
 
