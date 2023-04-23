@@ -372,8 +372,7 @@ library(feasts)
 # Manufacturer&#39;s Stocks of evaporated and sweetened condensed milk.
 data(condmilk, package=&quot;fma&quot;)
 condmilk &lt;- as_tsibble(condmilk)</code></pre>
-<p>Los datos seleccionados corresponden a una serie temporal de Inventarios de Manufactura de leche condensada evaporada y endulzada, recolectados mensualmente desde 1971 a 1980, como se muestra en el gráfico de la figura <a href="#tseries-plot">figura 1</a>.</p>
-<p><a name="tseries-plot"></a></p>
+<p>Los datos seleccionados corresponden a una serie temporal de Inventarios de Manufactura de leche condensada evaporada y endulzada, recolectados mensualmente desde 1971 a 1980, como se muestra en el gráfico de la figura <a href="#fig:tseries-plot">1.1</a>.</p>
 <pre class="r"><code># Grafico de la serie temporal
 autoplot(condmilk, colour=&quot;dodgerblue3&quot;) +
   geom_point(aes(y=value), colour=&quot;dodgerblue3&quot;) + 
@@ -389,6 +388,22 @@ autoplot(condmilk, colour=&quot;dodgerblue3&quot;) +
 Figure 1.1: Cambio temporal en el número de unidades de leche condensada entre 1971-1980. Se muestra el patrón anual y la estacionaridad de la serie usando un suavizado de <em>kernel</em> (línea sólida gris) y <em>loess</em> (línea fragmentada gris), respectivamente.
 </p>
 </div>
+<table>
+<caption>
+Figura 1. Cambio temporal en el número de unidades de leche condensada entre 1971-1980. Se muestra el patrón anual y la estacionaridad de la serie usando un suavizado de <em>kernel</em> (línea sólida gris) y <em>loess</em> (línea fragmentada gris), respectivamente.
+</caption>
+<colgroup>
+<col width="100">
+</col>
+</colgroup>
+<thead>
+<tr class="header">
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+<p>
 <p>En el gráfico se observa claramente dos componentes estacionales: uno anual obvio, que fluctúa ligeramente, observándose una disrrupción a mediados de 1973 que rompe de alguna manera el patrón unimodal de los picos anuales; y también parece haber un componente trimestral de repeticiones de picos y valles importantes, cuya amplitud disminuye con el tiempo, indicando un amortiguamiento de las variaciones o fluctuaciones importantes en la serie.</p>
 <p>Se resaltan en el componente trimestral:
 <em>i)</em> picos de mayor magnitud cada tres años, a mediados de los años 1971, 1974 y 1977, mostrando un cambio periódico en la amplitud de los ciclos (aunque no se observa pico a mediados de 1980);
@@ -399,8 +414,7 @@ Figure 1.1: Cambio temporal en el número de unidades de leche condensada entre 
 <h2><span class="header-section-number">1.2</span> Transformación de la serie.</h2>
 <p>Dada la descripción anterior, se decide optar por transformar los datos usando una función logarítmica, con la finalidad de hacer mas obvias las desviaciones importantes que aparecen en la serie; y en lugar de modelar la serie original transformada, se modela la serie que resulta de la diferencia de valores adyacentes (elimina el componente con tendencia en la primer tercio de la serie original):</p>
 <p><span class="math display">\[log(x_t) - log(x_{t-1}) = log(\frac{x_t}{x_{t-1}}) = log(1 + r_t)\]</span></p>
-<p>donde <span class="math inline">\(r_t\)</span> es el incremento o decremento proporcional de la unidad en el año <span class="math inline">\(t\)</span> con respecto al valor en el año anterior, <span class="math inline">\(t-1\)</span>. Dado que la magnitud de <span class="math inline">\(r_t\)</span> es pequeña, se puede aproximar <span class="math inline">\(log(1 + r_t) \approx r_t\)</span>. La serie <span class="math inline">\(r_t\)</span> se muestra en la figura <a href="#transform">figure 1</a>.</p>
-<p><a name="transform"></a></p>
+<p>donde <span class="math inline">\(r_t\)</span> es el incremento o decremento proporcional de la unidad en el año <span class="math inline">\(t\)</span> con respecto al valor en el año anterior, <span class="math inline">\(t-1\)</span>. Dado que la magnitud de <span class="math inline">\(r_t\)</span> es pequeña, se puede aproximar <span class="math inline">\(log(1 + r_t) \approx r_t\)</span>. La serie <span class="math inline">\(r_t\)</span> se muestra en la figura <a href="#fig:transform">1.2</a>.</p>
 <pre class="r"><code># Transformando: se usa el log en base 10
 cm_transf &lt;- condmilk %&gt;%
   mutate(prop_change=difference(log10(value)), .keep = &quot;unused&quot;) %&gt;%
@@ -425,6 +439,22 @@ autoplot(cm_transf, colour=&quot;dodgerblue3&quot;) +
 Figure 1.2: Cambio proporcional anual en las unidades de leche condensada. Se muestra el patrón anual y la estacionaridad de la serie usando un suavizado de <em>kernel</em> (línea sólida gris) y <em>loess</em> (línea fragmentada gris), respectivamente.
 </p>
 </div>
+<table>
+<caption>
+Figura 2. Cambio proporcional anual en las unidades de leche condensada. Se muestra el patrón anual y la estacionaridad de la serie usando un suavizado de <em>kernel</em> (línea sólida gris) y <em>loess</em> (línea fragmentada gris), respectivamente.
+</caption>
+<colgroup>
+<col width="100">
+</col>
+</colgroup>
+<thead>
+<tr class="header">
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+<p>
 <p>Como se muestra, el patrón anual persiste en la serie, y se hacen mas visibles las desviaciones que antes estaban ocultas por el componente estacional. Dos observaciones destacan como valores atípicos en la serie, al inicio del primer pico a mediados de 1971, y en el primer valle en 1973.</p>
 </div>
 <div id="elección-de-un-modelo." class="section level2">
@@ -453,6 +483,22 @@ cowplot::plot_grid(acf, pacf, nrow=1)</code></pre>
 Figure 1.3: ACF y PACF de la serie original
 </p>
 </div>
+<table>
+<caption>
+Figura 3. ACF y PACF de la serie original
+</caption>
+<colgroup>
+<col width="100">
+</col>
+</colgroup>
+<thead>
+<tr class="header">
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+<p>
 <ul>
 <li>💹 La ACF indica que seria apropiada una diferencia de orden <span class="math inline">\(D=1\)</span> para el componente estacional, y un parámetro autoregresivo de orden <span class="math inline">\(P=1\)</span>. También se observa que el periodo debería ser <span class="math inline">\(s=6\)</span>, dado que los picos de mayor magnitud se registran en <span class="math inline">\(6k\)</span> para <span class="math inline">\(k=1,2,\ldots\)</span>. Sin embargo, como el patrón es anual, se elige un periodo de <span class="math inline">\(s=12\)</span> dado que en un intervalo de 12 meses se completa un ciclo en la ACF.</li>
 <li>💹 La PACF confirma que se debería elegir <span class="math inline">\(P=1\)</span>, dada la correlación significativa en el <span class="math inline">\(h=6\)</span>, pero en más ningún múltiplo de 6.</li>
@@ -653,6 +699,22 @@ cowplot::plot_grid(acf, pacf, res_series, res_qq_plot,
 Figure 1.4: Gráficos diagnósticos de residuales: <em>a)</em> ACF, <em>b)</em> PACF, <em>c)</em> gráficos de residuales, y <em>d)</em> gráfico <em>QQ</em>
 </p>
 </div>
+<table>
+<caption>
+Figura 4. Gráficos diagnósticos de residuales: <em>a)</em> ACF, <em>b)</em> PACF, <em>c)</em> gráficos de residuales, y <em>d)</em> gráfico <em>QQ</em>
+</caption>
+<colgroup>
+<col width="100">
+</col>
+</colgroup>
+<thead>
+<tr class="header">
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+<p>
 <p>Más aun, el gráfico de residuales estandarizados y el gráfico <em>QQ</em> muestran claramente que los residuales no son normales.
 Se observa un patrón no aleatorio de distribución de los residuales alrededor de la media (secciones donde las observaciones caen mucho por encima de la media, y secciones donde caen por debajo). Además, se pueden notar observaciones atípicas, 8 de ellas específicamente, como se muestra en la tabla <a href="#tab:outliers">1.2</a>.
 Se puede notar claramente que 3 de ellas caen en 1973, donde el comportamiento de la serie es anormal comparado con los otros años, y el resto corresponden a puntos de entrada a los picos y a los picos observados luego de 1973.</p>
@@ -853,6 +915,22 @@ tscleaned %&gt;%
 Figure 1.5: Gráficos bivariados que relacionan la serie en <span class="math inline">\(t\)</span> con su valor retrasado en <span class="math inline">\(t-h\)</span>, para <span class="math inline">\(h=1\)</span> a <span class="math inline">\(12\)</span>.
 </p>
 </div>
+<table>
+<caption>
+Figura 5. Gráficos bivariados que relacionan la serie en <span class="math inline">\(t\)</span> con su valor retrasado en <span class="math inline">\(t-h\)</span>, para <span class="math inline">\(h=1\)</span> a <span class="math inline">\(12\)</span>.
+</caption>
+<colgroup>
+<col width="100">
+</col>
+</colgroup>
+<thead>
+<tr class="header">
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+<p>
 <p>La dependencia de la serie en <span class="math inline">\(t\)</span> con respecto a los valores en <span class="math inline">\(t-1\)</span> se toma en cuenta dentro del modelo ajustado antes, al considerar un modelo autoregresivo de orden <span class="math inline">\(p=1\)</span>, al igual que la correlación positiva con respecto al 12vo retraso.
 La correlación con <span class="math inline">\(h=3\)</span> no es significativa, y en <span class="math inline">\(h=2\)</span> y <span class="math inline">\(h=4\)</span> las correlaciones son pequeñas, comparadas con las correlaciones observadas en <span class="math inline">\(h=5\)</span> y <span class="math inline">\(h=6\)</span> (las cuales son negativas y más importantes), y que parecen ser no lineales para valores mayores a <span class="math inline">\(0{,}05\)</span>.</p>
 <p>Para estas variables retrasadas, la correlación negativa puede modelarse de dos formas: <em>i)</em> considerando un solo modelo con regresores <span class="math inline">\(r_{t-5}\)</span> y <span class="math inline">\(r_{t-5}^2\)</span>, dada la curvatura y forma no lineal de la serie; o <em>ii)</em> generando un modelo a trozos con un regresor lineal <span class="math inline">\(r_{t-6}\)</span>, cuyo coeficiente asociado cambia dependiendo de si <span class="math inline">\(r_t\)</span> es mayor a <span class="math inline">\(0{,}05\)</span>.</p>
@@ -1121,6 +1199,22 @@ cowplot::plot_grid(acf, pacf, res_series, res_qq_plot,
 Figure 1.6: Gráficos diagnósticos de residuales para el modelo regresivo con la dependencia cuadratica con <span class="math inline">\(r_{t-5}\)</span>: <em>a)</em> ACF, <em>b)</em> PACF, <em>c)</em> gráficos de residuales, y <em>d)</em> gráfico <em>QQ</em>
 </p>
 </div>
+<table>
+<caption>
+Figura 6. Gráficos diagnósticos de residuales para el modelo regresivo con la dependencia cuadratica con <span class="math inline">\(r_{t-5}\)</span>: <em>a)</em> ACF, <em>b)</em> PACF, <em>c)</em> gráficos de residuales, y <em>d)</em> gráfico <em>QQ</em>
+</caption>
+<colgroup>
+<col width="100">
+</col>
+</colgroup>
+<thead>
+<tr class="header">
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+<p>
 <p>Por otro lado, el gráfico <em>QQ</em> muestra una mejora significativa en el comportamiento de los residuales, comparado con el modelo anterior. La distribución de estos alrededor de la media se percibe mas aleatoria, y a excepción de los atípicos, se ajustan bien a la recta teórica en el gráfico <em>QQ</em>.
 Aun es posible observar quiebres estructurales consecuencia de las observaciones atípicas: en total se observan 5 atípicos, con más de dos desviaciones estándar, y al menos 9-10 observaciones con desviaciones importantes dentro del intervalo de una desviación estándar.</p>
 <pre class="r"><code>augmented_data_2 %&gt;%
@@ -1390,6 +1484,22 @@ autoplot(cm_transf, colour=&quot;dodgerblue3&quot;) +
 Figure 1.7: Predicción de los próximos 24 meses de la serie para los cambios proporcionales en las unidades de inventario, utilizando el modelo seleccionado.
 </p>
 </div>
+<table>
+<caption>
+Figura 7. Predicción de los próximos 24 meses de la serie para los cambios proporcionales en las unidades de inventario, utilizando el modelo seleccionado.
+</caption>
+<colgroup>
+<col width="100">
+</col>
+</colgroup>
+<thead>
+<tr class="header">
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+<p>
 <div id="predicción-usando-suavizado-exponencial." class="section level3">
 <h3><span class="header-section-number">1.5.1</span> Predicción usando suavizado exponencial.</h3>
 <pre class="r"><code>ets_models &lt;- cm_transf %&gt;%
@@ -1413,6 +1523,22 @@ autoplot(cm_transf, colour=&quot;dodgerblue3&quot;) +
 Figure 1.8: Predicción de los próximos 24 meses de la serie para los cambios proporcionales en las unidades de inventario, utilizando un modelo ETS (las predicciones obtenidas usadno el modelo seleccionado se superpone (linea gris a trozos) sobre las predicciones del modelo ETS)
 </p>
 </div>
+<table>
+<caption>
+Figura 8. Predicción de los próximos 24 meses de la serie para los cambios proporcionales en las unidades de inventario, utilizando un modelo ETS (las predicciones obtenidas usadno el modelo seleccionado se superpone (linea gris a trozos) sobre las predicciones del modelo ETS)
+</caption>
+<colgroup>
+<col width="100">
+</col>
+</colgroup>
+<thead>
+<tr class="header">
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+<p>
 </div>
 </div>
 </div>

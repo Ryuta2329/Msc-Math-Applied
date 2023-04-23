@@ -17,6 +17,51 @@ header-includes:
  - \usepackage{amsmath}
 ---
 
+```{r number_figures, echo=FALSE}
+# This is a knitr hook to enable figure and table captions
+# number figures
+# from http://stackoverflow.com/a/18672268/1036500
+library("knitr")
+tn = local({
+  i = 0
+  function(x) {
+    i <<- i + 1
+    paste("<table><caption>", 'Figura ', i, '. ', x, "</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>", sep = '')
+  }
+})
+knit_hooks$set(fig.cap = function(before, options, envir) {
+  if(!before)
+    tn(options$fig.cap)
+})
+default_output_hook = knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+  if (is.null(options$fig.cap) == F)  
+    x
+  else
+    default_output_hook(x,options)
+})
+# number tables
+# from http://stackoverflow.com/a/18672268/1036500
+to = local({
+  i = 0
+  function(x) {
+    i <<- i + 1
+    paste("<table><caption>", 'Tabla ', i, '. ', x, "</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>", sep = '')
+  }
+})
+knit_hooks$set(tab.cap = function(before, options, envir) {
+  if(!before)
+    to(options$tab.cap)
+})
+default_output_hook = knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+  if (is.null(options$tab.cap) == F)  
+    x
+  else
+    default_output_hook(x,options)
+})
+```
+
 # Sesión de Laboratorio: Modelos SARIMA.
 
 _Marcelo J Molinatti S_
@@ -26,17 +71,15 @@ _Marcelo J Molinatti S_
 options(knitr.table.format = ifelse(knitr::is_latex_output(), "latex", "html"), 
   knitr.kable.NA = "", 
   OutDec = ",", scipen=999)
-knitr::opts_chunk$set(warning = FALSE, message = FALSE, fig.pos = "!h", fig.align = 'center',
-  tab.cap.style = "Table Caption", tab.cap.pre = "Tabla ", tab.cap.sep = ". ", 
-  fig.cap.style = "Image Caption", fig.cap.pre = "Figura ", fig.cap.sep = ". ")
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, fig.pos = "!h", fig.align = 'center')
+#  tab.cap.style = "Table Caption", tab.cap.pre = "Tabla ", tab.cap.sep = ". ", 
+#  fig.cap.style = "Image Caption", fig.cap.pre = "Figura ", fig.cap.sep = ". ")
 
 library(ggplot2)
 
 agree <- emo::ji("check")
 chart <- emo::ji("chart")
 watch <- emo::ji("watch")
-
-require(kfigr)
 ```
 
 Elija una de las siguientes series temporales estacionales: ```condmilk```, ```hsales```, ```usolec```  
@@ -61,9 +104,9 @@ data(condmilk, package="fma")
 condmilk <- as_tsibble(condmilk)
 ```
 
-Los datos seleccionados corresponden a una serie temporal de Inventarios de Manufactura de leche condensada evaporada y endulzada, recolectados mensualmente desde 1971 a 1980, como se muestra en el gráfico de la figura `r figr('tseries-plot', TRUE, type="figura")`.
+Los datos seleccionados corresponden a una serie temporal de Inventarios de Manufactura de leche condensada evaporada y endulzada, recolectados mensualmente desde 1971 a 1980, como se muestra en el gráfico de la figura \@ref(fig:tseries-plot).
 
-```{r tseries-plot, fig.height=5, fig.width=7, fig.cap='Cambio temporal en el número de unidades de leche condensada entre 1971-1980. Se muestra el patrón anual y la estacionaridad de la serie usando un suavizado de _kernel_ (línea sólida gris) y _loess_ (línea fragmentada gris), respectivamente.', anchor="figura", fig.align='center'}
+```{r label="tseries-plot", fig.height=5, fig.width=7, fig.cap='Cambio temporal en el número de unidades de leche condensada entre 1971-1980. Se muestra el patrón anual y la estacionaridad de la serie usando un suavizado de _kernel_ (línea sólida gris) y _loess_ (línea fragmentada gris), respectivamente.'}
 # Grafico de la serie temporal
 autoplot(condmilk, colour="dodgerblue3") +
   geom_point(aes(y=value), colour="dodgerblue3") + 
@@ -89,9 +132,9 @@ Dada la descripción anterior, se decide optar por transformar los datos usando 
 
 $$log(x_t) - log(x_{t-1}) = log(\frac{x_t}{x_{t-1}}) = log(1 + r_t)$$
 
-donde $r_t$ es el incremento o decremento proporcional de la unidad en el año $t$ con respecto al valor en el año anterior, $t-1$. Dado que la magnitud de $r_t$ es pequeña, se puede aproximar $log(1 + r_t) \approx r_t$. La serie $r_t$ se muestra en la figura `r figr('transform', TRUE, type="figure")`.
+donde $r_t$ es el incremento o decremento proporcional de la unidad en el año $t$ con respecto al valor en el año anterior, $t-1$. Dado que la magnitud de $r_t$ es pequeña, se puede aproximar $log(1 + r_t) \approx r_t$. La serie $r_t$ se muestra en la figura \@ref(fig:transform).
 
-```{r transform, fig.cap='Cambio proporcional anual en las unidades de leche condensada. Se muestra el patrón anual y la estacionaridad de la serie usando un suavizado de _kernel_ (línea sólida gris) y _loess_ (línea fragmentada gris), respectivamente.', anchor="figure", fig.align='center'}
+```{r transform, fig.cap='Cambio proporcional anual en las unidades de leche condensada. Se muestra el patrón anual y la estacionaridad de la serie usando un suavizado de _kernel_ (línea sólida gris) y _loess_ (línea fragmentada gris), respectivamente.'}
 # Transformando: se usa el log en base 10
 cm_transf <- condmilk %>%
   mutate(prop_change=difference(log10(value)), .keep = "unused") %>%
