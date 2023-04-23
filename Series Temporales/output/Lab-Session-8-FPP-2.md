@@ -1,6 +1,6 @@
 # Sesión de Laboratorio: Modelos SARIMA.
 
-### Marcelo Molinatti
+_Marcelo J Molinatti S_
 
 
 Elija una de las siguientes series temporales estacionales: ```condmilk```, ```hsales```, ```usolec```  
@@ -16,11 +16,17 @@ Elija una de las siguientes series temporales estacionales: ```condmilk```, ```h
 
 
 ```r
-# Sourcing R code
-source("../R/Lab-Session-8-FPP.R")
+library(tsibble)
+library(dplyr)
+library(fable)
+library(feasts)
+
+# Manufacturer's Stocks of evaporated and sweetened condensed milk.
+data(condmilk, package="fma")
+condmilk <- as_tsibble(condmilk)
 ```
 
-Los datos seleccionados corresponden a una serie temporal de Inventarios de Manufactura de leche condensada evaporada y endulzada, recolectados mensualmente desde 1971 a 1980, como se muestra en el gráfico de la figura \ref{fig:tseries-plot}.
+Los datos seleccionados corresponden a una serie temporal de Inventarios de Manufactura de leche condensada evaporada y endulzada, recolectados mensualmente desde 1971 a 1980, como se muestra en el gráfico de la figura \@ref(fig:tseries-plot).
 
 
 ```r
@@ -35,7 +41,10 @@ autoplot(condmilk, colour="dodgerblue3") +
   xlab('Tiempo') + ylab('Numero de Unidades')
 ```
 
-<img src="/Series Temporales/output/Lab-Session-8-FPP_files/figure-html/tseries-plot-1.png" style="display: block; margin: auto;" />
+<div class="figure" style="text-align: center">
+<img src="/Series Temporales/output/Lab-Session-8-FPP-2_files/figure-html/tseries-plot-1.png" alt="Cambio temporal en el número de unidades de leche condensada entre 1971-1980. Se muestra el patrón anual y la estacionaridad de la serie usando un suavizado de _kernel_ (línea sólida gris) y _loess_ (línea fragmentada gris), respectivamente."  />
+<p class="caption">(\#fig:tseries-plot)Cambio temporal en el número de unidades de leche condensada entre 1971-1980. Se muestra el patrón anual y la estacionaridad de la serie usando un suavizado de _kernel_ (línea sólida gris) y _loess_ (línea fragmentada gris), respectivamente.</p>
+</div>
 
 En el gráfico se observa claramente dos componentes estacionales: uno anual obvio, que fluctúa ligeramente, observándose una disrrupción a mediados de 1973 que rompe de alguna manera el patrón unimodal de los picos anuales; y también parece haber un componente trimestral de repeticiones de picos y valles importantes, cuya amplitud disminuye con el tiempo, indicando un amortiguamiento de las variaciones o fluctuaciones importantes en la serie. 
 
@@ -55,6 +64,16 @@ donde $r_t$ es el incremento o decremento proporcional de la unidad en el año $
 
 
 ```r
+# Transformando: se usa el log en base 10
+cm_transf <- condmilk %>%
+  mutate(prop_change=difference(log10(value)), .keep = "unused") %>%
+  tidyr::drop_na()
+
+# This one is for functions outside tidy packages
+univariate_ts <- cm_transf %>%
+  as.ts() %>%
+  zoo::na.approx()
+
 autoplot(cm_transf, colour="dodgerblue3") +
   geom_point(aes(y=prop_change), colour="dodgerblue3") + 
   theme_light() + 
@@ -65,7 +84,10 @@ autoplot(cm_transf, colour="dodgerblue3") +
   xlab('Tiempo') + ylab('Cambio proporcional')
 ```
 
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Lab-Session-8-FPP_files/figure-html/transform-1.png" style="display: block; margin: auto;" />
+<div class="figure" style="text-align: center">
+<img src="/Series Temporales/output/Lab-Session-8-FPP-2_files/figure-html/transform-1.png" alt="Cambio proporcional anual en las unidades de leche condensada. Se muestra el patrón anual y la estacionaridad de la serie usando un suavizado de _kernel_ (línea sólida gris) y _loess_ (línea fragmentada gris), respectivamente."  />
+<p class="caption">(\#fig:transform)Cambio proporcional anual en las unidades de leche condensada. Se muestra el patrón anual y la estacionaridad de la serie usando un suavizado de _kernel_ (línea sólida gris) y _loess_ (línea fragmentada gris), respectivamente.</p>
+</div>
 
 Como se muestra, el patrón anual persiste en la serie, y se hacen mas visibles las desviaciones que antes estaban ocultas por el componente estacional. Dos observaciones destacan como valores atípicos en la serie, al inicio del primer pico a mediados de 1971, y en el primer valle en 1973. 
 
@@ -75,6 +97,8 @@ Para un primer análisis de la correlación serial de la serie, verificamos las 
 
 
 ```r
+adf_test <- tseries::adf.test(univariate_ts)
+
 cm_transf %>%
   ACF(prop_change, lag_max=50) %>%
   autoplot() +
@@ -92,16 +116,27 @@ cm_transf %>%
 cowplot::plot_grid(acf, pacf, nrow=1)
 ```
 
-<img src="/Series Temporales/output/Lab-Session-8-FPP_files/figure-html/acf-pacf-1.png" style="display: block; margin: auto;" />
+<div class="figure" style="text-align: center">
+<img src="/Series Temporales/output/Lab-Session-8-FPP-2_files/figure-html/acf-pacf-1.png" alt="ACF y PACF de la serie original"  />
+<p class="caption">(\#fig:acf-pacf)ACF y PACF de la serie original</p>
+</div>
 
 * 💹 La ACF indica que seria apropiada una diferencia de orden $D=1$ para el componente estacional, y un parámetro autoregresivo de orden $P=1$. También se observa que el periodo debería ser $s=6$, dado que los picos de mayor magnitud se registran en $6k$ para $k=1,2,\ldots$. Sin embargo, como el patrón es anual, se elige un periodo de $s=12$ dado que en un intervalo de 12 meses se completa un ciclo en la ACF.
 * 💹 La PACF confirma que se debería elegir $P=1$, dada la correlación significativa en el $h=6$, pero en más ningún múltiplo de 6.
 * 💹 Dado que la ACF es decayente en los _lags_ mostrados, y que la PACF se corta en el $h=1$, se usa un orden $p=1$ para la parte $ARMA$.
 * 💹 Se observan un par de correlaciones significativas en la PACF, donde la correlación en $h=4$ es la mas importante. La otra se encuentra en $h=22$. Estas correlaciones aparecen significativas probablemente debido al patrón anual oscilante combinado con los cambios abruptos durante los picos y valles de la serie: en estos _lags_ se encuentran espaciados casi 2 años, y coinciden con la entrada a los picos y valles de la serie original.
 
-Los resultados de la prueba de Dickey-Fuller aumentada para comprobar estacionaridad de la serie muestran que el incremento proporcional de unidades es estacionaria ($DF_T=-6,95$, $p=0,01$), por lo que no es necesario una diferencia en el componente ARMA. 
+Los resultados de la prueba de Dickey-Fuller aumentada para comprobar estacionaridad de la serie muestran que el incremento proporcional de unidades es estacionaria ($DF_T =$ -6,95, $p =$ 0,01), por lo que no es necesario una diferencia en el componente $ARMA$. 
 
 Se ajusta entonces un modelo $ARIMA(1, 0, 0)(0, 1, 1)_{12}$, y se compara con un modelo $ARIMA(2, 0, 2)(0, 1, 1)_{12}$ estimado minimizando la sumatoria de cuadrados condicional, encontrado por medio de una búsqueda del mejor modelo en el espacio de parámetros (mejor en el sentido de sumatoria de cuadrados mínima).
+
+
+```r
+full <- cm_transf %>%
+  model(non_stationaty=ARIMA(prop_change, 
+      stepwise=FALSE, 
+      method="CSS-ML", optim.method="BFGS"))
+```
 
 Se escribe el modelo inferido de los descriptivos:
 
@@ -115,18 +150,33 @@ $$
 el cual se expande como:
 
 $$
-  r_t = \phi r_{t-1} + r_{t-12} + \phi r_{t-13} + w_t + \Theta w_{t-1}
-  \label{eq:model}
+r_t = \phi r_{t-1} + r_{t-12} + \phi r_{t-13} + w_t + \Theta w_{t-1}(\#eq:model)
 $$
 
 ### Estadísticos de Bondad de Ajuste.
 
-Los resultados de los ajustes se muestran en la tabla \@ref(tab:fitting-sarima), los cuales indican que el modelo dado en la ecuación \ref{eq:model} no difiere demasiado del modelo encontrado al tantear el espacio de parámetros, en términos de robustez y precisión, dada la varianza residual, RMSE y MAE similares. 
-Además, el modelo $ARIMA(2, 0, 2)(0, 1, 1)_{12}$ parece ser preferible según los valores obtenidos en términos de la información proveída por el modelo (AIC, AICc y BIC). Esto se debe (dada la similitud de varianzas residuales), solo al aumento en la penalización consecuencia de la mayor cantidad de parámetros estimados en el modelo $ARIMA(2, 0, 2)(0, 1, 1)_{12}$.
+Los resultados de los ajustes se muestran en la tabla \@ref(tab:fitting-sarima), los cuales indican que el modelo dado en la ecuación \ref{eq:model} no difiere demasiado del modelo encontrado al tantear el espacio de parámetros, en términos de robustez y precisión, dada la varianza residual, $RMSE$ y $MAE$ similares. 
+
+Además, el modelo $ARIMA(2, 0, 2)(0, 1, 1)_{12}$ parece ser preferible según los valores obtenidos en términos de la información proveída por el modelo ($AIC$, $AICc$ y $BIC$). Esto se debe (dada la similitud de varianzas residuales), solo al aumento en la penalización consecuencia de la mayor cantidad de parámetros estimados en el modelo $ARIMA(2, 0, 2)(0, 1, 1)_{12}$.
 
 
 ```r
-.model <- c("$ARIMA(1,0,0)(0,1,1)_12$", "ARIMA(2,0,2)(0,1,1)_12")
+selected_mod <- cm_transf %>%
+  model(`ARMA(1,0,0)(0,1,1)_{12}`=ARIMA(prop_change ~ 0 + pdq(1, 0, 0) + PDQ(0, 1, 1, 12), 
+    stepwise=FALSE, method="CSS-ML", optim.method="BFGS")) 
+
+all_models <- selected_mod %>%
+  bind_cols(select(full, non_stationaty))
+
+box_test <- augment(selected_mod) %>%
+  features(.innov, ljung_box, dof = 4, lag = 12)
+
+information_based <- glance(all_models) %>%
+  select(-ar_roots, -ma_roots)
+
+error_based <- accuracy(all_models)
+
+.model <- c("$ARIMA(1,0,0)(0,1,1)_{12}$", "$ARIMA(2,0,2)(0,1,1)_{12}$")
 
 information_based %>%
   left_join(error_based) %>%
@@ -155,7 +205,7 @@ information_based %>%
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;"> $ARIMA(1,0,0)(0,1,1)_12$ </td>
+   <td style="text-align:left;"> $ARIMA(1,0,0)(0,1,1)_{12}$ </td>
    <td style="text-align:center;"> 0,0034 </td>
    <td style="text-align:center;"> 143,79 </td>
    <td style="text-align:center;"> -281,6 </td>
@@ -166,7 +216,7 @@ information_based %>%
    <td style="text-align:center;"> 0,0372 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> ARIMA(2,0,2)(0,1,1)_12 </td>
+   <td style="text-align:left;"> $ARIMA(2,0,2)(0,1,1)_{12}$ </td>
    <td style="text-align:center;"> 0,0033 </td>
    <td style="text-align:center;"> 148,93 </td>
    <td style="text-align:center;"> -285,9 </td>
@@ -186,6 +236,13 @@ En el gráfico para ACF y PACF se muestra un pico de correlación significativa 
 
 
 ```r
+res_sd <- information_based %>% 
+  filter(.model != "non_stationaty") %>% 
+  pull(sigma2) %>%
+  sqrt()
+augmented_data <- augment(selected_mod) %>%
+  mutate(.std.resid=.resid / res_sd)
+
 augmented_data %>%
   ACF(.innov, lag_max=50) %>%
   autoplot() +
@@ -222,10 +279,13 @@ cowplot::plot_grid(acf, pacf, res_series, res_qq_plot,
   label_fontface="italic")
 ```
 
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Lab-Session-8-FPP_files/figure-html/diagnostics-plots-1.png" style="display: block; margin: auto;" />
+<div class="figure" style="text-align: center">
+<img src="/Series Temporales/output/Lab-Session-8-FPP-2_files/figure-html/diagnostics-plots-1.png" alt="Gráficos diagnósticos de residuales: _a)_ ACF, _b)_ PACF, _c)_ gráficos de residuales, y _d)_ gráfico _QQ_"  />
+<p class="caption">(\#fig:diagnostics-plots)Gráficos diagnósticos de residuales: _a)_ ACF, _b)_ PACF, _c)_ gráficos de residuales, y _d)_ gráfico _QQ_</p>
+</div>
 
 Más aun, el gráfico de residuales estandarizados y el gráfico _QQ_ muestran claramente que los residuales no son normales. 
-Se observa un patrón no aleatorio de distribución de los residuales alrededor de la media (secciones donde las observaciones caen mucho por encima de la media, y secciones donde caen por debajo). Además, se pueden notar observaciones atípicas, 8 de ellas específicamente, como se muestra en la tabla \@ref{tab:outliers}. 
+Se observa un patrón no aleatorio de distribución de los residuales alrededor de la media (secciones donde las observaciones caen mucho por encima de la media, y secciones donde caen por debajo). Además, se pueden notar observaciones atípicas, 8 de ellas específicamente, como se muestra en la tabla \@ref(tab:outliers). 
 Se puede notar claramente que 3 de ellas caen en 1973, donde el comportamiento de la serie es anormal comparado con los otros años, y el resto corresponden a puntos de entrada a los picos y a los picos observados luego de 1973.
 
 
@@ -321,6 +381,12 @@ Dado los resultados encontrados para el primer modelo ajustado, se decide hacer 
 
 
 ```r
+tscleaned <- augmented_data %>%
+  filter(
+    !(.std.resid < quantile(.std.resid, 0.25) - 1.96 * IQR(.std.resid)) |
+    !(.std.resid > quantile(.std.resid, 0.75) + 1.96 * IQR(.std.resid))
+  )
+
 tscleaned %>%
   gg_lag(prop_change, period=12, lags=1:12, geom="point") +
   theme_light() +
@@ -331,7 +397,10 @@ tscleaned %>%
   ylab('Cambio proporcional')
 ```
 
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Lab-Session-8-FPP_files/figure-html/bivariate-lag-1.png" style="display: block; margin: auto;" />
+<div class="figure" style="text-align: center">
+<img src="/Series Temporales/output/Lab-Session-8-FPP-2_files/figure-html/bivariate-lag-1.png" alt="Gráficos bivariados que relacionan la serie en $t$ con su valor retrasado en $t-h$, para $h=1$ a $12$."  />
+<p class="caption">(\#fig:bivariate-lag)Gráficos bivariados que relacionan la serie en $t$ con su valor retrasado en $t-h$, para $h=1$ a $12$.</p>
+</div>
 
 La dependencia de la serie en $t$ con respecto a los valores en $t-1$ se toma en cuenta dentro del modelo ajustado antes, al considerar un modelo autoregresivo de orden $p=1$, al igual que la correlación positiva con respecto al 12vo retraso. 
 La correlación con $h=3$ no es significativa, y en $h=2$ y $h=4$ las correlaciones son pequeñas, comparadas con las correlaciones observadas en $h=5$ y $h=6$ (las cuales son negativas y más importantes), y que parecen ser no lineales para valores mayores a $0{,}05$. 
@@ -343,8 +412,7 @@ Para estas variables retrasadas, la correlación negativa puede modelarse de dos
 Se busca modelar, en el primer caso, un modelo de la forma:
 
 $$
-r_t = \phi r_{t-1} + \phi r_{t-12} + \phi r_{t-13} + \beta_1 r_{t-5} + \beta_2 r_{t-5}^2 + w_t + \Theta w_{t-1}
-(\\#eq:model-reg)
+r_t = \phi r_{t-1} + \phi r_{t-12} + \phi r_{t-13} + \beta_1 r_{t-5} + \beta_2 r_{t-5}^2 + w_t + \Theta w_{t-1}(\#eq:model-reg)
 $$
 
 donde $\beta_1$ y $\beta_2$ son los coeficientes de regresión. En el segundo caso, se necesita de una variable _dummy_ $D_{t-5}$ la cual es 0 si $r_{t-6} < 0{,}05$ y 1 de otra forma, generando el modelo a trozos:
@@ -353,8 +421,7 @@ $$
 r_t = \begin{cases}
   \omega + \beta_1 r_{t-5} &  r_{t-5} < 0{,}05 \\
   \omega + \beta_2 + (\beta_1 + \beta_3) r_{t-5} & r_{t-5} \ge 0{,}05
-\end{cases}
- (\#eq:model-reg-trozos)
+\end{cases}(\#eq:model-reg-trozos)
 $$
 
 donde $\omega = \phi r_{t-1} + \phi r_{t-12} + \phi r_{t-13} + w_t + \Theta w_{t-1}$ es el componente ARIMA y, de nuevo, $\beta_1$ y $\beta_2$ son los coeficientes de regresión para $r_{t-5}$ y $D_{t-5}$, y $\beta_3$ es el coeficiente de la interacción $D_{t-5}r_{t-5}$.
@@ -363,8 +430,32 @@ donde $\omega = \phi r_{t-1} + \phi r_{t-12} + \phi r_{t-13} + w_t + \Theta w_{t
 
 
 ```r
+ts_w_lagged_reg <- cm_transf[-(1:5),] %>%
+  bind_cols(
+    ts.intersect(as.ts(cm_transf), 
+    pcL5=as.ts(cm_transf) %>% stats::lag(-5),
+    dL5=ifelse(as.ts(cm_transf) < .05, 0, 1) %>% stats::lag(-5), dframe=TRUE) %>%
+    select(pcL5, dL5)
+  ) %>%
+  mutate(pcL5sq=pcL5 ** 2)
+
+new_models <- ts_w_lagged_reg %>%
+  model(
+    `Lagged with sq`=ARIMA(prop_change ~ 0 + pdq(1, 0, 0) + PDQ(0, 1, 1, 12) + pcL5 + pcL5sq, 
+      stepwise=FALSE, method="CSS-ML", optim.method="BFGS"),
+  `Lagged by pieces`=ARIMA(prop_change ~ 0 + pdq(1, 0, 0) + PDQ(0, 1, 1, 12) + pcL5 * dL5, 
+    stepwise=FALSE, method="CSS-ML", optim.method="BFGS")) %>%
+  bind_cols(all_models)
+
+information_based_2 <- new_models %>%
+  glance() %>%
+  arrange(AIC) %>%
+  select(-ar_roots, -ma_roots)
+
+error_based_2 <- accuracy(new_models)
+
 models_xreg <- c(.model, 
-  "$ARIMA(1,0,0)(0,1,1)_12 \\text{ (no lineal con }r_{t-5}^2\\text{)}$", 
+  "$ARIMA(1,0,0)(0,1,1)_{12} \\text{ (no lineal con }r_{t-5}^2\\text{)}$", 
   "$ARIMA(1,0,0)(0,1,1)_6 \\text{ (a trozos)}$")
 
 information_based_2 %>%
@@ -394,7 +485,7 @@ information_based_2 %>%
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;"> $ARIMA(1,0,0)(0,1,1)_12$ </td>
+   <td style="text-align:left;"> $ARIMA(1,0,0)(0,1,1)_{12}$ </td>
    <td style="text-align:center;"> 0,0033 </td>
    <td style="text-align:center;"> 148,93 </td>
    <td style="text-align:center;"> -285,9 </td>
@@ -405,7 +496,7 @@ information_based_2 %>%
    <td style="text-align:center;"> 0,0376 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> ARIMA(2,0,2)(0,1,1)_12 </td>
+   <td style="text-align:left;"> $ARIMA(2,0,2)(0,1,1)_{12}$ </td>
    <td style="text-align:center;"> 0,0026 </td>
    <td style="text-align:center;"> 147,67 </td>
    <td style="text-align:center;"> -285,3 </td>
@@ -416,7 +507,7 @@ information_based_2 %>%
    <td style="text-align:center;"> 0,0339 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> $ARIMA(1,0,0)(0,1,1)_12 \text{ (no lineal con }r_{t-5}^2\text{)}$ </td>
+   <td style="text-align:left;"> $ARIMA(1,0,0)(0,1,1)_{12} \text{ (no lineal con }r_{t-5}^2\text{)}$ </td>
    <td style="text-align:center;"> 0,0026 </td>
    <td style="text-align:center;"> 148,38 </td>
    <td style="text-align:center;"> -284,8 </td>
@@ -451,6 +542,15 @@ Se puede observar que ya no existen correlaciones significativas, aunque se obse
 
 
 ```r
+res_sd <- information_based_2 %>% 
+  filter(.model == "Lagged with sq") %>%
+  pull(sigma2) %>%
+  sqrt()
+augmented_data_2 <- new_models %>%
+  select(`Lagged with sq`) %>%
+  augment() %>%
+  mutate(.std.resid=.resid / res_sd)
+
 augmented_data_2 %>%
   ACF(.innov, lag_max=50) %>%
   autoplot() +
@@ -487,7 +587,10 @@ cowplot::plot_grid(acf, pacf, res_series, res_qq_plot,
   label_fontface="italic")
 ```
 
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Lab-Session-8-FPP_files/figure-html/diagnostics-plots-2-1.png" style="display: block; margin: auto;" />
+<div class="figure" style="text-align: center">
+<img src="/Series Temporales/output/Lab-Session-8-FPP-2_files/figure-html/diagnostics-plots-2-1.png" alt="Gráficos diagnósticos de residuales para el modelo regresivo con la dependencia cuadratica con $r_{t-5}$: _a)_ ACF, _b)_ PACF, _c)_ gráficos de residuales, y _d)_ gráfico _QQ_"  />
+<p class="caption">(\#fig:diagnostics-plots-2)Gráficos diagnósticos de residuales para el modelo regresivo con la dependencia cuadratica con $r_{t-5}$: _a)_ ACF, _b)_ PACF, _c)_ gráficos de residuales, y _d)_ gráfico _QQ_</p>
+</div>
 
 Por otro lado, el gráfico _QQ_ muestra una mejora significativa en el comportamiento de los residuales, comparado con el modelo anterior. La distribución de estos alrededor de la media se percibe mas aleatoria, y a excepción de los atípicos, se ajustan bien a la recta teórica en el gráfico _QQ_. 
 Aun es posible observar quiebres estructurales consecuencia de las observaciones atípicas: en total se observan 5 atípicos, con más de dos desviaciones estándar, y al menos 9-10 observaciones con desviaciones importantes dentro del intervalo de una desviación estándar. 
@@ -626,6 +729,23 @@ Las predicciones para los próximos 24 meses obtenidas a partir del modelo se mu
 
 
 ```r
+first_forecast <- selected_mod %>%
+  forecast(h=24)
+to_forecast <- first_forecast %>%
+  bind_cols(
+    bind_rows(setNames(cm_transf[115:119, "prop_change"], "pcL5"),
+    ts.intersect(as.ts(first_forecast[c("index", ".mean")]), 
+    pcL5=as.ts(first_forecast[c("index", ".mean")]) %>% 
+      stats::lag(-5), dframe=TRUE) %>%
+    select(pcL5))
+  ) %>%
+  mutate(pcL5sq=pcL5 ** 2) %>%
+  select(-.model) 
+
+forecast_24_month <- new_models %>%
+  select(`Lagged with sq`) %>%
+  forecast(new_data=to_forecast)
+
 autoplot(cm_transf, colour="dodgerblue3") +
     autolayer(forecast_24_month, colour="orange") +
     scale_x_yearmonth(date_labels = "%Y") +
@@ -634,9 +754,18 @@ autoplot(cm_transf, colour="dodgerblue3") +
     theme(legend.position="none")
 ```
 
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Lab-Session-8-FPP_files/figure-html/forecast-plot-1.png" style="display: block; margin: auto;" />
+<div class="figure" style="text-align: center">
+<img src="/Series Temporales/output/Lab-Session-8-FPP-2_files/figure-html/forecast-plot-1.png" alt="Predicción de los próximos 24 meses de la serie para los cambios proporcionales en las unidades de inventario, utilizando el modelo seleccionado."  />
+<p class="caption">(\#fig:forecast-plot)Predicción de los próximos 24 meses de la serie para los cambios proporcionales en las unidades de inventario, utilizando el modelo seleccionado.</p>
+</div>
 
 ### Predicción usando suavizado exponencial.
+
+
+```r
+ets_models <- cm_transf %>%
+  model(`ETS model`=ETS(prop_change ~ error("A") + trend("A") + season("A", period=12), opt_crit="mse")) 
+```
 
 Ahora se ajusta un modelo usando suavizado exponencial, minimizando la sumatoria de cuadrados, usando solo componentes aditivos para la estacionalidad y la tendencia, obteniéndose un modelo con un RMSE de 0,054986 y MAE de 0,0371671, comparables a los obtenidos para el modelo ajustado inicialmente, sin regresores, mostrado en la ecuación \@ref(eq:model). 
 Los valores de AIC y BIC son un orden de magnitud mayor para el modelo ajustado usando ETS. 
@@ -647,6 +776,8 @@ Las predicciones se muestran en la figura \@ref(fig:ets-forecast-plot), junto co
 
 
 ```r
+ets_forecast <- ets_models %>% forecast(h=24) 
+
 autoplot(cm_transf, colour="dodgerblue3") +
     autolayer(ets_forecast, colour="orange") +
     autolayer(forecast_24_month, level=NULL, colour="200", linetype=2) +
@@ -656,6 +787,9 @@ autoplot(cm_transf, colour="dodgerblue3") +
     theme(legend.position="none")
 ```
 
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Lab-Session-8-FPP_files/figure-html/ets-forecast-plot-1.png" style="display: block; margin: auto;" />
+<div class="figure" style="text-align: center">
+<img src="/Series Temporales/output/Lab-Session-8-FPP-2_files/figure-html/ets-forecast-plot-1.png" alt="Predicción de los próximos 24 meses de la serie para los cambios proporcionales en las unidades de inventario, utilizando un modelo ETS (las predicciones obtenidas usadno el modelo seleccionado se superpone (linea gris a trozos) sobre las predicciones del modelo ETS)"  />
+<p class="caption">(\#fig:ets-forecast-plot)Predicción de los próximos 24 meses de la serie para los cambios proporcionales en las unidades de inventario, utilizando un modelo ETS (las predicciones obtenidas usadno el modelo seleccionado se superpone (linea gris a trozos) sobre las predicciones del modelo ETS)</p>
+</div>
 
 

@@ -58,7 +58,8 @@ dr_wght <-
 			   5.14,        4.69, 		 5.26)
 
 kable(dr_wght, digits=2, 
-	col.names=c("Control", "Tratamiento A", "Tratamiento B"), align='ccc')
+	col.names=c("Control", "Tratamiento A", "Tratamiento B"), 
+	align='ccc')
 ```
 
 # Regresión lineal simple.
