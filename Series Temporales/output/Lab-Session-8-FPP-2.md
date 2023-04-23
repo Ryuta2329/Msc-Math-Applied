@@ -153,7 +153,12 @@ $$r_t = \phi r_{t-1} + r_{t-12} + \phi r_{t-13} + w_t + \Theta w_{t-1}$$
 
 Los resultados de los ajustes se muestran en la <a href="#fitting-sarima">tabla 1</a>, los cuales indican que el modelo dado en la ecuación <a href="#eq-model">1</a> no difiere demasiado del modelo encontrado al tantear el espacio de parámetros, en términos de robustez y precisión, dada la varianza residual, $RMSE$ y $MAE$ similares. 
 
+<<<<<<< HEAD
 Además, el modelo estimado por MLE parece ser preferible según los valores obtenidos en términos de la información proveída por el modelo ($AIC$, $AICc$ y $BIC$). Esto se debe (dada la similitud de varianzas residuales), solo al aumento en la penalización consecuencia de la mayor cantidad de parámetros estimados en el modelo estimado por MLE.
+=======
+Además, el modelo $ARIMA(2,0,2)(0,1,1)_{12}$ parece ser preferible según los valores obtenidos en términos de la información proveída por el modelo ($AIC$, $AICc$ y $BIC$). Esto se debe (dada la similitud de varianzas residuales), solo al aumento en la penalización consecuencia de la mayor cantidad de parámetros estimados en el modelo $ARIMA(2,0,2)(0,1,1)_{12}$
+.
+>>>>>>> d14689fa671b1233563d6b5629efce57515b565b
 
 
 ```r
