@@ -412,7 +412,10 @@ $$r_t = \phi r_{t-1} + \phi r_{t-12} + \phi r_{t-13} + \beta_1 r_{t-5} + \beta_2
 donde $\beta_1$ y $\beta_2$ son los coeficientes de regresión. En el segundo caso, se necesita de una variable _dummy_ $D_{t-5}$ la cual es 0 si $r_{t-6} < 0{,}05$ y 1 de otra forma, generando el modelo a trozos:
 
 <a name="eq-model-reg-trozos"></a>
-$$r_t = \begin{cases}\omega + \beta_1 r_{t-5} & r_{t-5} < 0,05 \\ \omega + \beta_2 + (\beta_1 + \beta_3) r_{t-5} & r_{t-5} \ge 0,05 \end{cases}$$
+$$r_t = \begin{cases}
+  \omega + \beta_1 r_{t-5} & r_{t-5} < 0,05 \\
+  \omega + \beta_2 + (\beta_1 + \beta_3) r_{t-5} & r_{t-5} \ge 0,05
+\end{cases}$$
 
 donde $\omega = \phi r_{t-1} + \phi r_{t-12} + \phi r_{t-13} + w_t + \Theta w_{t-1}$ es el componente ARIMA y, de nuevo, $\beta_1$ y $\beta_2$ son los coeficientes de regresión para $r_{t-5}$ y $D_{t-5}$, y $\beta_3$ es el coeficiente de la interacción $D_{t-5}r_{t-5}$.
 
