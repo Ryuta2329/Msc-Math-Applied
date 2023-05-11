@@ -77,7 +77,11 @@ p2 <- autoplot(xt, facets = TRUE) +
 cowplot::plot_grid(p1, p2, nrow=1)
 ```
 
+<<<<<<< HEAD
 ![](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/fig:p1-2-1.png)<!-- -->
+=======
+![]("/Series%20Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/fig:p1-2-1.png")<!-- -->
+>>>>>>> bc51e138eecfae6320e10cc45332476910c22283
 
 _c)_ Compare la apariencia general de las series _a)_ y _b)_ con la serie de terremoto y la serie de explosión. Además, traza (o dibuja)
 y compare los moduladores de señal _a)_ $exp\{−t/20\}$ y _b)_ $exp\{−t/200\}$, para $t = 1, 2, \ldots, 100$.

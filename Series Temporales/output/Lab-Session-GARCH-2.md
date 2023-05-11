@@ -3,7 +3,6 @@
 _Marcelo J Molinatti S_
 
 
-
 La sesión de laboratorio trata de analizar los retornos de las acciones de Tesla, con la finalidad de obtener un modelo que explique la volatilidad de la serie, tal como se observa en la <a href="#tsla-series">figura 1</a>, a la derecha. 
 Las acciones de TSLA mostrada en la <a href="#tsla-series">figura 1</a>, a la izquierda, permite ver que la la serie se mantuvo bastante estable durante toda la primera mitad de la serie, hasta el último trimestre del año 2019, momento a partir del cual la serie comienza a crecer rápidamente, debido a la atención de muchos inversionistas ya que la acción rebasó los 100 $USD y en el primer trimestre de 2020, a pesar de la emergencia sanitaria provocada por el COVID-19, la acción alcanzó su máximo histórico de aproximadamente 300 $USD. Luego, hubo una caída en la primera mitad del 2021, momento después del cual las acciones de TESLA alcanzaron un nuevo máximo que superó los 400 $USD. 
 
@@ -57,8 +56,8 @@ cowplot::plot_grid(
 ```
 
 <div class="figure" style="text-align: center">
-<img src="Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/tsla-series-1.png" alt="A la izquierda: Precio de Cierre de TESLA (Mayo 2015 - Mayo 2023). A la derecha: Rendimientos logarítmicos de TESLA (Mayo 2015 - Mayo 2023)."  />
-<p class="caption">(\#fig:tsla-series)A la izquierda: Precio de Cierre de TESLA (Mayo 2015 - Mayo 2023). A la derecha: Rendimientos logarítmicos de TESLA (Mayo 2015 - Mayo 2023).</p>
+<img src="/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/tsla-series-1.png" alt="A la izquierda: Precio de Cierre de TESLA (Mayo 2015 - Mayo 2023). A la derecha: Rendimientos logarítmicos de TESLA (Mayo 2015 - Mayo 2023)."  />
+<p class="caption">A la izquierda: Precio de Cierre de TESLA (Mayo 2015 - Mayo 2023). A la derecha: Rendimientos logarítmicos de TESLA (Mayo 2015 - Mayo 2023).</p>
 </div>
 
 Los resultados de las pruebas de estacionaridad mostrados en la <a href="#stationary-tests">tabla 1</a>, donde se muestra que todas las pruebas arrojan que los rendimientos es una serie estacionaria con un nivel de confianza del 95%. 
@@ -154,8 +153,8 @@ cowplot::plot_grid(
 ```
 
 <div class="figure" style="text-align: center">
-<img src="Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/acf-pacf-1.png" alt="ACF y PACF de los rendimientos logarítmicos."  />
-<p class="caption">(\#fig:acf-pacf)ACF y PACF de los rendimientos logarítmicos.</p>
+<img src="/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/acf-pacf-1.png" alt="ACF y PACF de los rendimientos logarítmicos."  />
+<p class="caption">ACF y PACF de los rendimientos logarítmicos.</p>
 </div>
 
 El modelo seleccionado al realizar el ajuste es el $SARIMA(2,0,0)(3,0,0)_7$, cuyos coeficientes se muestran en la <a href="#sarima-coef">tabla 2</a> junto con sus desviaciones estándar, se escribe como:
@@ -244,8 +243,8 @@ cowplot::plot_grid(
 ```
 
 <div class="figure" style="text-align: center">
-<img src="Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/res-diagnostics-1.png" alt="Gráfico temporal de residuales y ACF y PACF de los mismos, para el modelo SARIMA ajustado."  />
-<p class="caption">(\#fig:res-diagnostics)Gráfico temporal de residuales y ACF y PACF de los mismos, para el modelo SARIMA ajustado.</p>
+<img src="/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/res-diagnostics-1.png" alt="Gráfico temporal de residuales y ACF y PACF de los mismos, para el modelo SARIMA ajustado."  />
+<p class="caption">Gráfico temporal de residuales y ACF y PACF de los mismos, para el modelo SARIMA ajustado.</p>
 </div>
 
 Utilizando una ventana de un mes, se calculó la varianza mensual de las innovaciones, asi como el valor medio de los retornos al cuadrado, y se verificaron las relaciones entre la varianza de las innovaciones con respecto a los retornos cuadrados mensuales, y los retrasos (para $h=1, 2, 3$). Se puede observar que existen correlaciones importantes entre la varianza y los retornos cuadrados, y también una correlación moderadamente pequeña ($0{,}34$) con respecto a los retornos cuadrados en $t-1$, y una correlación pequeña ($0{,}17$) con respecto al retraso en $t-2$.
@@ -265,8 +264,8 @@ month_window_agg %$%
 ```
 
 <div class="figure" style="text-align: center">
-<img src="Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/returns-lag-1.png" alt="Gráficos de dispersión de la varianza mensual de las innovaciones con respectoa  retrasos de los retornos al cuadrado."  />
-<p class="caption">(\#fig:returns-lag)Gráficos de dispersión de la varianza mensual de las innovaciones con respectoa  retrasos de los retornos al cuadrado.</p>
+<img src="/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/returns-lag-1.png" alt="Gráficos de dispersión de la varianza mensual de las innovaciones con respectoa  retrasos de los retornos al cuadrado."  />
+<p class="caption">Gráficos de dispersión de la varianza mensual de las innovaciones con respectoa  retrasos de los retornos al cuadrado.</p>
 </div>
 
 Además, en la <a href="#var-lags">figura 5</a> se muestra que existe una correlación pequeña entre la varianza mensual de las innovaciones con respecto al retraso de la misma en $t-1$, y que las correlaciones subsiguientes no son tan importantes.
@@ -282,8 +281,8 @@ month_window_agg %$%
 ```
 
 <div class="figure" style="text-align: center">
-<img src="Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/var-lags-1.png" alt="Gráficos de dispersión de la varianza mensual de las innovaciones con respecto a retrasos de la misma."  />
-<p class="caption">(\#fig:var-lags)Gráficos de dispersión de la varianza mensual de las innovaciones con respecto a retrasos de la misma.</p>
+<img src="/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/var-lags-1.png" alt="Gráficos de dispersión de la varianza mensual de las innovaciones con respecto a retrasos de la misma."  />
+<p class="caption">Gráficos de dispersión de la varianza mensual de las innovaciones con respecto a retrasos de la misma.</p>
 </div>
 
 Al realizar una prueba Arch por multiplicadores de Lagrange, al descomponer la varianza de la serie e identificar si sus rezagos son significativos, se obtiene que la serie tiene efectos Arch significativos ($\chi^2=$ 64,8, $p=$ 0).
@@ -538,7 +537,7 @@ cowplot::plot_grid(
 )
 ```
 
-<img src="Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/garch-diagnostics-1.png" style="display: block; margin: auto;" />
+<img src="/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/garch-diagnostics-1.png" style="display: block; margin: auto;" />
 
 El único problema que veo con el modelo es que no se captura el componente estacional de la serie. De forma que no se logran estimar los coeficientes autoregresivos estacionales, los cuales explicarían parte de las autocorrelaciones significativas en el ACF y PACF anterior. 
 El modelo final escogido es:
@@ -571,4 +570,4 @@ cowplot::plot_grid(
   nrow = 1)
 ```
 
-<img src="Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/volatilidad-plot-1.png" style="display: block; margin: auto;" />
+<img src="/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/volatilidad-plot-1.png" style="display: block; margin: auto;" />

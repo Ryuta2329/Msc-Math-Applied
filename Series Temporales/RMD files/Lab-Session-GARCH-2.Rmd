@@ -31,6 +31,7 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE, fig.pos = "!h", fig.alig
   tab.cap.style = "Table Caption", tab.cap.pre = "Tabla ", tab.cap.sep = ". ",
   fig.cap.style = "Image Caption", fig.cap.pre = "Figura ", fig.cap.sep = ". ")
 
+library(here)
 library(kfigr)
 ```
 
