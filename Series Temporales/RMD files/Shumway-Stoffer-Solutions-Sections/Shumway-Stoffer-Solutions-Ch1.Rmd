@@ -1,6 +1,6 @@
 **Problema 1.1** Para comparar las señales de terremotos y explosiones, represente los datos en el mismo gráfico usando diferentes colores o diferentes tipos de líneas y comente los resultados.
 
-```{r p1-1, label="fig:p1-1", fig.caption=""}
+```{r p1-1, fig.caption=""}
 p1 <- autoplot(cbind(EQ5, EXP6), facets = FALSE) +
   xlab("Índice de la muestra") +
   ylab("Amplitud") +
@@ -8,6 +8,8 @@ p1 <- autoplot(cbind(EQ5, EXP6), facets = FALSE) +
     values = c("20", "200")) +
   theme_light() +
   theme(legend.position = c(0.3, 0.85))
+
+p1
 ```
 
 Lo primero que sale a la vista en el gráfico es que la variabilidad de las señales de terremoto es mayor (la amplitud de la señal es mayor) y que esta variabilidad se extiende por más tiempo en el registro, mientras que la de explosiones es menor la variabilidad y la amplitud solo se extiende un intervalo de tiempo corto. 
@@ -16,23 +18,17 @@ Lo primero que sale a la vista en el gráfico es que la variabilidad de las señ
 
 _a)_ $x_t = s_t + w_t$, para $t = 1, \ldots , 200$, donde:
 
-$$
-s_t = \begin{cases}
+$$s_t = \begin{cases}
     0, & t= 1, \ldots, 100\\
     10\text{exp}{-\frac{(t-100)}{20}}\text{cos}(2\pi t/4), & t=101, \ldots, 200
-  \end{cases}
-  \label{eq:p1-2-st_a}
-$$
+  \end{cases}$$
 
 _b)_ $x_t = s_t + w_t$, para $t = 1, \ldots , 200$, donde
 
-$$
-s_t = \begin{cases}
+$$s_t = \begin{cases}
     0, & t= 1, \ldots, 100\\
     10\text{exp}{-\frac{(t-100)}{200}}\text{cos}(2\pi t/4), & t=101, \ldots, 200
-  \end{cases}
-  \label{eq:p1-2-st_b}
-$$
+  \end{cases}$$
 
 ```{r p1-2, label="fig:p1-2", fig.caption=""}
 xt_a <- c(rep(0, 100), 10 * exp(-(101:200 - 100) / 20) * cos(2 * pi * 101:200 / 4)) + rnorm(200, 0, 1)
@@ -47,7 +43,7 @@ cowplot::plot_grid(p1, p2, nrow=1)
 ```
 
 _c)_ Compare la apariencia general de las series _a)_ y _b)_ con la serie de terremoto y la serie de explosión. Además, traza (o dibuja)
-y compare los moduladores de señal _a)_ $exp{−t/20}$ y _b)_ $exp{−t/200}$, para $t = 1, 2, \ldots, 100$.
+y compare los moduladores de señal _a)_ $exp\{−t/20\}$ y _b)_ $exp\{−t/200\}$, para $t = 1, 2, \ldots, 100$.
 
 La serie en _a)_ parece describir de forma adecuada la fase P y S de las explosiones, dada la caida rapida de la amplitud al inicio de la fase S, y tambien notando que la variabilidad es bastane similar es esta serie con la serie de explosiones. Sun embargo, en la fase P, la serie del inciso _a)_ no parece realizar un buen trabajo en simular la serie de explosiones, principalemnte al inicio donde parece haber un cambio de variabilidad importante.
 
@@ -143,8 +139,6 @@ E[x_t] &= E[s_t + w_t] \\
   &= E[s_t]
 \end{aligned}
 $$
-
-De forma que, para el inciso _a)_ $E[x_{t,a}]$ viene dada por \ref{eq:p1-2-st_a}, y para el inciso _b)_ $E[x_{t,b}]$ viene dada por \ref{eq:p1-2-st_b}. 
 
 ```{r p1-5, fig.caption=""}
 xt_a <- c(rep(0, 100), 10 * exp(-(101:200 - 100) / 20) * cos(2 * pi * 101:200 / 4)) 

@@ -1,14 +1,25 @@
-# Soluciones a problemas de _Time Series Analysis and its Applications_ de Shumway y Stoffer
-
-_Marcelo Molinatti_
+---
+title: Soluciones a problemas de _Time Series Analysis and its Applications_ de Shumway y Stoffer
+author: Marcelo Molinatti
+date: "2023-05-10"
+output:
+ html_document:
+  number_sections: yes
+  keep_md: yes
+header-includes:
+ - \usepackage{amsmath}
+ - \usepackage{amsfonts}
+lang: es
+---
 
 
 ```r
 library(astsa)
-library(ggfortify)
+library(ggfortify, quietly = TRUE)
 library(kableExtra)
+library(here, quietly = TRUE)
 
-knitr::opts_knit$set(kfigr.prefix=TRUE, kfigr.link=FALSE)
+knitr::opts_knit$set(kfigr.prefix=TRUE, kfigr.link=TRUE)
 ```
 
 * Ejercicios del [capitulo 1](#capitulo-1). Características de series temporales.
@@ -29,7 +40,11 @@ p1 <- autoplot(cbind(EQ5, EXP6), facets = FALSE) +
     values = c("20", "200")) +
   theme_light() +
   theme(legend.position = c(0.3, 0.85))
+
+p1
 ```
+
+![](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p1-1-1.png)<!-- -->
 
 Lo primero que sale a la vista en el gráfico es que la variabilidad de las señales de terremoto es mayor (la amplitud de la señal es mayor) y que esta variabilidad se extiende por más tiempo en el registro, mientras que la de explosiones es menor la variabilidad y la amplitud solo se extiende un intervalo de tiempo corto. 
 
@@ -37,23 +52,17 @@ Lo primero que sale a la vista en el gráfico es que la variabilidad de las señ
 
 _a)_ $x_t = s_t + w_t$, para $t = 1, \ldots , 200$, donde:
 
-$$
-s_t = \begin{cases}
+$$s_t = \begin{cases}
     0, & t= 1, \ldots, 100\\
     10\text{exp}{-\frac{(t-100)}{20}}\text{cos}(2\pi t/4), & t=101, \ldots, 200
-  \end{cases}
-  \label{eq:p1-2-st_a}
-$$
+  \end{cases}$$
 
 _b)_ $x_t = s_t + w_t$, para $t = 1, \ldots , 200$, donde
 
-$$
-s_t = \begin{cases}
+$$s_t = \begin{cases}
     0, & t= 1, \ldots, 100\\
     10\text{exp}{-\frac{(t-100)}{200}}\text{cos}(2\pi t/4), & t=101, \ldots, 200
-  \end{cases}
-  \label{eq:p1-2-st_b}
-$$
+  \end{cases}$$
 
 
 ```r
@@ -68,10 +77,10 @@ p2 <- autoplot(xt, facets = TRUE) +
 cowplot::plot_grid(p1, p2, nrow=1)
 ```
 
-![]("Series%20Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/fig:p1-2-1.png")<!-- -->
+![](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/fig:p1-2-1.png)<!-- -->
 
 _c)_ Compare la apariencia general de las series _a)_ y _b)_ con la serie de terremoto y la serie de explosión. Además, traza (o dibuja)
-y compare los moduladores de señal _a)_ $exp{−t/20}$ y _b)_ $exp{−t/200}$, para $t = 1, 2, \ldots, 100$.
+y compare los moduladores de señal _a)_ $exp\{−t/20\}$ y _b)_ $exp\{−t/200\}$, para $t = 1, 2, \ldots, 100$.
 
 La serie en _a)_ parece describir de forma adecuada la fase P y S de las explosiones, dada la caida rapida de la amplitud al inicio de la fase S, y tambien notando que la variabilidad es bastane similar es esta serie con la serie de explosiones. Sun embargo, en la fase P, la serie del inciso _a)_ no parece realizar un buen trabajo en simular la serie de explosiones, principalemnte al inicio donde parece haber un cambio de variabilidad importante.
 
@@ -88,7 +97,7 @@ autoplot(ts(modulators, start=1), facets=FALSE) +
   theme_light()
 ```
 
-![]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/fig:p1-2-2-1.png")<!-- -->
+![](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/fig:p1-2-2-1.png)<!-- -->
 
 Al ver los moduladores de las señales, se puede verificar que la caida exponencial es mas rapida en la señal del inciso _a)_, lo cual explica la rapida desaparicion de la señal en un intervalo corto del tiempo, mientras que la caida mas lenta del modulador de la señal del inciso _b)_ explica la persintencai de la señal en un intervalo de tiempo amplio.
 
@@ -135,7 +144,7 @@ cowplot::plot_grid(
 	legend, nrow = 1, rel_widths = c(3, .4))
 ```
 
-<img src="Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/fig:p1-3-1.png" width="100%" />
+<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/fig:p1-3-1.png" width="100%" />
 
 Para el inciso _a)_, la serie antes del filtro muestra un cambio violento en el comportamiento de $x_t$, mientras que luego del filtro, la serie se suaviza y la variación de $v_t$ se ve menos pronunciada en amplitud (no se observan picos tan grandes).  
 Para el inciso _b)_, la serie consiste de una función coseno regular, que luego de la suavización, se comporta como una constante, dado que el promediar elimina la variación dado que el periodo es de 4 unidades, y el promedio se hace con los 4 elementos inmediatamente en el pasado.  
@@ -174,8 +183,6 @@ E[x_t] &= E[s_t + w_t] \\
 \end{aligned}
 $$
 
-De forma que, para el inciso _a)_ $E[x_{t,a}]$ viene dada por \ref{eq:p1-2-st_a}, y para el inciso _b)_ $E[x_{t,b}]$ viene dada por \ref{eq:p1-2-st_b}. 
-
 
 ```r
 xt_a <- c(rep(0, 100), 10 * exp(-(101:200 - 100) / 20) * cos(2 * pi * 101:200 / 4)) 
@@ -188,7 +195,7 @@ autoplot(xt, facets=FALSE) +
 	theme_light()
 ```
 
-![]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p1-5-1.png")<!-- -->
+![](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p1-5-1.png)<!-- -->
 
 La función de autocovarianza se puede encontrar usando el resultado del problema 1.4 y el resultado anterior:
 
@@ -340,7 +347,7 @@ ggplot(data = df, mapping = aes(x = lag, y = rho)) +
   theme_light()
 ```
 
-![]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/fig:p1-7-1.png")<!-- -->
+![](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/fig:p1-7-1.png)<!-- -->
 
 **Problema 1.8** Considere el modelo de paseo aleatorio con deriva $x_t = \delta + x_{t−1} + w_t$, para $t = 1, 2, \ldots$, con $x_0 = 0$, donde $w_t$ es ruido blanco con varianza $\sigma_w^2$.  
 _a)_ Demuestre que el modelo se puede escribir como $x_t = \delta t + \sum_{k=1}^t w_k$.  
@@ -675,15 +682,14 @@ Demuestre que √n x¯ →p 0, donde ¯ x es la media muestral (1.34).
 
 
 ```r
-library(astsa, quietly=TRUE, warn.conflicts = FALSE)
-library(tsibble, quietly=TRUE, warn.conflicts = FALSE)
-library(fable, quietly=TRUE, warn.conflicts = FALSE)
-library(feasts, quietly=TRUE, warn.conflicts = FALSE)
-library(dplyr, quietly=TRUE, warn.conflicts = FALSE)
-library(broom, quietly=TRUE, warn.conflicts = FALSE)
-library(ggplot2, quietly=TRUE, warn.conflicts = FALSE)
-library(kableExtra, quietly=TRUE, warn.conflicts = FALSE)
-library(kfigr, quietly=TRUE, warn.conflicts = FALSE)
+library(astsa)
+library(tsibble)
+library(fable)
+library(feasts)
+library(dplyr)
+library(ggplot2)
+library(kableExtra)
+library(kfigr)
 ```
 
 **Problema 2.1** Un modelo estructural para los datos de Johnson y Johnson, digamos $y_t$, sea $x_t = log(y_t)$. En este problema, vamos a ajustar un tipo especial de modelo estructural, $x_t = T_t + S_t + N_t$ donde $T_t$ es un componente de tendencia, $S_t$ es un componente estacional y $N_t$ es ruido. En nuestro caso, el tiempo $t$ está en trimestres ($1960{,}00, 1960{,}25, \ldots$) por lo que una unidad de tiempo es un año.  
@@ -697,9 +703,14 @@ _c)_ Si el modelo es correcto, ¿la tasa promedio de ganancias registradas aumen
 _d)_ ¿Qué sucede si incluye un término de intersección en el modelo en _a)_? Explique por qué hubo un problema.  
 _e)_ Grafique los datos, $x_t$, y superponga los valores ajustados, digamos $\hat{x}_t$, en el gráfico. Examine los residuos, $x_t − \hat{x}_t$, y establezca sus conclusiones. ¿Parece que el modelo se ajusta bien a los datos (los residuos se ven blancos)?
 
+
+```r
+library(kfigr, quietly=TRUE)
+library(dplyr, quietly=TRUE, warn.conflicts = FALSE)
+```
+
 La <a href="#p02-01-01">figura 1</a> muestra las ganancias trimestrales por acción de la empresa estadounidense _Johnson & Johnson_, proporcionada por el profesor Paul Griffin (comunicación personal) de la _Graduate School of Management_ de la Universidad de California, Davis. Hay 84 trimestres (21 años) medidos desde el primer trimestre de 1960 hasta el último trimestre de 1980.
 
-<a name="p02-01-01"></a>
 
 ```r
 autoplot(jj) +
@@ -709,7 +720,7 @@ autoplot(jj) +
   theme_light()
 ```
 
-![Serie temporal para los Pasajeros de la Clase Economica: Melbourne-Sydney.]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-01-01-1.png")
+![Serie temporal para los Pasajeros de la Clase Economica: Melbourne-Sydney.](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-01-01-1.png)
 
 Para transformar los datos, reorganizo los datos a un fromato largo, y creo los regresores para el elemento de tendencia (usando ```lubridate::year```) y para los cuartos de cada año (usando ```lubridate::quarter```). Luego, para este ultimo, se crearon 4 variables distintas $Q_i$ usando una expresion condicional sobe ```quarter```.
 
@@ -732,9 +743,10 @@ df_jj <- jj |>
 
 Ajustando el modelo de regresión, arroja los siguientes resultados mostrados en la <a href="#p02-01-03">tabla 1</a>. Los resultados del ajuste se interpretan tomando en cuenta el uso de variables indicadoras: ```year``` corresponde al elemento de tendencia $\beta$, y cada ```Q1, Q2, Q3``` y ```Q4``` corresponde a los valores de $\alpha_i$.
 
-<a name="p02-01-03"></a>
 
 ```r
+library(broom)
+
 # Ajuste del modelo
 # mod <- lm(log_Earnings ~ year + quarter, df_jj)
 mod <- lm(log_Earnings ~ year + Q1 + Q2 + Q3 + Q4 - 1, df_jj)
@@ -817,7 +829,6 @@ $$y_{t, Q_i} = y_{t, Q_{i-1}}e^{\alpha_i - \alpha_{i-1}}$$
 
 Para el incremento del cuarto trimestre al primero, se da un incremento de año de forma que el termino de tendencia no desaparece. Pero por propiedad de exponenciales, este se se puede separar del cambio de cuarto de año como: $y_{t, Q_1} = y_{t-1, Q_4}e^{\beta}e^{\alpha_4 - \alpha_1}$. Los cambios de un trimestre a otro se muestran en la <a href="#p02-01-04">tabla 2</a>.
 
-<a name="p02-01-04"></a>
 
 ```r
 # Etiquetas para cada uno de los cambios de cuarto
@@ -880,11 +891,16 @@ de forma que ```Q1``` en el modelo con intercepto es en realidad la diferencia $
 
 El gráfico para el modelo se observa en la <a href="#p02-01-05">figura 2</a>, donde se observa que la serie ajustada esta ligeramente mas suavizada que la serie observada, aunque se nota que de 1962 a 1965 la series ajustada parece sobrestimar de manera sistemática la serie observada, mientras que de 1970 a 1975 el modelo parece subestimar de forma sistemática la serie observada. El resto del tiempo, la serie parece variar por encima o por debajo.
 
-<a name="p02-01-05"></a>
 
 ```r
 augmented_df <- dplyr::left_join(df_jj, augment(mod))
+```
 
+```
+## Joining with `by = join_by(log_Earnings, year, Q1, Q2, Q3, Q4)`
+```
+
+```r
 ggplot(df_jj[, c("index", "log_Earnings")], aes(x=as.Date(index), y=log_Earnings)) +
 	geom_line() + geom_point() + 
 	geom_line(aes(y=.fitted), 
@@ -899,11 +915,10 @@ ggplot(df_jj[, c("index", "log_Earnings")], aes(x=as.Date(index), y=log_Earnings
   theme_light()
 ```
 
-![Serie observada superpuesta con la serie predicha por el modelo ajustado.]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-01-05-1.png")
+![Serie observada superpuesta con la serie predicha por el modelo ajustado.](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-01-05-1.png)
 
 Al verificar los residuales, se observa en la <a href="#p02-01-06">figura 3</a> que la serie tiene un comportamiento que no se toma en cuenta en el modelo, alguna correlación entre los valores adyacentes. También se observan valores con mas de dos desviaciones estándar, y en general cambios mas violentos, al inicio y en el centro de la serie.
 
-<a name="p02-01-06"></a>
 
 ```r
 ggplot(augmented_df[, c(".fitted", ".std.resid")], 
@@ -915,11 +930,10 @@ ggplot(augmented_df[, c(".fitted", ".std.resid")],
   theme_light()
 ```
 
-![Gráfico de residuales versus predichos]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-01-06-1.png")
+![Gráfico de residuales versus predichos](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-01-06-1.png)
 
 Las gráficas de la figura <a href="#p02-01-07">figura 4</a> muestran las función de autocorrelación y autocorrelación parcial. Se observa de inmediato que la caída de la primera es bastante lenta, indicando una correlación bastante grande entre elementos adyacentes en la serie; mientras que la función de autocorrelación parcial muestra que la correlación parece ser mayor solo entre observaciones separadas a intervalo de un año.
 
-<a name="p02-01-07"></a>
 
 ```r
 # Se calculan las correlaciones y correlaciones parciales
@@ -945,13 +959,15 @@ cowplot::plot_grid(
 	nrow=1)
 ```
 
-![ACF y PACF]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-01-07-1.png")
+![ACF y PACF](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-01-07-1.png)
 
 La información mostrada en las funciones de autocorrelación y en la distribución de los residuales parece indicar que el modelo no es del todo correcto y que sera apropiado ajustar un modelo autoregresivo.
 
 **Problema 2.2** Para los datos de mortalidad cardiovascular:  
 _a)_ Agregue otro componente a la regresión que represente el conteo de partículas cuatro semanas antes; es decir, agregue $P_{t−4}$. Exprese su conclusión.
 _b)_ Dibuje una matriz de diagrama de dispersión de $M_t$, $T_t$, $P_t$ y $P_{t−4}$ y luego calcule las correlaciones por pares entre las series. Compare la relación entre $M_t$ y $P_t$ versus $M_t$ y $P_{t−4}$.
+
+
 
 La primera parte del análisis se encuentra en el archivo de ejemplo para [la mortalidad cardiovascular y partículas contaminantes](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/output/Pollution-Mortality-example.ipynb). Allí, se muestra que el mejor modelo encontrado para mortalidad fue:
 
@@ -979,7 +995,7 @@ bind_rows(fitted_models[4,], glance(mod_lag)) %>%
 	dplyr::select(SSE, df.residual, MSE, adj.r.squared, AIC, BIC) %>%
 	mutate(AIC=AIC / nrow(df_ts_tidy) - log(2*pi), BIC=BIC / nrow(df_ts_tidy) - log(2*pi)) %>%
 	tibble::add_column(Model=c(
-		"$M_t = \\beta_0 + \\beta_1 t + \\beta_2(T - T_\\dot) + \\beta_3(T - T_\\dot)^2 + \\beta_4 P_t + w_t$", "$M_t = \\beta_0 + \\beta_1 t + \\beta_2(T - T_\\dot) + \\beta_3(T - T_\\dot)^2 + \\beta_4 P_t + P_{t-4} + w_t$"), .before=1) %>%
+		"$M_t = \\beta_0 + \\beta_1 t + \\beta_2(T - T_\\dot ) + \\beta_3(T - T_\\dot )^2 + \\beta_4 P_t + w_t$", "$M_t = \\beta_0 + \\beta_1 t + \\beta_2(T - T_\\dot ) + \\beta_3(T - T_\\dot )^2 + \\beta_4 P_t + P_{t-4} + w_t$"), .before=1) %>%
 	kable(digits=3,
 		col.names=c("", "SSE", "df", "MSE", "$R^2$", "AIC", "BIC"),
 		caption="Medidas de ajuste y de información para los modelos ajustados.", 
@@ -1001,7 +1017,7 @@ bind_rows(fitted_models[4,], glance(mod_lag)) %>%
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;"> $M_t = \beta_0 + \beta_1 t + \beta_2(T - T_\dot) + \beta_3(T - T_\dot)^2 + \beta_4 P_t + w_t$ </td>
+   <td style="text-align:left;"> $M_t = \beta_0 + \beta_1 t + \beta_2(T - T_\dot ) + \beta_3(T - T_\dot )^2 + \beta_4 P_t + w_t$ </td>
    <td style="text-align:right;"> 20508.44 </td>
    <td style="text-align:right;"> 503 </td>
    <td style="text-align:right;"> 40.772 </td>
@@ -1010,7 +1026,7 @@ bind_rows(fitted_models[4,], glance(mod_lag)) %>%
    <td style="text-align:right;"> 4.772 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> $M_t = \beta_0 + \beta_1 t + \beta_2(T - T_\dot) + \beta_3(T - T_\dot)^2 + \beta_4 P_t + P_{t-4} + w_t$ </td>
+   <td style="text-align:left;"> $M_t = \beta_0 + \beta_1 t + \beta_2(T - T_\dot ) + \beta_3(T - T_\dot )^2 + \beta_4 P_t + P_{t-4} + w_t$ </td>
    <td style="text-align:right;"> 19687.01 </td>
    <td style="text-align:right;"> 498 </td>
    <td style="text-align:right;"> 39.532 </td>
@@ -1034,7 +1050,14 @@ Al realizar los gráficos de dispersión con los pares de variables del modelo, 
 pt_4 |> GGally::ggpairs(progress = FALSE)
 ```
 
-![]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/fig:p02-02-03-1.png")<!-- -->
+```
+## Don't know how to automatically pick scale for object of type <ts>. Defaulting to continuous.
+## Don't know how to automatically pick scale for object of type <ts>. Defaulting to continuous.
+## Don't know how to automatically pick scale for object of type <ts>. Defaulting to continuous.
+## Don't know how to automatically pick scale for object of type <ts>. Defaulting to continuous.
+```
+
+![](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/fig:p02-02-03-1.png)<!-- -->
 
 **Problema 2.3** En este problema, exploramos la diferencia entre una caminata aleatoria y un proceso estacionario de tendencia.  
 _a)_ Genere cuatro series que sean paseo aleatorio con deriva, de longitud $n = 100$ con $\delta = {,}01$ y $\sigma_w = 1$. Llame a los datos $x_t$ para $t = 1, \ldots, 100$. Ajuste la regresión $x_t = \beta t + w_t$ usando mínimos cuadrados. Grafique los datos, la función media verdadera (es decir, $\mu t = {,}01 t$) y la línea ajustada, $\hat{x}_t = \hat{\beta} t$, en el mismo gráfico.   
@@ -1095,7 +1118,12 @@ p2 <- bind_rows(sim_series) %>%
 cowplot::plot_grid(p1, p2, labels=c("a)", "b)"))
 ```
 
-![]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-03-01-1.png")<!-- -->
+```
+## Don't know how to automatically pick scale for object of type <ts>. Defaulting to continuous.
+## Don't know how to automatically pick scale for object of type <ts>. Defaulting to continuous.
+```
+
+![](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-03-01-1.png)<!-- -->
 
 Se puede ver que los procesos que son paseos aleatorios son completamente distintos a un proceso con tendencia lineal. En el caso de los paseos aleatorios, la serie se genera de un proceso normal con valor medio dado por el _drift_, donde cada nuevo valor es dependiente unicamente del valor anterior en el proceso. 
 Por otro lado, el modelo con tendencia sigue una estructura de dependencia que solo depende del tiempo, pero no de valores anteriores de la serie. Lo cual hace que la serie solo fluctué alrededor de su valor medio.
@@ -1218,7 +1246,6 @@ _b)_ Trace la serie $y_t$. ¿Existen intervalos de tiempo, del orden de 100 año
 _c)_ Examine la ACF de $y_t$ y comente.  
 _d)_ Calcule la diferencia $u_t = y_t - y_{t-1}$, examine su gráfico de tiempo y muestre el ACF, y argumente que la diferenciación de los datos de varve registrados produce una serie razonablemente estacionaria. ¿Puedes pensar en una interpretación práctica para $u_t$?
 
-<a name="p02-08-01-setup"></a>
 
 ```r
 autoplot(varve, colour="orange") +
@@ -1228,14 +1255,13 @@ autoplot(varve, colour="orange") +
   theme_light()
 ```
 
-![]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-08-01-setup-1.png")<!-- -->
+![](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-08-01-setup-1.png)<!-- -->
 
 La <a href="#p02-08-01-setup">figura 5</a> muestra la serie de varvas glaciales, donde se puede verificar que durante los primeros 250-300 años la volatilidad de la serie es bastante constante, pero esta se dispara en los últimos 300 años de la serie. 
 Tampoco parece ser estacionaria dado que hay un montículo durante los primeros 200 años de los últimos 300 años. 
 La varianza muestral para la primera mitad de la serie es $\sigma_{1}^2=$ 133.46, mientras que para la segunda mitad de la serie la varianza es $\sigma_{2}^2=$ 594.49, aproximadamente 4.45 veces mayor que en la primera mitad.  
 Al transformar la serie usando una función logarítmica, ahora la varianza en la segunda mitad de la series es solo 1.67 veces mayor que en la primera mitad. Además, se observa en la <a href="#p02-08-02-hist">figura 6</a> que la distribución ahora es mas simétrica con respecto a la media, y el sesgo hacia la derecha ha decrecido bastante como resultado de la transformación. 
 
-<a name="p02-08-02-hist"></a>
 
 ```r
 p1 <- ggplot(as_tsibble(varve), aes(x = value)) +
@@ -1250,11 +1276,10 @@ p2 <- ggplot(as_tsibble(log(varve)), aes(x = value)) +
 cowplot::plot_grid(p1, p2, nrow=2)
 ```
 
-![]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-08-02-hist-1.png")<!-- -->
+![](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-08-02-hist-1.png)<!-- -->
 
 La nueva serie de varvas glaciales transformada se observa en la <a href="#p02-08-03-logtransf">figura 7</a>, donde es posible observar más claramente los cambios de nivel de la serie.
 
-<a name="p02-08-03-logtransf"></a>
 
 ```r
 autoplot(log(varve), colour="orange") +
@@ -1264,13 +1289,12 @@ autoplot(log(varve), colour="orange") +
   theme_light()
 ```
 
-![]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-08-03-logtransf-1.png")<!-- -->
+![](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-08-03-logtransf-1.png)<!-- -->
 
 La serie muestra comportamientos explosivos de baja amplitud, pero con un componente periódico mas sutil cada 20-30 años, que es particularmente más visible durante la segunda mitad de la serie. Antes de eso, el ruido aleatorio parece esconder cualquier patrón cíclico que pueda existir en la serie. Y se observa una desviación importante del comportamiento general de la serie desde $t=550$ a $t=600$ de la serie. 
 En la primera mitad de la serie, a los 80 años de la primera observación recolectada, se muestra una caída brusca de nivel de, al menos, una unidad en escala logarítmica, momento después del cual se mantiene un mismo nivel hasta aproximadamente 170 años después. En este momento, hay una tendencia creciente que no finaliza hasta 150 años después, donde la tendencia se revierte y hay una caída que parece persistir durante el resto de la serie.   
 Esto parece indicar, que durante la primera mitad de la serie, los cambios observados parecen ser consecuencia de un solo cambio de nivel en la serie, seguido del comienzo del componente de tendencia. en la segunda mitad de la serie, los componentes con tendencia parecen ser los predominantes, con un inversión de la tendencia a aproximadamente la mitad de la (segunda mitad de la) serie.
 
-<a name="p02-08-04-acf"></a>
 
 ```r
 library(fable)
@@ -1284,7 +1308,7 @@ cowplot::plot_grid(
 	ncol=1)
 ```
 
-![]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-08-04-acf-1.png")<!-- -->
+![](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-08-04-acf-1.png)<!-- -->
 
 La ACF muestra un proceso de memoria larga (<a href="#p02-08-04-acf">figura 8</a>), que en conjunto con la PACF parece indicar un proceso autoregresivo, con correlaciones importantes cada 18-28 años (que captura el ciclo sutil mencionado antes). 
 
@@ -1294,7 +1318,6 @@ $$\nabla y_t = log(x_t) - log(x_{t-1}) = log(\frac{x_t}{x_{t-1}})$$
 
 el cual es el cambio proporcional en la serie de varvas glaciales original en escala logarítmica. Esta se muestra en la <a href="#p02-08-05-diff">figura 9</a>, junto con la ACF y PACF.
 
-<a name="p02-08-05-diff"></a>
 
 ```r
 diff_varve <- diff(log(varve))
@@ -1314,7 +1337,7 @@ cowplot::plot_grid(
 	nrow=1)
 ```
 
-![]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-08-05-diff-1.png")<!-- -->
+![](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-08-05-diff-1.png)<!-- -->
 
 Se muestra que la serie ahora es bastante mas normal, aunque aun es bastante perceptible el comportamiento explosivo, con atípicos en varios puntos de la serie. La PACF sigue denotando el comportamiento autoregresivo de la serie, que parece explicar los observado en el gráfico temporal, mientras que en la ACF ya no se observa ningún patrón reconocible. 
 
@@ -1324,7 +1347,6 @@ _b)_ Calcule el periodograma para la serie sin tendencia obtenida en el inciso _
 
 Los resultados del ajuste de la serie de $SOI$ con respecto al tiempo $t$ se muestran en la <a href="#p02-09-01-setup">tabla 3</a>. 
 
-<a name="p02-09-01-setup"></a>
 
 ```r
 # Regresion con respecto a t
@@ -1370,7 +1392,6 @@ $$SOI = 13.7036654{}_{3.1887278}  -0.0069196{}_{0.0016196} t$$
 
 Los valores encontrado para los coeficientes de regresión son significativos según os resultados obtenidos, indicando que hay una caída del $SOI$ con respecto al tiempo. Al eliminar el componente con tendencia y realizar el análisis espectral de los residuales (que representan a la serie $SOI$ sin el componente con tendencia), se obtiene el peridiograma mostrado en la <a href="#p02-09-02-peridiogram">figura 10</a> (que solo muestra una sección del peridiograma donde se encuentran las frecuencias relevantes).
 
-<a name="p02-09-02-peridiogram"></a>
 
 ```r
 P <- Mod(2 * fft(residuals(mod)) / sqrt(length(residuals(mod)))) ** 2; 
@@ -1381,7 +1402,7 @@ plot(freqs, P,
 	xlab="Frecuencia", ylab="Peridiograma escalado")
 ```
 
-![]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-09-02-peridiogram-1.png")<!-- -->
+![](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-09-02-peridiogram-1.png)<!-- -->
 
 Se muestra el pico obvio a la frecuencia de $38/456 = 0.08333 \ldots$, el cual corresponde al periodo de 12 meses. El otro pico relevante ocurre a la frecuencia $12 / 456 = 0.02632 \ldots$, el cual corresponde a un periodo de 38 meses, o de $3\frac{1}{6}$ años, el cual correspondería al ciclo más probable para el efecto del Niño.
 
@@ -1397,11 +1418,16 @@ _f)_ Ha habido una serie de estudios que cuestionan si los precios de la gasolin
 * ¿Cuál es el modelo ajustado cuando hay un crecimiento negativo en el precio del petróleo en el momento $t$? ¿Cuál es el modelo ajustado cuando no hay un crecimiento positivo en el precio del petróleo? ¿Estos resultados apoyan la hipótesis de la asimetría?  
 * Analizar los residuos del ajuste y comentar.
 
-<a name="p02-10-01-setup"></a>
 
 ```r
 df_oil_gas <- as_tsibble(cbind(oil, gas))
+```
 
+```
+## Warning: Expected frequency of weekly data: 365.25 / 7 (approx 52.18), not 52.
+```
+
+```r
 df_oil_gas %>% 
   ggplot(aes(x=index, y=value, colour=key)) +
     geom_line() +
@@ -1412,19 +1438,24 @@ df_oil_gas %>%
     theme(legend.position=c(0.2, 0.7))
 ```
 
-![]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-10-01-setup-1.png")<!-- -->
+![](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-10-01-setup-1.png)<!-- -->
 
 La <a href="#p02-10-01-setup">figura 11</a> muestras ambas series `oil` y `gas`, donde es posible observar que ninguna de las dos series es estacionaria, dado que se puede percibir el componente con tendencia que parece comenzar a mediados del año 2002, y que tiene un carácter creciente, con una caída repentina durante el primer trimestre del año 2009. 
 Las series presentan diferentes escalas, pero es posible observar en ambas la volatilidad de la ambas, en especial, después del 2005, y de forma más pronunciada sobre la serie `gas`. 
 Esto implica que sería adecuado realizar una transformación logarítmica de los datos, y luego obtener la diferencia para deshacernos de las características no estacionarias de la serie. 
 
-<a name="p02-10-02-acf"></a>
 
 ```r
 oil_transf <- diff(log(oil))
 gas_transf <- diff(log(gas))
 df_log_og <- as_tsibble(cbind(oil_transf, gas_transf))
+```
 
+```
+## Warning: Expected frequency of weekly data: 365.25 / 7 (approx 52.18), not 52.
+```
+
+```r
 cowplot::plot_grid(
 	df_log_og %>% 
 	  ggplot(aes(x=index, y=value, colour=key)) +
@@ -1453,30 +1484,28 @@ cowplot::plot_grid(
 	nrow=1)
 ```
 
-![]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-10-02-acf-1.png")<!-- -->
+![](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-10-02-acf-1.png)<!-- -->
 
 En la <a href="#p02-10-02-acf">figura 12</a> se muestra la serie diferenciada en escala logarítmica, donde se puede ver mas claramente la presencia de atípicos en la serie `gas` al inicio del año 2006, e irregularidades en ambas series durante el año 2009. Además, las ACF para ambas serie muestran correlaciones significativas, que se extienden hasta retrasos alejados.
 
 La CCF de la serie de petroleo versus la de gasolina, muestra que la serie de gasolina lidera la de petroleo, con correlaciones significativas a la izquierda, en $h=-2$, $h=-4$, $h=-8$, $h=-12$ y $h=-17$, indicando un proceso de retroalimentación de la serie de petroleo por la serie de gasolina, mientras que se observa correlaciones en $h=2$, $h=4$ y $h=25$, indicando que la serie petroleo lidera la de gasolina.
 
-<a name="p02-10-03-ccf"></a>
 
 ```r
 ccf(oil_transf, gas_transf, main="CCF de oil vs gas")
 ```
 
-![]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-10-03-ccf-1.png")<!-- -->
+![](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-10-03-ccf-1.png)<!-- -->
 
 Las correlaciones con $h \le 4$ y para $h=12$, son positivas, indicando que ambas serie crecen o decrecen, cuando la otra lo hace. Mientras que el resto de las correlaciones  mencionadas son negativas, indicando que ambas series van en direcciones opuestas. 
 Los diagramas de dispersión mostrados en la <a href="#p02-10-04-scatter">figura 14</a> muestra que existe una relación lineal entre ambas series, y que la relación decrece a solo una pequeña correlación con respecto al primer retraso, y desaparece a retrasos más lejanos.
 
-<a name="p02-10-04-scatter"></a>
 
 ```r
 lag2.plot(gas_transf, oil_transf, 3)
 ```
 
-![]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-10-04-scatter-1.png")<!-- -->
+![](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-10-04-scatter-1.png)<!-- -->
 
 La regresión retrasada de la tasa de cambio del precio de la gasolina con respecto a el precio del petroleo arrojan dos posibles modelos, dado que el coeficiente asociado a la variable indicadora es significativo:
 
@@ -1502,7 +1531,6 @@ $$G_t = \begin{cases}
 
 Esto implica, que el cambio en el precio de la gasolina como consecuencia del cambio en el precio del petroleo y el precio del mismo registrado justamente anterior, tienen un valor promedio mayor cuando el cambio en el precio del petroleo es mayor o igual a cero, lo cual respalda la _asimetría_ de la serie. Dicho de otro modo, el precio de la gasolina aumenta en $t$ a una tasa proporcional mayor cuando el precio del petroleo es mayor o igual cero, dado que el cambio proporcional base es positivo y no negativo.
 
-<a name="p02-10-04-residuals"></a>
 
 ```r
 augmented_data <- broom::augment(reg_f)
@@ -1543,7 +1571,7 @@ cowplot::plot_grid(acf, pacf, res_series, res_qq_plot,
   label_fontface="italic")
 ```
 
-![Gráficos diagnósticos de residuales: _a)_ ACF, _b)_ PACF, _c)_ gráficos de residuales, y _d)_ gráfico _QQ_]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-10-04-residuals-1.png")
+![Gráficos diagnósticos de residuales: _a)_ ACF, _b)_ PACF, _c)_ gráficos de residuales, y _d)_ gráfico _QQ_](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-10-04-residuals-1.png)
 
 Aun así, el análisis de los residuales muestra que aun hay una gran cantidad de atípicos en los datos, y se percibe en el gráfico de residuales un comportamiento autoregresivo, así como las autocorrelaciones no tomadas en cuenta en el modelo mostradas en el ACF y PACF. 
 
@@ -1552,7 +1580,6 @@ Aun así, el análisis de los residuales muestra que aun hay una gran cantidad d
 En la <a href="#p02-11-01-setup">figura 16</a> se muestra la serie temporal para los índices de temperatura promedio de tierra-océano globales desde 1880 a 2015, con el periodo base de 1951-1980. En particular, los datos corresponden a desviaciones, medidas en grados centígrados, del promedio de 1951-1980, y son actualizaciones de Hansen _et al._. 
 Solapado sobre esta serie, se muestran las curvas suavizadas utilizando el método _loess_ (curva a trozos gris) y suavizado por _kernel_ (curva sólida gris) con parámetro $b = 2.5$.
 
-<a name="p02-11-01-setup"></a>
 
 ```r
 autoplot(globtemp, colour="dodgerblue") +
@@ -1567,7 +1594,11 @@ autoplot(globtemp, colour="dodgerblue") +
      theme(axis.text.x= element_text(angle=45, vjust=.5))
 ```
 
-![]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-11-01-setup-1.png")<!-- -->
+```
+## `geom_smooth()` using formula = 'y ~ x'
+```
+
+![](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p02-11-01-setup-1.png)<!-- -->
 
 * Se observa que el uso del suavizado _loess_ muestra la tendencia de crecimiento de la serie, donde se muestra un paso de nivel de aproximadamente $0{,}25$ a $0{,}00$, que se alcanza en el año 1950, y 10 años después, en 1960 hay una tendencia de crecimiento lineal hasta el 2015. 
 * En el suavizado por _kernel_, se sigue la misma tendencia anterior, pero se hace claro el patrón repetitivo de cada $\sim5$ años, donde se alcanzan los picos en la serie, y que parecen correlacionarse con los valores anteriores durante la segunda mitad de la serie. 
@@ -1602,10 +1633,9 @@ Por otro lado, el modelo no es invertible dado que $\theta(z) = 1-z = 0 \rightar
 
 [**Problema 3.33**](#problema-3-33) Ajuste un modelo $ARIMA(p, d, q)$ a los datos de temperatura global `globtemp` realizando todos los diagnósticos necesarios. Después de decidirse por un modelo apropiado, pronostique (con límites) los próximos $10$ años. Comente.
 
-Ya en el [ejemplo 2.6](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/colab-nb/Global-Temperature-Example.ipynb) que la serie de temperatura global parece comportarse más como un paseo aleatorio que como una serie estacionaria de tendencia, y por lo tanto, en lugar de eliminar la tendencia de los datos, es más apropiado utilizar la diferenciación para forzarlos a la estacionaridad. Al realizar esto, se encontró una autocorrelación mínima, lo que puede implicar que la serie de temperatura global es casi un paseo aleatorio con deriva. La ACF y PACF de la serie diferenciada se muestra en la figura 17. 
+Ya en el [ejemplo 2.6](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/colab-nb/global-temperature-example.ipynb) que la serie de temperatura global parece comportarse más como un paseo aleatorio que como una serie estacionaria de tendencia, y por lo tanto, en lugar de eliminar la tendencia de los datos, es más apropiado utilizar la diferenciación para forzarlos a la estacionaridad. Al realizar esto, se encontró una autocorrelación mínima, lo que puede implicar que la serie de temperatura global es casi un paseo aleatorio con deriva. La ACF y PACF de la serie diferenciada se muestra en la <a href="#p03-33-01-example-2-6">figura 17</a>. 
 LA PACF muestra correlaciones significativas hasta el _lag_ 3, otra autocorrelación importante en $h=36$, y una autocorrelación pequeña, pero significativa) en $h=5$. La ACF muestra correlaciones importantes en $h=4$, $9$ y $27$.
 
-<a name="p03-33-01-example-2-6"></a>
 
 ```r
 df_globtemp <- as_tsibble(diff(gtemp))
@@ -1618,7 +1648,7 @@ cowplot::plot_grid(
   nrow = 1)
 ```
 
-![ACF y PACF de la serie diferenciada de Temperatura Global.]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p03-33-01-example-2-6-1.png")
+![ACF y PACF de la serie diferenciada de Temperatura Global.](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p03-33-01-example-2-6-1.png)
 
 Dada la información de las ACF y PACF, se considera un proceso ARMA con componente autoregresivo de orden 1 y componente de media móvil de orden 3, como modelo inicial de trabajo. Escrito en forma resumida como:
 
@@ -1634,16 +1664,22 @@ first_model <- df_globtemp %>%
   model(first_arima = ARIMA(value ~ pdq(1, 1, 3), stepwise = FALSE))
 ```
 
-Los resultados del ajuste se muestran en la tabla 4, donde se observa que los coeficientes $\theta_2$ y $\theta_3$ no son significativos. 
+Los resultados del ajuste se muestran en la <a href="#p03-33-02-first-model">tabla 4</a>, donde se observa que los coeficientes $\theta_2$ y $\theta_3$ no son significativos. 
 La varianza residual del modelo ajustado es $\sigma^2 = 0.00959$. 
 
-<a name="p03-33-02-first-model"></a>
 
 ```r
 inf_crit <- glance(first_model) %>%
   select(sigma2:BIC) %>%
   tidyr::gather(key="Inf. Crit.", value="value")  
+```
 
+```
+## Warning: attributes are not identical across measure variables; they will be
+## dropped
+```
+
+```r
 tidy(first_model) %>%
   select(-.model) %>%
   mutate(term = c("$\\phi$", "$\\theta_1$", "$\\theta_2$", "$\\theta_3$")) %>%
@@ -1699,7 +1735,6 @@ Los gráficos diagnósticos se muestran a continuación, donde se puede observar
 En la ACF se observa una correlación significativa en $h=27$, y en la PACF se observa una correlación significativa en $h=36$. 
 El gráfico _QQ_, así como el gráfico temporal de residuales, muestran que la distribución es bastante normal, pero que existen 4 datos atípicos.
 
-<a name="p03-33-03-diagnostics"></a>
 
 ```r
 augment(first_model) %>%
@@ -1737,7 +1772,38 @@ cowplot::plot_grid(acf, pacf, res_series, res_qq_plot,
   label_fontface="italic")
 ```
 
-![Gráficos diagnósticos de residuales: _a)_ ACF, _b)_ PACF, _c)_ gráficos de residuales, y _d)_ gráfico _QQ_]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p03-33-03-diagnostics-1.png")
+![Gráficos diagnósticos de residuales: _a)_ ACF, _b)_ PACF, _c)_ gráficos de residuales, y _d)_ gráfico _QQ_](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p03-33-03-diagnostics-1.png)
+
+<!---
+Al revisar gráficos de dispersión de la serie `globtemp` versus las series retrasadas con correlaciones significativas mencionadas antes, $h=27$ y $h=36$, se pude observar que hay una relación no lineal entre las series. 
+La relación parece ser no lineal, de acuerdo a la curva suaviada por _loess_ superpuesta en los gráficos de dispersión. Sin embargo, en el grafico de la derecha se observa comop varios puntos se desvian de este comportamiento.
+
+
+```r
+#corr_series <- ts.intersect(globtemp, 
+#  globTL27=stats::lag(globtemp, 27), 
+#  globTL36=stats::lag(globtemp, 36), 
+#  dframe=TRUE) %>%
+#  ts(start=1880) %>%
+#  as_tsibble() %>%
+#  tidyr::spread("key", "value")
+
+#third_model <- corr_series %>%
+#  model(third_model = ARIMA(globtemp  ~ pdq(1, 1, 2) + xreg(globTL36), stepwise = FALSE))
+
+#cowplot::plot_grid(
+#	corr_series %>%
+#	  ggplot(aes(x=globTL27, y=globtemp)) +
+#	    geom_point() + theme_light() +
+#	    geom_smooth(method=loess, se=FALSE, colour="orange"),
+#	corr_series %>%
+#	  ggplot(aes(x=globTL36, y=globtemp)) +
+#	    geom_point() + theme_light() +
+#	    geom_smooth(method=loess, se=FALSE, colour="orange"),
+#	nrow=1)
+```
+--->
+
 
 ```r
 second_model <- df_globtemp %>%
@@ -1747,7 +1813,6 @@ second_model <- df_globtemp %>%
 Dado los resultados obtenidos, se decide optar por un modelo más simple, $ARIMA(1,1,2)$. El nuevo modelo tiene una varianza residual menor, $\sigma^2 = 0.00957$. 
 Además, todos los criterios de información son menores en el nuevo modelo ajustado, por lo que se prefiere el nuevo modelo en contraste con el anterior. 
 
-<a name="p03-33-05-second-model"></a>
 
 ```r
 bind_cols(first_model, second_model) %>%
@@ -1791,9 +1856,8 @@ bind_cols(first_model, second_model) %>%
 </tbody>
 </table>
 
-Los coeficientes estimados junto con su desviación estándar se muestran en la tabla 6, donde se observan que ahora todos son signficativos. 
+Los coeficientes estimados junto con su desviación estándar se muestran en la <a href="#p03-33-05-coef-second">tabla 6</a>, donde se observan que ahora todos son signficativos. 
 
-<a name="p03-33-06-coef-second"></a>
 
 ```r
 tidy(second_model) %>%
@@ -1869,10 +1933,9 @@ _d)_ Explique por qué, usando los resultados de las partes _a)_ y _b)_, parecer
 _e)_ Trace el ACF y el PACF de $\nabla x_t$ y comente.  
 _f)_ Ajuste un modelo $ARMA$ a $\nabla x_t$ y comente.  
 
-La serie mostrada en la figura 20 muestra los valores simulados del modelo $ARFIMA(1,1,0)$ con $\phi = .75$ y $d = .4$. 
+La serie mostrada en la <a href="#p05-01-01-setup">figura 20</a> muestra los valores simulados del modelo $ARFIMA(1,1,0)$ con $\phi = .75$ y $d = .4$. 
 Se observa en la serie un patrón cíclico cuyo periodo parece variar de 50 a 150 años a lo largo de la serie, alargándose el ciclo y luego haciéndose mas corto. 
 
-<a name="p05-01-01-setup"></a>
 
 ```r
 autoplot(arf) +
@@ -1882,12 +1945,11 @@ autoplot(arf) +
     labels = seq(0, 1000, by = 100))
 ```
 
-![]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-01-01-setup-1.png")<!-- -->
+![](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-01-01-setup-1.png)<!-- -->
 
 La ACF muestra que el proceso es de memoria larga, con autocorrelaciones importantes (con magnitudes moderadas a moderadamente pequeñas) que se extienden a valores de $h>100$, y que decrecen y crecen nuevamente una y otra vez. 
 El PACF muestra que el proceso puede ser autoregresivo de segundo orden, con correlacones significativas en $h=14$ y $h=69$.
 
-<a name="p05-01-01-acf"></a>
 
 ```r
 cowplot::plot_grid(
@@ -1898,7 +1960,7 @@ cowplot::plot_grid(
 	nrow=1)
 ```
 
-![]("Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-01-01-acf-1.png")<!-- -->
+![](/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-01-01-acf-1.png)<!-- -->
 
 
 ```r

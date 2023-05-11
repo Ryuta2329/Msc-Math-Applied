@@ -235,7 +235,7 @@ bind_rows(fitted_models[4,], glance(mod_lag)) %>%
 	dplyr::select(SSE, df.residual, MSE, adj.r.squared, AIC, BIC) %>%
 	mutate(AIC=AIC / nrow(df_ts_tidy) - log(2*pi), BIC=BIC / nrow(df_ts_tidy) - log(2*pi)) %>%
 	tibble::add_column(Model=c(
-		"$M_t = \\beta_0 + \\beta_1 t + \\beta_2(T - T_\\dot) + \\beta_3(T - T_\\dot)^2 + \\beta_4 P_t + w_t$", "$M_t = \\beta_0 + \\beta_1 t + \\beta_2(T - T_\\dot) + \\beta_3(T - T_\\dot)^2 + \\beta_4 P_t + P_{t-4} + w_t$"), .before=1) %>%
+		"$M_t = \\beta_0 + \\beta_1 t + \\beta_2(T - T_\\dot ) + \\beta_3(T - T_\\dot )^2 + \\beta_4 P_t + w_t$", "$M_t = \\beta_0 + \\beta_1 t + \\beta_2(T - T_\\dot ) + \\beta_3(T - T_\\dot )^2 + \\beta_4 P_t + P_{t-4} + w_t$"), .before=1) %>%
 	kable(digits=3,
 		col.names=c("", "SSE", "df", "MSE", "$R^2$", "AIC", "BIC"),
 		caption="Medidas de ajuste y de información para los modelos ajustados.", 

@@ -14,10 +14,11 @@ lang: es
 
 ```{r setup}
 library(astsa)
-library(ggfortify)
+library(ggfortify, quietly = TRUE)
 library(kableExtra)
+library(here, quietly = TRUE)
 
-knitr::opts_knit$set(kfigr.prefix=TRUE, kfigr.link=FALSE)
+knitr::opts_knit$set(kfigr.prefix=TRUE, kfigr.link=TRUE)
 ```
 
 * Ejercicios del [capitulo 1](#capitulo-1). Características de series temporales.
