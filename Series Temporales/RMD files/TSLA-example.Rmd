@@ -24,3 +24,10 @@ usethis::proj_sitrep()
 usethis::proj_get()
 usethis::proj_path("R", "foo", ext = "R")
 usethis::proj_set()
+
+
+
+#https://www.idrisstsafack.com/post/garch-models-with-r-programming-a-practical-example-with-tesla-stock
+#https://www.rdocumentation.org/packages/fGarch/versions/4022.89
+#https://www.rdocumentation.org/packages/rugarch/versions/1.4-9
+#https://stats.stackexchange.com/questions/177758/imputing-missing-values-of-finance-data

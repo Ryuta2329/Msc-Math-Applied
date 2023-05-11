@@ -18,6 +18,7 @@ header-includes:
 ---
 
 ```{r number_figures, echo=FALSE}
+#https://gist.github.com/benmarwick/f3e0cafe668f3d6ff6e5
 # This is a knitr hook to enable figure and table captions
 # number figures
 # from http://stackoverflow.com/a/18672268/1036500

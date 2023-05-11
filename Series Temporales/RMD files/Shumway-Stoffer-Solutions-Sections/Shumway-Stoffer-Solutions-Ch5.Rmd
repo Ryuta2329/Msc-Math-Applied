@@ -1,0 +1,45 @@
+```{r ch5-setup}
+library(astsa)
+library(fable)
+library(feasts)
+library(ggplot2)
+library(kableExtra)
+library(kfigr)
+```
+
+[**Problema 5.1**](#problema-5-1) El conjunto de datos `arf` son 1000 observaciones simuladas de un modelo $ARFIMA(1, 1, 0)$ con $\phi = .75$ y $d = .4$.  
+_a)_ Grafique los datos y comente.  
+_b)_ Trazar el ACF y PACF de los datos y comentar.  
+_c)_ Estime los parámetros y pruebe la significación de las estimaciones $\hat{\phi}$ y $\hat{d}$.  
+_d)_ Explique por qué, usando los resultados de las partes _a)_ y _b)_, parecería razonable diferenciar los datos antes del análisis. Es decir, si $x_t$ representa los datos, explique por qué podríamos elegir ajustar un modelo $ARMA$ a $\nabla x_t$.  
+_e)_ Trace el ACF y el PACF de $\nabla x_t$ y comente.  
+_f)_ Ajuste un modelo $ARMA$ a $\nabla x_t$ y comente.  
+
+La serie mostrada en la `r figr("p05-01-01-setup", TRUE, type="figura")` muestra los valores simulados del modelo $ARFIMA(1,1,0)$ con $\phi = .75$ y $d = .4$. 
+Se observa en la serie un patrón cíclico cuyo periodo parece variar de 50 a 150 años a lo largo de la serie, alargándose el ciclo y luego haciéndose mas corto. 
+
+```{r p05-01-01-setup, anchor="figura", fig.cap=""}
+autoplot(arf) +
+  theme_light() +
+  scale_x_continuous(name = "Tiempo",
+    breaks = seq(0, 1000, by = 100),
+    labels = seq(0, 1000, by = 100))
+```
+
+La ACF muestra que el proceso es de memoria larga, con autocorrelaciones importantes (con magnitudes moderadas a moderadamente pequeñas) que se extienden a valores de $h>100$, y que decrecen y crecen nuevamente una y otra vez. 
+El PACF muestra que el proceso puede ser autoregresivo de segundo orden, con correlacones significativas en $h=14$ y $h=69$.
+
+```{r p05-01-01-acf, anchor="figura", fig.cap=""}
+cowplot::plot_grid(
+	ACF(as_tsibble(arf), value, lag_max=100) %>%
+	  autoplot() + theme_light(),
+	PACF(as_tsibble(arf), value, lag_max=100) %>%
+	  autoplot() + theme_light(),
+	nrow=1)
+```
+
+```{r}
+#library(fracdiff)
+```
+
+[**Problema 5.7**](#problema-5-7) El paquete `stats` de R contiene los precios de cierre diarios de los cuatro principales índices bursátiles europeos; escriba `help(EuStockMarkets)` para obtener más detalles. Ajuste un modelo $GARCH$ a los rendimientos de una de estas series y discuta sus hallazgos. (Nota: el conjunto de datos contiene valores reales y no retornos. Por lo tanto, los datos deben transformarse antes del ajuste del modelo).

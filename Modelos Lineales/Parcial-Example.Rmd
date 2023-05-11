@@ -1,0 +1,153 @@
+---
+title: "Examen Parcial Análisis III"
+author: Marcelo Molinatti
+output: pdf_document
+header-includes:
+ - \usepackage{amsmath}
+ - \usepackage[table]{xcolor}
+ - \usepackage{booktabs}
+---
+
+1. Para el modelo de regresión líneal $y_n = \beta x_n + e_n$. Para una muestra $y_1, \ldots, y_N$ escriba los estimados de mínimos cuadrados utilizando la forma multivariada $Y = X\beta + e$ donde $X = (x_1, \ldots, x_N)^T$, sin derivar, sólo a partir del estimador escrito como proyección.
+
+\color{blue}
+
+Sea $E$ el espacio generado por las columnas de $X$ tal que $E = <X> = \{X\beta^T : \beta^T \in \mathbb{R}^k\}$, entonces, la proyección ortogonal en $E$ del vector $y$ pertenece a $E$. Esto es, $P_E(y) \in E$, por lo que $\exists \beta \in \mathbb{R}^k$ tal que $P_E(y) = X\beta^T$, de lo que se desprende que:
+
+$$<X^i, y> = < X^i, X\beta^T>$$
+
+donde $X^i$ es la $i$-ésima columna de $X$. Luego, usando la propiedad $<a, b> = a^Tb$, se tiene que:
+
+$$X^Ty = X^TX\beta^T$$
+
+Ahora, como las columnas de $X$ generan a $E$, estas son linealmente independientes. Por lo que las filas de $X^T$ son linealmente independientes, y entonces, $X^TX$ tiene rango completo. Luego, $X^TX$ es invertible, y existe la solución:
+
+$$\beta^T = (X^TX)^{-1}X^Ty$$
+
+\color{black}
+
+2. Demuestre que para el modelo $Y = X\beta + Ve$ para $Y$ un vector $N\times1$, $X$ una matriz $N\times k$, $V$ una matriz simétrica $N \times N$ y $e = (e_1, \ldots, e_N)^T \sim N(0; I_{N\times N})$. Demuestre que este modelo puede ser reducido a $Y^\prime = X^\prime\beta + e$ donde $e \sim N(0; I{N\times N})$.
+
+\color{blue}
+
+Multiplicando por la izquierda a ambos lados de la igualdad en el modelo $Y = X\beta + Ve$, por $V^{-1}$, se obtiene:
+
+$$V^{-1}Y = V^{-1}X\beta + V^{-1}Ve \rightarrow Y^\prime = X^\prime\beta + e$$
+
+donde $Y^\prime = V^{-1}Y$ y $X^\prime = V^{-1}X$.
+
+\color{black}
+
+3. Ejemplo: Utilizamos la información sobre la renta y el número de años de escolarización (formal) para estimar en qué medida la renta anual de un hombre está relacionada con sus años de escolarización. Una posibilidad sería que, para un hombre que no haya estudiado nada, su renta anual fuera de $a$ (em dolares), y que, por cada año de escolarización que haya tenido, su renta aumentara en $b$ (en dolares). Así, para un hombre con $x$ años de escolaridad, esperaríamos que su ingreso anual sea de $a+bx$ dólares. Si tenemos la siguiente muestra para esta muestra podemos considerar $y_i = a + b x_i + e_i$:
+
+```{r data, echo=FALSE, tab.align='center'}
+library(dplyr)
+library(kableExtra)
+
+income_df <- tribble(~I_i, ~y_i, ~x_i,
+						1,   10,    6,
+						2,   20,   12,
+						3,   17,   10,
+						4,   12,    8,
+						5,   11,    9)
+
+income_df %>%
+  knitr::kable(format="latex", booktabs=TRUE, 
+  	col.names=c("Sujeto", "Ingreso ($\\times1000\\$$)", "Años de Escolarización"), 
+  	escape=FALSE) %>%
+  kable_styling(position = "center")
+```
+
+y $e_i$ es una desviación del valor medio $a + b x_i$ que puede existir entre un individuo y otro.  
+_a)_ Suponga $a = 0$, utilice las fórmulas obtenidas en la pregunta 1. para los datos anteriores. Establezca conclusiones a partir de su modelo.
+
+\color{blue}
+
+Dado que no se toma en cuenta el intercepto, se tiene que la matriz de diseño queda como $X = (`r paste(income_df$x_i, sep=", ")`)^T$, por lo que $X^TX$ es la sumatoria de cuadrados de los $x$'s: 
+
+$$X^TX = \sum_{i=1}^5 x_i^2 = `r sum(income_df$x_i ** 2)`$$
+
+y $(X^TX)^{-1} = 1/`r sum(income_df$x_i ** 2)`$. De forma que el estimado de la pendiente es:
+
+$$b = (X^TX)^{-1}X^Ty = \frac{1}{`r sum(income_df$x_i ** 2)`}\sum_{i=1}^5x_iy_i = \frac{1}{`r sum(income_df$x_i ** 2)`}`r sum(income_df$x_i * income_df$y_i)` \approx `r round(sum(income_df$x_i * income_df$y_i) / sum(income_df$x_i ** 2), 3)`$$
+
+Esto indica que hay un incremento en los ingresos de aproximadamente $1{,}6$ veces por cada año de escolarización que un sujeto haya realizado. 
+
+\color{black}
+
+_b)_ Supongamos en el ejemplo anterior que los datos de las edades de cada sujeto son agregados $28$, $45$, $40$, $35$, y $22$. Considere el modelo de regresión $y_i = a + b_1 x_{1i} + b_2 x_{2i} + e_i$. Encuentre los estimados de mínimos cuadrados. Establezca conclusiones a partir de este modelo.
+
+```{r, echo=FALSE}
+income_df %>%
+  tibble::add_column(x_i2=c(28, 45, 40, 35, 22)) -> income_df
+
+inv_xtx <- solve(t(income_df[, 3:4]) %*% as.matrix(income_df[, 3:4]))
+```
+
+\color{blue}
+
+En este caso, la matriz de diseño queda (ignorando de nuevo el intercepto):
+
+$$
+X =\begin{pmatrix}
+	6  & 28 \\
+	12 & 45 \\
+	10 & 40 \\
+	8  & 35 \\
+	9  & 22 
+\end{pmatrix}
+$$
+
+De forma que:
+
+$$
+X^TX =\begin{pmatrix}
+	`r sum(income_df$x_i ** 2)`  & `r sum(income_df$x_i * income_df$x_i2)` \\
+	`r sum(income_df$x_i * income_df$x_i2)` & `r sum(income_df$x_i2 ** 2)` \\
+\end{pmatrix}
+$$
+
+y:
+
+$$
+(X^TX)^{-1} =\begin{pmatrix}
+	`r inv_xtx[1, 1]` & `r inv_xtx[1, 2]` \\
+	`r inv_xtx[2, 1]` & `r inv_xtx[2, 2]` 
+\end{pmatrix}
+$$
+
+de tal forma que los estimados de mínimos cuadrados son:
+
+$$
+\beta =\begin{pmatrix}
+	`r inv_xtx[1, 1]` & `r inv_xtx[1, 2]` \\
+	`r inv_xtx[2, 1]` & `r inv_xtx[2, 2]` 
+\end{pmatrix}
+\begin{pmatrix}
+	6  & 12 & 10 & 8  & 9 \\
+	28 & 45 & 40 & 35 & 22 
+\end{pmatrix}
+\begin{pmatrix}
+	10 \\
+	20 \\
+	17 \\
+	12 \\
+	11
+\end{pmatrix} =
+\begin{pmatrix}
+	`r inv_xtx[1, 1] * sum(income_df$x_i  * income_df$y_i) + inv_xtx[1, 2] * sum(income_df$x_i2 * income_df$y_i)` \\
+	`r inv_xtx[2, 1] * sum(income_df$x_i  * income_df$y_i) + inv_xtx[2, 2] * sum(income_df$x_i2 * income_df$y_i)` 
+\end{pmatrix}
+$$
+
+Se observa ahora, que el efecto de cada año de escolarización es de casi la mitad del valor encontrado en el modelo anterior, y que la edad ahora parece tener una relación positiva con el ingreso de un sujeto. Esto tiene sentido si suponemos que la edad esta relacionado con la cantidad de tiempo que una persona lleva en el campo laboral, y por tanto, con la probabilidad de que el ingreso sea mayor. 
+
+\color{black}
+
+_c)_ ¿Cuál modelo es más adecuado a utilizar? Ayuda: utilice una prueba estadística adecuada.
+
+\color{blue}
+
+
+
+\color{black}

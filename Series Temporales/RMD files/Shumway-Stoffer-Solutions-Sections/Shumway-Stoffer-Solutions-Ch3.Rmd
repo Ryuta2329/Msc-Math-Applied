@@ -1,0 +1,172 @@
+```{r ch3-setup}
+library(astsa)
+library(fable)
+library(feasts)
+library(ggplot2)
+library(kableExtra)
+library(kfigr)
+library(dplyr)
+```
+
+**Problema 3.1** Para un $MA(1)$, $x_t = w_t + \theta w_{t−1}$, demuestre que $\vert\rho_x(1)\vert \le 1/2$ para cualquier número $\theta$. ¿Para qué valores de $\theta$ $\rho_x(1)$ alcanza su máximo y mínimo?
+
+[**Problema 3.4**](#problema-3-4) Identifique los siguientes modelos como modelos $ARMA(p, q)$ (tenga cuidado con la redundancia de parámetros) y determine si son causales y/o invertibles:  
+_a)_ $x_t = .80x_{t−1} − .15x_{t−2} + w_t − .30w_{t−1}$.  
+_b)_ $x_t = x_{t−1} − .50x_{t−2} + w_t − w_{t−1}$.
+
+El modelo del inciso _a)_ se puede escribir como $(1-\phi_1 B+\phi_2 B^2)x_t = (1 + \theta B)w_t$, por lo que sigue un proceso $ARMA(2, 1)$ dado que se tienen dos retrasos con respecto a $x_t$, con coeficientes $\phi_1 = -{,}80$ y $\phi_2 = -{,}15$; y un retraso con respecto a $w_t$, con coeficiente $\theta = -{,}30$. 
+Sin embargo, el polinomio $\phi(B) = 1-\phi_1 B+\phi_2 B^2$ asociado a $x_t$, se puede factorizar como $\frac{20}{3}(1 - \frac{3}{10}B)(1 - 2B)$, por lo que al simplificar, el modelo sigue la forma $(1 - 2B)\frac{20}{3}x_t = w_t$, y por tanto el modelo simplificado corresponde a un proceso $ARMA(1, 0)$ sobre la serie $y_t = \frac{20}{3}x_t$. 
+El modelo entonces no es causal, dado que al resolver $\phi(z) = 1 - 2 z = 0$ cuando $z = 1/2$, la cual cae dentro del circulo unitario. 
+
+El modelo del inciso _b)_ se escribe como $(1 - B + {,}50 B^2)x_t = (1 - B)w_t$, por lo que el modelo es $ARMA(2, 1)$. 
+Las raíces de $\phi(z) = 1 - z + {,}5 z^2 = 0$ son $z = 1 \pm i$, por lo que $\vert z \vert = \sqrt{2}$, el cual cae fuera del circulo unitario. Por lo tanto, el modelo es causal. 
+Por otro lado, el modelo no es invertible dado que $\theta(z) = 1-z = 0 \rightarrow z = 1$, cae dentro del circulo unitario.
+
+[**Problema 3.33**](#problema-3-33) Ajuste un modelo $ARIMA(p, d, q)$ a los datos de temperatura global `globtemp` realizando todos los diagnósticos necesarios. Después de decidirse por un modelo apropiado, pronostique (con límites) los próximos $10$ años. Comente.
+
+Ya en el [ejemplo 2.6](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/colab-nb/global-temperature-example.ipynb) que la serie de temperatura global parece comportarse más como un paseo aleatorio que como una serie estacionaria de tendencia, y por lo tanto, en lugar de eliminar la tendencia de los datos, es más apropiado utilizar la diferenciación para forzarlos a la estacionaridad. Al realizar esto, se encontró una autocorrelación mínima, lo que puede implicar que la serie de temperatura global es casi un paseo aleatorio con deriva. La ACF y PACF de la serie diferenciada se muestra en la `r figr("p03-33-01-example-2-6", TRUE, type="figura")`. 
+LA PACF muestra correlaciones significativas hasta el _lag_ 3, otra autocorrelación importante en $h=36$, y una autocorrelación pequeña, pero significativa) en $h=5$. La ACF muestra correlaciones importantes en $h=4$, $9$ y $27$.
+
+```{r p03-33-01-example-2-6, anchor="figura", fig.cap="ACF y PACF de la serie diferenciada de Temperatura Global."}
+df_globtemp <- as_tsibble(diff(gtemp))
+
+cowplot::plot_grid(
+    ACF(df_globtemp, value, lag_max = 48) %>%
+      autoplot() + theme_light(),
+    PACF(df_globtemp, value, lag_max = 48) %>%
+      autoplot() + theme_light(),
+  nrow = 1)
+```
+
+Dada la información de las ACF y PACF, se considera un proceso ARMA con componente autoregresivo de orden 1 y componente de media móvil de orden 3, como modelo inicial de trabajo. Escrito en forma resumida como:
+
+$$(1 - \phi B)(1 - B)x_t = (1 + \theta_1 B + \theta_2 B^2 + \theta_3 B^3)w_t$$
+
+que se expande como:
+
+$$x_t = (1 + \phi) x_{t-1} - \phi x_{t-2} + w_t + \theta_1 w_{t-1} + \theta_2 w_{t-2} + \theta_3 w_{t-3}$$
+
+```{r p03-33-02-first-model-2}
+first_model <- df_globtemp %>%
+  model(first_arima = ARIMA(value ~ pdq(1, 1, 3), stepwise = FALSE))
+```
+
+Los resultados del ajuste se muestran en la `r figr("p03-33-02-first-model", TRUE, type="tabla")`, donde se observa que los coeficientes $\theta_2$ y $\theta_3$ no son significativos. 
+La varianza residual del modelo ajustado es $\sigma^2 = `r round(glance(first_model)$sigma2, 5)`$. 
+
+```{r p03-33-02-first-model, anchor="tabla", tab.cap=""}
+inf_crit <- glance(first_model) %>%
+  select(sigma2:BIC) %>%
+  tidyr::gather(key="Inf. Crit.", value="value")  
+
+tidy(first_model) %>%
+  select(-.model) %>%
+  mutate(term = c("$\\phi$", "$\\theta_1$", "$\\theta_2$", "$\\theta_3$")) %>%
+  kbl(digits=c(NA, 3, 3, 3, 4), escape=FALSE, booktabs=TRUE,
+  	caption="Resultados del auste ARIMA.",
+    col.names=c("Coeficiente", "Estimado", "Desv. Est.", "Estadistico", "p"))
+```
+
+Los gráficos diagnósticos se muestran a continuación, donde se puede observar que la ACF y PACF se asemejan a los esperados para ruido blanco, a excepción de las correlaciones significativas. 
+En la ACF se observa una correlación significativa en $h=27$, y en la PACF se observa una correlación significativa en $h=36$. 
+El gráfico _QQ_, así como el gráfico temporal de residuales, muestran que la distribución es bastante normal, pero que existen 4 datos atípicos.
+
+```{r p03-33-03-diagnostics, anchor="figura", fig.width=20, fig.height=5, fig.cap='Gráficos diagnósticos de residuales: _a)_ ACF, _b)_ PACF, _c)_ gráficos de residuales, y _d)_ gráfico _QQ_'}
+augment(first_model) %>%
+  ACF(.innov, lag_max=50) %>%
+  autoplot() +
+    theme_light() +
+    xlab("lag") + 
+    ylab(latex2exp::TeX("$\\rho(s, t)$")) -> acf
+
+augment(first_model) %>%
+  PACF(.innov, lag_max=50) %>%
+  autoplot() +
+    theme_light() +
+    xlab("lag") + 
+    ylab(latex2exp::TeX("$\\rho(s, t)$")) -> pacf 
+
+res_series <- augment(first_model) %>%
+     autoplot(.resid, colour="orange") +
+     geom_point(aes(y=.resid), colour="orange") +
+     xlab("Tiempo") +
+     ylab("Residuales") +
+     theme_light() +
+     geom_hline(yintercept=c(0), 
+     	color=c("black"), linetype=c(1))
+
+res_qq_plot <- augment(first_model) %>% 
+  ggplot(aes(sample = .resid)) + 
+  stat_qq() + stat_qq_line(color="red") + 
+  theme_light()
+
+cowplot::plot_grid(acf, pacf, res_series, res_qq_plot, 
+  nrow=1, align="h",
+  labels=c("a)", "b)", "c)", "d)"), 
+  label_size=11, 
+  label_fontface="italic")
+```
+
+<!---
+Al revisar gráficos de dispersión de la serie `globtemp` versus las series retrasadas con correlaciones significativas mencionadas antes, $h=27$ y $h=36$, se pude observar que hay una relación no lineal entre las series. 
+La relación parece ser no lineal, de acuerdo a la curva suaviada por _loess_ superpuesta en los gráficos de dispersión. Sin embargo, en el grafico de la derecha se observa comop varios puntos se desvian de este comportamiento.
+
+```{r p03-33-scatter, anchor="figura", fig.cap=""}
+#corr_series <- ts.intersect(globtemp, 
+#  globTL27=stats::lag(globtemp, 27), 
+#  globTL36=stats::lag(globtemp, 36), 
+#  dframe=TRUE) %>%
+#  ts(start=1880) %>%
+#  as_tsibble() %>%
+#  tidyr::spread("key", "value")
+
+#third_model <- corr_series %>%
+#  model(third_model = ARIMA(globtemp  ~ pdq(1, 1, 2) + xreg(globTL36), stepwise = FALSE))
+
+#cowplot::plot_grid(
+#	corr_series %>%
+#	  ggplot(aes(x=globTL27, y=globtemp)) +
+#	    geom_point() + theme_light() +
+#	    geom_smooth(method=loess, se=FALSE, colour="orange"),
+#	corr_series %>%
+#	  ggplot(aes(x=globTL36, y=globtemp)) +
+#	    geom_point() + theme_light() +
+#	    geom_smooth(method=loess, se=FALSE, colour="orange"),
+#	nrow=1)
+```
+--->
+
+```{r p03-33-04-scatter}
+second_model <- df_globtemp %>%
+  model(second_model = ARIMA(value  ~ pdq(1, 1, 2), stepwise = FALSE))
+```
+
+Dado los resultados obtenidos, se decide optar por un modelo más simple, $ARIMA(1,1,2)$. El nuevo modelo tiene una varianza residual menor, $\sigma^2 = `r round(glance(second_model)$sigma2, 5)`$. 
+Además, todos los criterios de información son menores en el nuevo modelo ajustado, por lo que se prefiere el nuevo modelo en contraste con el anterior. 
+
+```{r p03-33-05-second-model, anchor="tabla", tab.cap=""}
+bind_cols(first_model, second_model) %>%
+  glance() %>%
+  mutate(.model=c("$ARIMA(1,1,3)$", "$ARIMA(1,1,2)$")) %>%
+  select(.model:BIC) %>%
+  kbl(digits=c(NA, 4, 2, 2, 2, 2), escape=FALSE, booktabs=TRUE,
+  	caption="Comparación de modelos ARIMA ajustados.",
+    col.names=c("Modelo", "$\\sigma^2$", "Func. Verosim.", "AIC", "AICc", "BIC"))
+```
+
+Los coeficientes estimados junto con su desviación estándar se muestran en la `r figr("p03-33-05-coef-second", TRUE, type="tabla")`, donde se observan que ahora todos son signficativos. 
+
+```{r p03-33-06-coef-second, anchor="tabla", tab.cap=""}
+tidy(second_model) %>%
+  select(-.model) %>%
+  mutate(term = c("$\\phi$", "$\\theta_1$", "$\\theta_2$")) %>%
+  kbl(digits=c(NA, 3, 3, 3, 4), escape=FALSE, booktabs=TRUE,
+  	caption="Resultados del auste ARIMA.",
+    col.names=c("Coeficiente", "Estimado", "Desv. Est.", "Estadistico", "p"))
+```
+
+El modelo ajustado se escribe:
+
+$$x_t = `r 1 + round(tidy(second_model)$estimate[1], 2)`{}_{(`r round(tidy(second_model)$std.error[1], 3)`)} x_{t-1} - `r round(tidy(second_model)$estimate[1], 2)`{}_{(`r round(tidy(second_model)$std.error[1], 3)`)} x_{t-2} + w_t + `r round(tidy(second_model)$estimate[2], 2)`{}_{(`r round(tidy(second_model)$std.error[2], 3)`)} w_{t-1} + `r round(tidy(second_model)$estimate[3], 2)`{}_{(`r round(tidy(second_model)$std.error[3], 3)`)} w_{t-2}$$
+
+y los diagnósticos (no mostrados) muestran un comportamiento similar al anterior.

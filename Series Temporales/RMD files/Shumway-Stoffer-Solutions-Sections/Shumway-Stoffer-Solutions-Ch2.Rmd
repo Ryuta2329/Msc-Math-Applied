@@ -1,0 +1,709 @@
+```{r ch2-setup}
+library(astsa)
+library(tsibble)
+library(fable)
+library(feasts)
+library(dplyr)
+library(ggplot2)
+library(kableExtra)
+library(kfigr)
+```
+
+**Problema 2.1** Un modelo estructural para los datos de Johnson y Johnson, digamos $y_t$, sea $x_t = log(y_t)$. En este problema, vamos a ajustar un tipo especial de modelo estructural, $x_t = T_t + S_t + N_t$ donde $T_t$ es un componente de tendencia, $S_t$ es un componente estacional y $N_t$ es ruido. En nuestro caso, el tiempo $t$ está en trimestres ($1960{,}00, 1960{,}25, \ldots$) por lo que una unidad de tiempo es un año.  
+_a)_ Ajuste el modelo de regresión
+
+$$x_t = \beta t + \alpha_1 Q_1(t) + \alpha_2 Q_2(t) + \alpha_3 Q_3(t) + \alpha_4 Q_4(t) + w_t$$
+
+donde $Q_i(t) = 1$ si el tiempo $t$ corresponde al trimestre $i = 1, 2, 3, 4$ y cero en caso contrario. Las $Q_i(t)$ se denominan variables indicadoras. Supondremos por ahora que $w_t$ es una secuencia de ruido blanco gaussiana.  
+_b)_ Si el modelo es correcto, ¿cuál es el incremento anual promedio estimado en las ganancias registradas por acción?
+_c)_ Si el modelo es correcto, ¿la tasa promedio de ganancias registradas aumenta o disminuye del tercer trimestre al cuarto trimestre? y ¿en qué porcentaje aumenta o disminuye?  
+_d)_ ¿Qué sucede si incluye un término de intersección en el modelo en _a)_? Explique por qué hubo un problema.  
+_e)_ Grafique los datos, $x_t$, y superponga los valores ajustados, digamos $\hat{x}_t$, en el gráfico. Examine los residuos, $x_t − \hat{x}_t$, y establezca sus conclusiones. ¿Parece que el modelo se ajusta bien a los datos (los residuos se ven blancos)?
+
+```{r setup-jj}
+library(kfigr, quietly=TRUE)
+library(dplyr, quietly=TRUE, warn.conflicts = FALSE)
+```
+
+La `r figr("p02-01-01", TRUE, type="figura")` muestra las ganancias trimestrales por acción de la empresa estadounidense _Johnson & Johnson_, proporcionada por el profesor Paul Griffin (comunicación personal) de la _Graduate School of Management_ de la Universidad de California, Davis. Hay 84 trimestres (21 años) medidos desde el primer trimestre de 1960 hasta el último trimestre de 1980.
+
+```{r p02-01-01, anchor="figura", fig.cap="Serie temporal para los Pasajeros de la Clase Economica: Melbourne-Sydney."}
+autoplot(jj) +
+  ggtitle("Pasajeros de la Clase Economica: Melbourne-Sydney") +
+  xlab("Año") +
+  ylab("Miles") +
+  theme_light()
+```
+
+Para transformar los datos, reorganizo los datos a un fromato largo, y creo los regresores para el elemento de tendencia (usando ```lubridate::year```) y para los cuartos de cada año (usando ```lubridate::quarter```). Luego, para este ultimo, se crearon 4 variables distintas $Q_i$ usando una expresion condicional sobe ```quarter```.
+
+```{r p02-01-02}
+library(lubridate, quietly=TRUE, warn.conflicts = FALSE)
+
+# Transformando ls datos para obtener y_t
+# y generar los regresores t y Q_i
+df_jj <- jj |>
+	tsibble::as_tsibble(key=c("Q1", "Q2", "Q3", "Q4")) |>
+	dplyr::mutate(log_Earnings = log(value), 
+		year = year(index), 
+		quarter=quarter(index),
+		Q1=ifelse(quarter == 1, 1, 0),
+		Q2=ifelse(quarter == 2, 1, 0),
+		Q3=ifelse(quarter == 3, 1, 0),
+		Q4=ifelse(quarter == 4, 1, 0))
+```
+
+Ajustando el modelo de regresión, arroja los siguientes resultados mostrados en la `r figr("p02-01-03", TRUE, type="tabla")`. Los resultados del ajuste se interpretan tomando en cuenta el uso de variables indicadoras: ```year``` corresponde al elemento de tendencia $\beta$, y cada ```Q1, Q2, Q3``` y ```Q4``` corresponde a los valores de $\alpha_i$.
+
+```{r p02-01-03, anchor="tabla", tab.cap=""}
+library(broom)
+
+# Ajuste del modelo
+# mod <- lm(log_Earnings ~ year + quarter, df_jj)
+mod <- lm(log_Earnings ~ year + Q1 + Q2 + Q3 + Q4 - 1, df_jj)
+
+# Resultados de la estimacion.
+tidy(mod) |> 
+	kable(digits=4, 
+		col.names=c("Regresor", "$\\beta_i$", "$\\sigma_i$", "$Z$", "$p$"),
+		caption="Resultados de la regresión lineal: Estimadores para los coeficientes del modelo.", 
+		label="tab:p02-01", escape=FALSE)
+```
+
+Los resultados muestran que todos los coeficientes son significativos, con $p$-valores mucho menores a $0{,}01$. Es de hacer notar que la diferencia entre la contribución de cada cuarto a las ganancias (en escala logarítmica) es bastante similar, variando solo en las décimas o centésimas.  
+Los cambios anuales en las ganancias viene dado por el coeficiente para $t$ (```year```) de la siguiente forma:
+
+$$x_t - x_{t-1} = \beta t - \beta (t-1) = \beta$$
+
+donde los terminos para los cuartos se cancelan en la diferencia. Usando $log(y_t) - log(y_t) = log(y_t/y_{t-1]})$ permite obtener:
+
+$$y_t = y_{t-1}e^\beta$$
+
+Es decir, anualmente hay un incremento promedio de $e^\beta = `r round(exp(coef(mod)[["year"]]), 4)`$ en las ganancias por acción, suponiendo que el modelo es correcto.   
+Los incrementos/decrementos de cuarto a cuarto en un mismo año vienen dados por:
+
+$$x_{t,Q_i} - x_{t-1, Q_{i-1}} = \alpha_i - \alpha_{i-1}$$
+
+y al devolver la transformación, como antes, se obtiene:
+
+$$y_{t, Q_i} = y_{t, Q_{i-1}}e^{\alpha_i - \alpha_{i-1}}$$
+
+Para el incremento del cuarto trimestre al primero, se da un incremento de año de forma que el termino de tendencia no desaparece. Pero por propiedad de exponenciales, este se se puede separar del cambio de cuarto de año como: $y_{t, Q_1} = y_{t-1, Q_4}e^{\beta}e^{\alpha_4 - \alpha_1}$. Los cambios de un trimestre a otro se muestran en la `r figr("p02-01-04", TRUE, type="tabla")`.
+
+```{r p02-01-04, anchor="tabla", tab.cap=""}
+# Etiquetas para cada uno de los cambios de cuarto
+labels <- c(
+	"$\\alpha_2-\\alpha_1$",
+	"$\\alpha_3-\\alpha_2$",
+	"$\\alpha_4-\\alpha_3$",
+	"$\\alpha_1-\\alpha_4$")
+
+# Incrementos de cuarto a cuarto
+increment <- exp(diff(coef(mod)[c("Q1", "Q2", "Q3", "Q4", "Q1")]))
+
+# Tabla de incrementos cuarto a cuarto
+tibble(Etiqueta=labels, Incremento=increment) %>%
+	mutate(Porcentaje=100 * (Incremento - 1)) %>%
+	kable(digits=4,
+		caption="Incrementos en las ganancias promedio por acción trimestre a trimestre.", 
+		label="tab:p02-02")
+```
+
+Como se observa, a excepción del paso del tercer trimestre al cuarto, siempre ocurre un incremento en las ganancias promedio por acción: de $7{,}24$% en el $Q2$, de $11{,}8$% en el $Q3$, y un incremento de $4{,}62$% al pasar al $Q1$. Los resultados muestran que la caída en las ganancias al pasar al $Q4$ es el mayor cambio en las ganancias por acción en cada año, de $20{,}3$%. 
+
+Al intentar añadir un coeficiente, el ajuste es capaz de determinarlo, pero arroja ```NA``` para el coeficiente $\alpha_4$. 
+La razón de esto es que al añadir el termino para el coeficiente, este se toma como un caso base (en este caso, $Q1$. 
+El coeficiente estimado corresponde entonces a $\alpha_1$), y cada uno de los términos $Q_i$ para $i=2, 3, 4$ se determinan como cambios (cuanto por encima o por debajo del intercepto) con respecto al intercepto: 
+de forma que ```Q1``` en el modelo con intercepto es en realidad la diferencia $\alpha_2 - \alpha_1$; ```Q2``` en el modelo con intercepto es en realidad la diferencia $\alpha_3 - \alpha_1$; y ```Q3``` en el modelo con intercepto es en realidad la diferencia $\alpha_4 - \alpha_1$. Pero dado que ya se sacaron todas las diferencias entre cada cuarto con respecto al caso base (primer cuarto), el ultimo coeficiente no significa nada, arrojando el valor de ```NA```.
+
+El gráfico para el modelo se observa en la `r figr("p02-01-05", TRUE, type="figura")`, donde se observa que la serie ajustada esta ligeramente mas suavizada que la serie observada, aunque se nota que de 1962 a 1965 la series ajustada parece sobrestimar de manera sistemática la serie observada, mientras que de 1970 a 1975 el modelo parece subestimar de forma sistemática la serie observada. El resto del tiempo, la serie parece variar por encima o por debajo.
+
+```{r p02-01-05, anchor="figura", fig.cap="Serie observada superpuesta con la serie predicha por el modelo ajustado."}
+augmented_df <- dplyr::left_join(df_jj, augment(mod))
+
+ggplot(df_jj[, c("index", "log_Earnings")], aes(x=as.Date(index), y=log_Earnings)) +
+	geom_line() + geom_point() + 
+	geom_line(aes(y=.fitted), 
+		data=augmented_df[, c("index", ".fitted")],
+		color="orange") + 
+	geom_point(aes(y=.fitted), 
+		data=augmented_df[, c("index", ".fitted")], 
+		color="orange") +
+  ggtitle("Pasajeros de la Clase Económica: Melbourne-Sydney (escala logarítmica)") +
+  xlab("Año") +
+  ylab("log Ganancias por Acción") + 
+  theme_light()
+```
+
+Al verificar los residuales, se observa en la `r figr("p02-01-06", TRUE, type="figura")` que la serie tiene un comportamiento que no se toma en cuenta en el modelo, alguna correlación entre los valores adyacentes. También se observan valores con mas de dos desviaciones estándar, y en general cambios mas violentos, al inicio y en el centro de la serie.
+
+```{r p02-01-06, anchor="figura", fig.cap="Gráfico de residuales versus predichos"}
+ggplot(augmented_df[, c(".fitted", ".std.resid")], 
+	aes(x=.fitted, y=.std.resid)) +
+	geom_line(colour="orange") + geom_point(colour="orange") +
+	geom_hline(yintercept=0) +
+	xlab("Valores Estimados") +
+  ylab("Residuales Estandarizados") + 
+  theme_light()
+```
+
+Las gráficas de la figura `r figr("p02-01-07", TRUE, type="figura")` muestran las función de autocorrelación y autocorrelación parcial. Se observa de inmediato que la caída de la primera es bastante lenta, indicando una correlación bastante grande entre elementos adyacentes en la serie; mientras que la función de autocorrelación parcial muestra que la correlación parece ser mayor solo entre observaciones separadas a intervalo de un año.
+
+```{r p02-01-07, anchor="figura", fig.cap="ACF y PACF"}
+# Se calculan las correlaciones y correlaciones parciales
+df_values <- data.frame(lag=1:19, 
+	acf_vals=acf(augmented_df$log_Earnings, plot=FALSE)$acf[,,1][1:19],
+	pacf_vals=pacf(augmented_df$log_Earnings, plot=FALSE)$acf[,,1])
+
+cowplot::plot_grid(
+	ggplot(data = df_values, mapping = aes(x = lag, y = acf_vals)) +
+	  geom_point() +
+	  geom_hline(aes(yintercept = 0)) +
+	  geom_segment(mapping = aes(xend = lag, yend = 0)) +
+	  geom_hline(yintercept = c(1/sqrt(20), -1/sqrt(20)), linetype=2, color='blue') +
+	  ylab(latex2exp::TeX("$\\rho(s, t)$")) +
+	  theme_light(), 
+  ggplot(data = df_values, mapping = aes(x = lag, y = pacf_vals)) +
+	  geom_point() +
+	  geom_hline(aes(yintercept = 0)) +
+	  geom_hline(yintercept = c(1/sqrt(20), -1/sqrt(20)), linetype=2, color='blue') +
+	  geom_segment(mapping = aes(xend = lag, yend = 0)) +
+	  ylab(latex2exp::TeX("$\\rho(s, t)$")) +
+	  theme_light(), 
+	nrow=1)
+```
+
+La información mostrada en las funciones de autocorrelación y en la distribución de los residuales parece indicar que el modelo no es del todo correcto y que sera apropiado ajustar un modelo autoregresivo.
+
+**Problema 2.2** Para los datos de mortalidad cardiovascular:  
+_a)_ Agregue otro componente a la regresión que represente el conteo de partículas cuatro semanas antes; es decir, agregue $P_{t−4}$. Exprese su conclusión.
+_b)_ Dibuje una matriz de diagrama de dispersión de $M_t$, $T_t$, $P_t$ y $P_{t−4}$ y luego calcule las correlaciones por pares entre las series. Compare la relación entre $M_t$ y $P_t$ versus $M_t$ y $P_{t−4}$.
+
+```{r p02-02-01, include=FALSE}
+#tempR <- tempfile(fileext = ".R")
+#library(knitr)
+#purl("./RMD files/Pollution-Mortality-example.Rmd", output=tempR)
+#source(tempR)
+#unlink(tempR)
+
+df_ts <- ts(cbind(part, tempr, cmort), start=start(part), frequency = frequency(part))
+colnames(df_ts) <- c("Particulas", "Temperatura", "Mortalidad")
+df_ts_tidy <- as_tsibble(df_ts, key=index) |>
+	mutate(key=recode(key, `tempr`="Temperatura", `cmort`="Mortalidad", `part`="Particulas"))
+
+df_ts_tidy <- df_ts_tidy %>%
+	tidyr::spread(key="key", value="value") %>%
+	mutate(trend = time(cmort), 
+		diff_Temp=Temperatura - mean(Temperatura),
+		diff_Temp_Square=diff_Temp ** 2)
+
+# Se ajustan los modelos
+fitted_models <- tibble(models=
+	c(Mortalidad ~ trend, 
+		Mortalidad ~ trend + diff_Temp, 
+		Mortalidad ~ trend + diff_Temp + diff_Temp_Square, 
+		Mortalidad ~ trend + diff_Temp + diff_Temp_Square + Particulas)) %>%
+	mutate(fit=purrr::map(models, ~lm(., data=df_ts_tidy)),
+		glanced = purrr::map(fit, glance)) %>%
+  tidyr::unnest(glanced)
+
+coef_matrix <- summary(fitted_models$fit[[4]])$coefficients[,1:2]
+```
+
+La primera parte del análisis se encuentra en el archivo de ejemplo para [la mortalidad cardiovascular y partículas contaminantes](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/output/Pollution-Mortality-example.ipynb). Allí, se muestra que el mejor modelo encontrado para mortalidad fue:
+
+$$Mt = `r round(coef_matrix[1,1], 1)` `r round(coef_matrix[2,1], 3)`t  `r round(coef_matrix[3,1], 3)`(T_t − T_\dot) + `r round(coef_matrix[4,1], 3)`(T_t − T_\dot)^2 + `r round(coef_matrix[5,1], 3)`P_t + w_t$$
+
+En esta parte se busca añadir la información del retraso $P_{t-4}$ para verificar si hay una mejora en el ajuste. Los resultados se muestran a continuación:
+
+```{r p02-02-02}
+df_ts <- cbind(part, tempr, cmort)
+
+# Se crea la variable retraso.
+pt_4 <- ts.intersect(df_ts, pt_4=stats::lag(df_ts[, "part"],-4), dframe=TRUE)
+colnames(pt_4) <- c("Particulas", "Temperatura", "Mortalidad", "P_t-4")
+
+# Datos para la regresión7
+df_lag <- pt_4 %>%
+	mutate(trend = time(cmort)[-(505:508)], 
+		diff_Temp=Temperatura - mean(Temperatura),
+		diff_Temp_Square=diff_Temp ** 2)
+
+mod_lag <- lm(Mortalidad ~ trend + diff_Temp + diff_Temp_Square + Particulas + `P_t-4`, df_lag)
+bind_rows(fitted_models[4,], glance(mod_lag)) %>%
+	mutate(SSE=sigma ** 2 * df.residual, MSE=sigma ** 2) %>%
+	dplyr::select(SSE, df.residual, MSE, adj.r.squared, AIC, BIC) %>%
+	mutate(AIC=AIC / nrow(df_ts_tidy) - log(2*pi), BIC=BIC / nrow(df_ts_tidy) - log(2*pi)) %>%
+	tibble::add_column(Model=c(
+		"$M_t = \\beta_0 + \\beta_1 t + \\beta_2(T - T_\\dot) + \\beta_3(T - T_\\dot)^2 + \\beta_4 P_t + w_t$", "$M_t = \\beta_0 + \\beta_1 t + \\beta_2(T - T_\\dot) + \\beta_3(T - T_\\dot)^2 + \\beta_4 P_t + P_{t-4} + w_t$"), .before=1) %>%
+	kable(digits=3,
+		col.names=c("", "SSE", "df", "MSE", "$R^2$", "AIC", "BIC"),
+		caption="Medidas de ajuste y de información para los modelos ajustados.", 
+		label="tab:p02-02-01", escape=FALSE)
+```
+
+Los resultados muestran que hay una mejora en el ajuste al añadir a $P_{t-4}$, pero que solo resulta en un aumento de la varianza explicada de `r 100 * (0.604 - 0.592)`%. Podemos verificar si el modelo es significativo por medio de la prueba $F$:
+
+$$F(5, 498) = \frac{(40.8 - 39.5) / 5}{39.5 / 498} = 1.3218\times 10^{-5}$$
+
+Este valor de $F$ tiene una probabilidad asociada de $F(5, 498) = `r round(1 - pf((40.8 - 39.5) / 5 / 39.5 / 498, 5, 498), 4)`$. Esto quiere decir que no hay una mejora significativa en el modelo al añadir a $P_{t-4}$ comparado con el modelo sin este termino.
+
+Al realizar los gráficos de dispersión con los pares de variables del modelo, y calcular el coeficiente de correlación de estas, se puede observar que la correlación entre $M_t$ y $P_t$ versus $M_t$ y $P_{t−4}$, es bastante similar, siendo mayor par el ultimo caso. Dada esta correlación, seria mas apropiado elegir un modelo en el cual solo se haga una relación entre $M_t$ y $P_{t−4}$, eliminando el termino de $P_t$.
+
+```{r p02-02-03, label="fig:p02-02-03"}
+pt_4 |> GGally::ggpairs(progress = FALSE)
+```
+
+**Problema 2.3** En este problema, exploramos la diferencia entre una caminata aleatoria y un proceso estacionario de tendencia.  
+_a)_ Genere cuatro series que sean paseo aleatorio con deriva, de longitud $n = 100$ con $\delta = {,}01$ y $\sigma_w = 1$. Llame a los datos $x_t$ para $t = 1, \ldots, 100$. Ajuste la regresión $x_t = \beta t + w_t$ usando mínimos cuadrados. Grafique los datos, la función media verdadera (es decir, $\mu t = {,}01 t$) y la línea ajustada, $\hat{x}_t = \hat{\beta} t$, en el mismo gráfico.   
+_b)_ Genere cuatro series de longitud $n = 100$ que sean de tendencia lineal más ruido, digamos $y_t = {,}01 t + w_t$, donde $t$ y $w_t$ son como en la parte _a)_. Ajuste la regresión $y_t = \beta t + w_t$ usando mínimos cuadrados. Grafique los datos, la función media verdadera y la línea ajustada.   
+_c)_ Comente (qué aprendió de esta tarea).   
+
+En la siguiente figura se observan los graficos para los incisos _a)_ y _b)_:
+
+```{r p02-03-01}
+set.seed(24644350)
+sim_series <- list(xt_1 = ts(cumsum(rnorm(100, .01))),
+	xt_2 = ts(cumsum(rnorm(100, .01))),
+	xt_3 = ts(cumsum(rnorm(100, .01))),
+	xt_4 = ts(cumsum(rnorm(100, .01)))
+  )
+
+# Regresiones
+fitted_values <- purrr::map(sim_series, ~fitted(lm(.~ time(.))))
+
+# Joining
+p1 <- bind_rows(sim_series) %>% 
+  tidyr::gather(key="serie", value="sim") %>%
+  bind_cols( 
+  	bind_cols(fitted_values) %>% 
+  		tidyr::gather(key="serie", value="fitted") %>%
+  		select(-serie)) %>%
+  ggplot(aes(x=rep(1:100L, 4), y=sim, colour=serie)) +
+    geom_line() + geom_line(aes(y=fitted)) + 
+    geom_abline(slope=.1, linetype=2) + 
+    xlab("") + ylab("") +
+    theme_light() +
+    theme(legend.position="none")
+
+sim_series <- list(xt_1 = ts(.1 * 1:100 + rnorm(100)),
+	xt_2 = ts(.1 * 1:100 + rnorm(100)),
+	xt_3 = ts(.1 * 1:100 + rnorm(100)),
+	xt_4 = ts(.1 * 1:100 + rnorm(100))
+  )
+
+# Regresiones
+fitted_values <- purrr::map(sim_series, ~fitted(lm(.~ time(.))))
+
+# Joining
+p2 <- bind_rows(sim_series) %>% 
+  tidyr::gather(key="serie", value="sim") %>%
+  bind_cols( 
+  	bind_cols(fitted_values) %>% 
+  		tidyr::gather(key="serie", value="fitted") %>%
+  		select(-serie)) %>%
+  ggplot(aes(x=rep(1:100L, 4), y=sim, colour=serie)) +
+    geom_line() + geom_line(aes(y=fitted)) + 
+    geom_abline(slope=.1, linetype=2) + 
+    xlab("") + ylab("") +
+    theme_light() +
+    theme(legend.position="none")
+
+cowplot::plot_grid(p1, p2, labels=c("a)", "b)"))
+```
+
+Se puede ver que los procesos que son paseos aleatorios son completamente distintos a un proceso con tendencia lineal. En el caso de los paseos aleatorios, la serie se genera de un proceso normal con valor medio dado por el _drift_, donde cada nuevo valor es dependiente unicamente del valor anterior en el proceso. 
+Por otro lado, el modelo con tendencia sigue una estructura de dependencia que solo depende del tiempo, pero no de valores anteriores de la serie. Lo cual hace que la serie solo fluctué alrededor de su valor medio.
+
+**Problema 2.4 Información de Kullback-Leibler**. Dado el vector aleatorio $n\times1$ $y$, definimos la información para discriminar entre dos densidades en la misma familia, indexadas por un parámetro $\theta$, digamos $f(y; \theta_1)$ y $f(y; \theta_2)$, como:
+
+$$I(\theta_1;\theta_2) = n^{-1}E_1 log\frac{f(y; \theta_1)}{f(y; \theta_2)}$$
+
+donde $E_1$ denota expectativa con respecto a la densidad determinada por $\theta_1$. Para el modelo de regresión gaussiana, los parámetros son $\theta = (\beta^\prime, \sigma^2)^\prime$. Muestra que:
+
+$$I(\theta_1;\theta_2) = \frac{1}{2}\left(\frac{\sigma^2_1}{\sigma^2_2} - log\frac{\sigma^2_1}{\sigma^2_2} - 1\right) + \frac{1}{2}\frac{(\beta_1 - \beta_2)^\prime Z^\prime Z(\beta_1 - \beta_2)}{n\sigma_2^2}$$
+
+La función de densidad gaussiana es:
+
+$$f(x; \theta) = \frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{1}{2}\frac{\beta^\prime Z^\prime Z\beta}{\sigma^2}}$$
+
+donde $\theta^\prime=(\beta^\prime, \sigma^2)^\prime$. De esta forma se tiene:
+
+$$
+\begin{aligned}
+	I(\theta_1;\theta_2) &= n^{-1}\text{log }f(y; \theta_1) - \text{log }f(y; \theta_2) \\
+		&= n^{-1}\left[\text{log }\left(\frac{1}{\sigma_1\sqrt{2\pi}}e^{-\frac{1}{2}\frac{\beta_1^\prime Z^\prime Z\beta_1}{\sigma_1^2}}\right) - \text{log }\left(\frac{1}{\sigma_2\sqrt{2\pi}}e^{-\frac{1}{2}\frac{\beta_2^\prime Z^\prime Z\beta_2}{\sigma_2^2}}\right)\right] \\
+		&= n^{-1}\left[\text{log }\left(\frac{\sigma_1}{\sigma_2}\right) - \frac{1}{2}\frac{\beta_1^\prime Z^\prime Z\beta_1}{\sigma_1^2} + \frac{1}{2}\frac{\beta_2^\prime Z^\prime Z\beta_2}{\sigma_2^2}\right] \\
+		&= n^{-1}
+\end{aligned}
+$$
+
+
+**Problema 2.5 Selección del modelo.** Ambos criterios de selección (2.15) y (2.16) se derivan de argumentos teóricos de la información, basados en los bien conocidos números de discriminación de información de Kullback-Leibler. Consideramos que la medida dada por la ecuación obtenida en el problema anterior mide la discrepancia entre las dos densidades, caracterizada por los valores de los parámetros $\theta_1^\prime = (\beta_1^\prime, \sigma_1^2)^\prime$ y $\theta_2^\prime = (\beta_2^\prime, \sigma_2^2)^\prime$. Ahora, si el verdadero valor del vector de parámetros es $\theta_1$, argumentamos que el mejor modelo sería uno que minimice la discrepancia entre el valor teórico y la muestra, digamos $I(\theta_1; \hat{\theta})$. Debido a que no se conocerá $\theta_1$, Hurvich y Tsai consideraron encontrar un estimador insesgado para $E_1[I(\beta_1, \sigma_1^2; \hat{β},\hat{σ}^2)]$, donde
+
+$$I(\beta_1, \sigma_1^2; \hat{\beta},\hat{\sigma}^2) = \frac{1}{2}\left(\frac{\sigma^2_1}{\sigma^2_2} - log\frac{\sigma^2_1}{\sigma^2_2} - 1\right) + \frac{1}{2}\frac{(\beta_1 - \beta_2)^\prime Z^\prime Z(\beta_1 - \beta_2)}{n\sigma_2^2}$$
+
+y $\beta$ es un vector de regresión $k \times 1$. Muestra que:
+
+$$E_1[I(\beta_1, \sigma_1^2; \hat{\beta},\hat{\sigma}^2)] = \frac{1}{2}\left(-log\sigma_1^2 + E_1 log\hat{\sigma^2} + \frac{n+k}{n-k-2} - 1\right)$$
+
+utilizando las propiedades distributivas de los coeficientes de regresión y la varianza del error. Un estimador insesgado para $E_1 log \hat{\sigma}^2$ es $log \hat{\sigma}^2$. Por lo tanto, hemos demostrado que la expectativa de la información de discriminación anterior es como se afirma. Como se consideran modelos con diferentes dimensiones $k$, solo variarán el segundo y el tercer término en la ecuación anterior y solo necesitamos estimadores insesgados para esos dos términos. Esto da la forma de $AICc$. Necesitarás los dos resultados distributivos
+
+$$\frac{n\hat{\sigma}^2}{\sigma_1^2} \sim \chi_{n-k}^2 \text{ y } \frac{(\hat{\beta} - \beta_1)^\prime Z^\prime Z(\hat{\beta} - \beta_1)}{\sigma_1^2} \sim \chi_k^2$$
+
+Las dos cantidades se distribuyen de forma independiente como distribuciones chi-cuadrado con los grados de libertad indicados. Si $x \sim \chi_n^2$, $E(1/x) = 1/(n − 2)$.
+
+**Problema 2.6** Considere un proceso que consiste en una tendencia lineal con un término de ruido aditivo que consiste en variables aleatorias independientes $w_t$ con medias cero y varianzas $\sigma_w^2$, es decir,
+
+$$x_t = \beta_0 + \beta_1 t + w_t$$
+
+donde $\beta_0$, $\beta_1$ son constantes fijas.  
+_a)_ Demuestre que $x_t$ no es estacionario.  
+_b)_ Demuestre que la serie en primera diferencia $\nabla x_t = x_t - x_{t-1}$ es estacionaria encontrando su media y su función de autocovarianza.  
+_c)_ Repita el inciso _b)_ si $w_t$ se reemplaza por un proceso estacionario general, digamos $y_t$, con función media $\mu_y$ y función de autocovarianza $\gamma_y(h)$.  
+
+La media de $x_t$ es:
+
+$$E(x_t) = E(\beta_0 + \beta_1 t + w_t) = \beta_0 + \beta_1 t + E(w_t) = \beta_0 + \beta_1 t$$
+
+la cual crece indefinidamente con el tiempo, por lo que no es constante. Luego, $x_t$ no es estacionario.  
+La diferencia $\nabla x_t = x_t - x_{t-1} = \beta_0 + \beta_1 t + w_t - \beta_0 - \beta_1 (t - 1) - w_{t-1} = \beta_1 + w_t - w_{t-1}$ tiene por media:
+
+$$E(\nabla x_t) = E(\beta_1 + w_t - w_{t-1}) = \beta_1 + E(w_t) - E(w_{t-1}) = \beta_1$$
+
+la cual es constante, por lo que $\nabla x_t$ es estacionaria. La función de autocovarianza es:
+
+$$
+\begin{aligned}
+	\gamma(h) &= E(\nabla x_t - \beta_1)(\nabla x_{t + h} - \beta_1) \\
+		&= E(\nabla x_t \nabla x_{t + h} - \beta_1\nabla x_{t} - \beta_1\nabla x_{t + h} + \beta_1^2) \\
+		&= E(w_t w_{t+h} - w_t w_{t+h-1} - w_{t-1} w_{t+h} + w_{t-1} w_{t+h-1}) \\
+		&= 0
+\end{aligned}
+$$
+
+para todo retraso $h$.  
+Ahora, considerando el proceso $x_t = \beta_0 + \beta_1 t + y_t$, la diferencia $\nabla x_t = \beta_1 + \nabla y_t$ tiene por media $E(\nabla x_t) = E(\beta_1 + \nabla y_t) = \beta_1 + E(y_t) - E(y_{t-1}) = \beta_1 + \mu_y - \mu_y = \beta_1$, la cual es constante. La función de autocovarianza es:
+
+$$
+\begin{aligned}
+	\gamma(h) &= E(\nabla x_t - \beta_1)(\nabla x_{t + h} - \beta_1) \\
+		&= E(\nabla y_t)(\nabla y_{t + h}) \\
+		&= E(y_t - y_{t-1})(y_{t + h} - y_{t+h-1}) \\
+		&= E(y_t y_{t+h}) - E(y_t y_{t+h-1}) - E(y_{t-1} y_{t + h}) + E(y_{t-1} y_{t+h-1}) \\
+		&= 2[\gamma_y(h) + \mu_y^2] - \gamma_y(h-1) - \mu_y^2 - \gamma_y(k) - \mu_y^2 \\
+		&= 2\gamma_y(h) - \gamma_y(h-1) - \gamma_y(h + 1)
+\end{aligned}
+$$
+
+**Problema 2.7** Sea $\mu_t = \mu_{t-1} + \delta  + w_t$. Muestra que $x_t - x_{t-1}$ es estacionaria, sabiendo que $x_t = \mu_t + y_t$ y $y_t$ es un proceso de media $0$ y ACF $\gamma_y(h)$ 
+
+La media del proceso es:
+
+$$
+\begin{aligned}
+	E(x_t - x_{t-1}) &= E(\mu_t + y_t - \mu_{t-1} - y_{t-1}) \\
+		&= E(y_t - y_{t-1} + \delta  + w_t) \\
+		&= E(y_t) - E(y_{t-1}) + \delta  + E(w_t) \\
+		&= \delta
+\end{aligned}
+$$
+
+La función de autocovarianza es:
+
+$$
+\begin{aligned}
+	\gamma(h) &= E(x_t - x_{t-1} - \delta)(x_{t+h} - x_{t+h-1} - \delta) \\
+		&= E(y_t - y_{t-1} + w_t)(y_{t+h} - y_{t+h-1} + w_{t+h}) \\
+		&= E(y_t - y_{t-1})(y_{t+h} - y_{t+h-1}) \\
+		&= 2\gamma_y(h) - \gamma_y(h-1) - \gamma_y(h + 1)
+\end{aligned}
+$$
+
+donde la ultima igualdad se obtiene del resultado en el ejercicio anterior. Luego, la serie es débilmente estacionaria.  
+La serie es también estrictamente estacionaria, dado que $Pr\{x_t - x_{t-1} \le c\} = Pr\{y_t - y_{t-1} + w_t \le c - \delta\}$, y si $y_t$ y $w_t$ son estacionarios, entonces $Pr\{y_t - y_{t-1} + w_t \le c - \delta\} = Pr\{y_{t+h} - y_{t+h-1} + w_{t+h} \le c - \delta\}$. Luego, 
+
+$$Pr\{x_t - x_{t-1} \le c\} = Pr\{y_{t+h} - y_{t+h-1} + w_{t+h} \le c - \delta\}$$ 
+
+y $x_t-x_{t-1}$ es estrictamente estacionaria.
+
+[**Problema 2.8**](#problema-2-8) El registro de varvas glaciales muestra cierta no estacionaridad que se puede mejorar mediante la transformación a logaritmos y alguna no estacionaridad adicional que se puede corregir diferenciando los logaritmos.  
+_a)_ Argumente que la serie de varvas glaciales, digamos $x_t$, exhibe heteroscedasticidad al calcular la varianza de la muestra sobre la primera mitad y la segunda mitad de los datos. Argumente que la transformación $y_t = \text{log }x_t$ estabiliza la varianza sobre la serie. Trace los histogramas de $x_t$ e $y_t$ para ver si la aproximación a la normalidad mejora al transformar los datos.  
+_b)_ Trace la serie $y_t$. ¿Existen intervalos de tiempo, del orden de 100 años, en los que se pueda observar un comportamiento comparable al observado en los registros de temperatura global?  
+_c)_ Examine la ACF de $y_t$ y comente.  
+_d)_ Calcule la diferencia $u_t = y_t - y_{t-1}$, examine su gráfico de tiempo y muestre el ACF, y argumente que la diferenciación de los datos de varve registrados produce una serie razonablemente estacionaria. ¿Puedes pensar en una interpretación práctica para $u_t$?
+
+```{r p02-08-01-setup, anchor="figura", fig.cap=""}
+autoplot(varve, colour="orange") +
+  ggtitle("Varvas glaciales recolectadas anualmente.") +
+  xlab("Año") +
+  ylab("") +
+  theme_light()
+```
+
+La `r figr("p02-08-01-setup", TRUE, type="figura")` muestra la serie de varvas glaciales, donde se puede verificar que durante los primeros 250-300 años la volatilidad de la serie es bastante constante, pero esta se dispara en los últimos 300 años de la serie. 
+Tampoco parece ser estacionaria dado que hay un montículo durante los primeros 200 años de los últimos 300 años. 
+La varianza muestral para la primera mitad de la serie es $\sigma_{1}^2=$ `r round(var(varve[1:317]), 2)`, mientras que para la segunda mitad de la serie la varianza es $\sigma_{2}^2=$ `r round(var(varve[318:634]), 2)`, aproximadamente `r round(var(varve[318:634]) / var(varve[1:317]), 2)` veces mayor que en la primera mitad.  
+Al transformar la serie usando una función logarítmica, ahora la varianza en la segunda mitad de la series es solo `r round(var(log(varve[318:634])) / var(log(varve[1:317])), 2)` veces mayor que en la primera mitad. Además, se observa en la `r figr("p02-08-02-hist", TRUE, type="figura")` que la distribución ahora es mas simétrica con respecto a la media, y el sesgo hacia la derecha ha decrecido bastante como resultado de la transformación. 
+
+```{r p02-08-02-hist, anchor="figura", fig.cap=""}
+p1 <- ggplot(as_tsibble(varve), aes(x = value)) +
+  geom_histogram(position = "identity", bins = 25, fill="orange") +
+  theme_light() + 
+  xlab("") + ylab("Frecuencia")
+p2 <- ggplot(as_tsibble(log(varve)), aes(x = value)) +
+  geom_histogram(position = "identity", bins = 25, fill="orange") +
+  theme_light() + 
+  xlab("") + ylab("Frecuencia")
+
+cowplot::plot_grid(p1, p2, nrow=2)
+```
+
+La nueva serie de varvas glaciales transformada se observa en la `r figr("p02-08-03-logtransf", TRUE, type="figura")`, donde es posible observar más claramente los cambios de nivel de la serie.
+
+```{r p02-08-03-logtransf, anchor="figura", fig.cap=""}
+autoplot(log(varve), colour="orange") +
+  ggtitle("Varvas glaciales recolectadas anualmente.") +
+  xlab("Año") +
+  ylab("") +
+  theme_light()
+```
+
+La serie muestra comportamientos explosivos de baja amplitud, pero con un componente periódico mas sutil cada 20-30 años, que es particularmente más visible durante la segunda mitad de la serie. Antes de eso, el ruido aleatorio parece esconder cualquier patrón cíclico que pueda existir en la serie. Y se observa una desviación importante del comportamiento general de la serie desde $t=550$ a $t=600$ de la serie. 
+En la primera mitad de la serie, a los 80 años de la primera observación recolectada, se muestra una caída brusca de nivel de, al menos, una unidad en escala logarítmica, momento después del cual se mantiene un mismo nivel hasta aproximadamente 170 años después. En este momento, hay una tendencia creciente que no finaliza hasta 150 años después, donde la tendencia se revierte y hay una caída que parece persistir durante el resto de la serie.   
+Esto parece indicar, que durante la primera mitad de la serie, los cambios observados parecen ser consecuencia de un solo cambio de nivel en la serie, seguido del comienzo del componente de tendencia. en la segunda mitad de la serie, los componentes con tendencia parecen ser los predominantes, con un inversión de la tendencia a aproximadamente la mitad de la (segunda mitad de la) serie.
+
+```{r p02-08-04-acf, anchor="figura", fig.cap=""}
+library(fable)
+library(feasts)
+
+cowplot::plot_grid(
+	ACF(as_tsibble(log(varve)), value, lag_max=100) %>%
+	  autoplot() + theme_light(),
+	PACF(as_tsibble(log(varve)), value, lag_max=100) %>%
+	  autoplot() + theme_light(),
+	ncol=1)
+```
+
+La ACF muestra un proceso de memoria larga (`r figr("p02-08-04-acf", TRUE, type="figura")`), que en conjunto con la PACF parece indicar un proceso autoregresivo, con correlaciones importantes cada 18-28 años (que captura el ciclo sutil mencionado antes). 
+
+Para eliminar estas características de tendencia y los cambios de nivel, se realiza la diferencia de la serie, de tal forma que se obtiene:
+
+$$\nabla y_t = log(x_t) - log(x_{t-1}) = log(\frac{x_t}{x_{t-1}})$$
+
+el cual es el cambio proporcional en la serie de varvas glaciales original en escala logarítmica. Esta se muestra en la `r figr("p02-08-05-diff", TRUE, type="figura")`, junto con la ACF y PACF.
+
+```{r p02-08-05-diff, anchor="figura", fig.cap="", fig.width=12}
+diff_varve <- diff(log(varve))
+
+cowplot::plot_grid(
+	autoplot(diff_varve, colour="orange") +
+	  ggtitle("Varvas glaciales recolectadas anualmente.") +
+	  xlab("Año") +
+	  ylab("") +
+	  theme_light(),
+	cowplot::plot_grid(
+		ACF(as_tsibble(diff_varve), value, lag_max=100) %>%
+		  autoplot() + theme_light(),
+		PACF(as_tsibble(diff_varve), value, lag_max=100) %>%
+		  autoplot() + theme_light(),
+		ncol=1), 
+	nrow=1)
+```
+
+Se muestra que la serie ahora es bastante mas normal, aunque aun es bastante perceptible el comportamiento explosivo, con atípicos en varios puntos de la serie. La PACF sigue denotando el comportamiento autoregresivo de la serie, que parece explicar los observado en el gráfico temporal, mientras que en la ACF ya no se observa ningún patrón reconocible. 
+
+**Problema 2.9** En este problema, exploraremos la naturaleza periódica de $S_t$.  
+_a)_ Elimine la tendencia de la serie ajustando una regresión de $S_t$ en el tiempo $t$. ¿Existe una tendencia significativa en la temperatura de la superficie del mar? Comente.  
+_b)_ Calcule el periodograma para la serie sin tendencia obtenida en el inciso _a)_. Identifique las frecuencias de los dos picos principales (con uno obvio en la frecuencia de un ciclo cada 12 meses). ¿Cuál es el ciclo probable de El Niño indicado por el pico menor?
+
+Los resultados del ajuste de la serie de $SOI$ con respecto al tiempo $t$ se muestran en la `r figr("p02-09-01-setup", TRUE, type="tabla")`. 
+
+```{r p02-09-01-setup, anchor="tabla", tab.cap=""}
+# Regresion con respecto a t
+mod <- lm(soi ~ time(soi))
+
+tidy(mod) %>%
+  mutate(term=c("$\\beta_0$", "$\\beta_1$")) %>%
+  knitr::kable(col.names=c("Termino", "Estimado", "Desv. Estand.", "Estadistico", "$p$"),
+    escape=FALSE)
+```
+
+El modelo ajustado es:
+
+$$SOI = `r tidy(mod)[1, "estimate"]`{}_{`r tidy(mod)[1, "std.error"]`}  `r tidy(mod)[2, "estimate"]`{}_{`r tidy(mod)[2, "std.error"]`} t$$
+
+Los valores encontrado para los coeficientes de regresión son significativos según os resultados obtenidos, indicando que hay una caída del $SOI$ con respecto al tiempo. Al eliminar el componente con tendencia y realizar el análisis espectral de los residuales (que representan a la serie $SOI$ sin el componente con tendencia), se obtiene el peridiograma mostrado en la `r figr("p02-09-02-peridiogram", TRUE, type="figura")` (que solo muestra una sección del peridiograma donde se encuentran las frecuencias relevantes).
+
+```{r p02-09-02-peridiogram, anchor="figura", fig.cap=""}
+P <- Mod(2 * fft(residuals(mod)) / sqrt(length(residuals(mod)))) ** 2; 
+freqs <- 0:(length(residuals(mod)) - 1) / length(residuals(mod))
+
+plot(freqs, P, 
+	type="o", xlim=c(0, .2),
+	xlab="Frecuencia", ylab="Peridiograma escalado")
+```
+
+Se muestra el pico obvio a la frecuencia de $38/456 = `r round(38 / 456, 5)` \ldots$, el cual corresponde al periodo de 12 meses. El otro pico relevante ocurre a la frecuencia $12 / 456 = `r round(12 / 456, 5)` \ldots$, el cual corresponde a un periodo de 38 meses, o de $3\frac{1}{6}$ años, el cual correspondería al ciclo más probable para el efecto del Niño.
+
+[**Problema 2.10**](#problema-2-10) Considere las dos series de tiempo semanales de petróleo (`oil`) y gasolina (`gas`). La serie `oil` está en dólares por barril, mientras que la serie del `gas` está en centavos por galón.  
+_a)_ Trace los datos en el mismo gráfico ¿Crees que las series son estacionarias (explica tu respuesta)?  
+_b)_ En economía, a menudo es el cambio porcentual en el precio (denominado tasa de crecimiento o rendimiento), más que el cambio absoluto del precio, es lo que es importante. Argumente que se podría aplicar a los datos una transformación de la forma $y_t = \nabla\text{log }x_t$, donde $x_t$ es la serie de precios del petróleo o de la gasolina.  
+_c)_ Transforme los datos como se describe en la parte _b)_, trace los datos en el mismo gráfico, mire las ACF de los datos transformados y comente.  
+_d)_ Grafique el CCF de los datos transformados y comente los pequeños valores, pero significativos, cuando la serie `gas` lidera a `oil` pueden considerarse como retroalimentación.  
+_e)_ Mostrar diagramas de dispersión de las series de tasas de crecimiento del petróleo y la gasolina para hasta tres semanas de anticipación de los precios del petróleo; incluya un suavizador no paramétrico en cada gráfico y comente los resultados (p. ej., ¿hay valores atípicos? ¿Las relaciones son lineales?).  
+_f)_ Ha habido una serie de estudios que cuestionan si los precios de la gasolina responden más rápidamente cuando los precios del petróleo están subiendo que cuando los precios del petróleo están cayendo (_asimetría_). Intentaremos explorar esta cuestión aquí con una regresión retardada simple; ignoraremos algunos problemas obvios, como valores atípicos y errores autocorrelacionados, por lo que este no será un análisis definitivo. Sean $G_t$ y $O_t$ las tasas de crecimiento de la gasolina y del petróleo.
+
+* Ajuste la regresión (y comente los resultados) $G_t = \alpha_1 + \alpha_2 I_t + \beta_1 O_t + \beta_2 O_{t−1} + w_t$, donde $I_t = 1$ si $O_t \ge 0$ y $0$ en caso contrario (es el indicador de no crecimiento o crecimiento positivo del precio del petróleo).  
+* ¿Cuál es el modelo ajustado cuando hay un crecimiento negativo en el precio del petróleo en el momento $t$? ¿Cuál es el modelo ajustado cuando no hay un crecimiento positivo en el precio del petróleo? ¿Estos resultados apoyan la hipótesis de la asimetría?  
+* Analizar los residuos del ajuste y comentar.
+
+```{r p02-10-01-setup, anchor="figura", fig.cap=""}
+df_oil_gas <- as_tsibble(cbind(oil, gas))
+
+df_oil_gas %>% 
+  ggplot(aes(x=index, y=value, colour=key)) +
+    geom_line() +
+    scale_colour_manual(values=c(2, 200), name=NULL, labels=c("Gas", "Petróleo")) +
+    theme_light() +
+    xlab("") + ylab("") +
+    ggtitle("Precios de petroleo y gas durante el periodo 2000-2010") +
+    theme(legend.position=c(0.2, 0.7))
+```
+
+La `r figr("p02-10-01-setup", TRUE, type="figura")` muestras ambas series `oil` y `gas`, donde es posible observar que ninguna de las dos series es estacionaria, dado que se puede percibir el componente con tendencia que parece comenzar a mediados del año 2002, y que tiene un carácter creciente, con una caída repentina durante el primer trimestre del año 2009. 
+Las series presentan diferentes escalas, pero es posible observar en ambas la volatilidad de la ambas, en especial, después del 2005, y de forma más pronunciada sobre la serie `gas`. 
+Esto implica que sería adecuado realizar una transformación logarítmica de los datos, y luego obtener la diferencia para deshacernos de las características no estacionarias de la serie. 
+
+```{r p02-10-02-acf, anchor="figura", fig.cap="", fig.width=12}
+oil_transf <- diff(log(oil))
+gas_transf <- diff(log(gas))
+df_log_og <- as_tsibble(cbind(oil_transf, gas_transf))
+
+cowplot::plot_grid(
+	df_log_og %>% 
+	  ggplot(aes(x=index, y=value, colour=key)) +
+	    geom_line() +
+	    scale_colour_manual(values=c(2, 200), name=NULL, labels=c("Gas", "Petróleo")) +
+	    theme_light() +
+	    xlab("") + ylab("") +
+	    ggtitle("Rendimeintos de petroleo y gas dutante el periodo 2000-2010") +
+	    theme(legend.position=c(0.2, 0.8)),
+	cowplot::plot_grid(
+		tibble(lag=1:51, acf=acf(oil_transf, lag=50, plot=FALSE)$acf) %>%
+		  ggplot(aes(x=lag, y=acf)) + 
+		  geom_hline(aes(yintercept = 0)) +
+		  geom_segment(mapping = aes(xend = lag, yend = 0)) +
+		  ylab(latex2exp::TeX("$\\rho(s, t)$")) + theme_light() +
+		  geom_hline(yintercept = c(1, -1) / sqrt(length(oil)), linetype=2, color='blue') +
+		  ggtitle("Serie gas"),
+		tibble(lag=1:51, acf=acf(gas_transf,  lag=50, plot=FALSE)$acf) %>%
+		  ggplot(aes(x=lag, y=acf)) + 
+		  geom_hline(aes(yintercept = 0)) +
+		  geom_segment(mapping = aes(xend = lag, yend = 0)) +
+		  ylab(latex2exp::TeX("$\\rho(s, t)$")) + theme_light() +
+		  geom_hline(yintercept = c(1, -1) / sqrt(length(gas)), linetype=2, color='blue') +
+		  ggtitle("Serie oil"),
+		ncol=1),
+	nrow=1)
+```
+
+En la `r figr("p02-10-02-acf", TRUE, type="figura")` se muestra la serie diferenciada en escala logarítmica, donde se puede ver mas claramente la presencia de atípicos en la serie `gas` al inicio del año 2006, e irregularidades en ambas series durante el año 2009. Además, las ACF para ambas serie muestran correlaciones significativas, que se extienden hasta retrasos alejados.
+
+La CCF de la serie de petroleo versus la de gasolina, muestra que la serie de gasolina lidera la de petroleo, con correlaciones significativas a la izquierda, en $h=-2$, $h=-4$, $h=-8$, $h=-12$ y $h=-17$, indicando un proceso de retroalimentación de la serie de petroleo por la serie de gasolina, mientras que se observa correlaciones en $h=2$, $h=4$ y $h=25$, indicando que la serie petroleo lidera la de gasolina.
+
+```{r p02-10-03-ccf, anchor="figura", fig.cap=""}
+ccf(oil_transf, gas_transf, main="CCF de oil vs gas")
+```
+
+Las correlaciones con $h \le 4$ y para $h=12$, son positivas, indicando que ambas serie crecen o decrecen, cuando la otra lo hace. Mientras que el resto de las correlaciones  mencionadas son negativas, indicando que ambas series van en direcciones opuestas. 
+Los diagramas de dispersión mostrados en la `r figr("p02-10-04-scatter", TRUE, type="figura")` muestra que existe una relación lineal entre ambas series, y que la relación decrece a solo una pequeña correlación con respecto al primer retraso, y desaparece a retrasos más lejanos.
+
+```{r p02-10-04-scatter, anchor="figura", fig.cap=""}
+lag2.plot(gas_transf, oil_transf, 3)
+```
+
+La regresión retrasada de la tasa de cambio del precio de la gasolina con respecto a el precio del petroleo arrojan dos posibles modelos, dado que el coeficiente asociado a la variable indicadora es significativo:
+
+```{r p02-10-05-reg}
+dummy <- ifelse(oil_transf < 0, 0, 1)
+oil_lag <- ts.intersect(oil_transf, oilL1=stats::lag(oil_transf,-1), dframe=TRUE)
+
+# Metging in one data.frame
+df_reg <- cbind(rate_gas=gas_transf[-1], oil_lag, Indicator=dummy[-1])
+
+# Regression
+reg_f <- lm(rate_gas ~ oil_transf + oilL1 + Indicator, data=df_reg, na.action=NULL)
+
+# Coeficientes
+coefs <- broom::tidy(reg_f)
+```
+
+$$G_t = \begin{cases}
+	`r round(sum(coefs[c(1, 4), "estimate"]), 4)` {}_{`r round(sum(coefs[c(1, 4), "std.error"]), 4)`} + `r round(coefs[2, "estimate"], 4)` {}_{`r round(coefs[2, "std.error"], 4)`}O_t + `r round(coefs[3, "estimate"], 4)` {}_{`r round(coefs[3, "std.error"], 4)`}O_{t-1} & O_t \ge 0 \\
+	`r round(coefs[1, "estimate"], 4)` {}_{`r round(coefs[1, "std.error"], 4)`} + `r round(coefs[2, "estimate"], 4)` {}_{`r round(coefs[2, "std.error"], 4)`}O_t + `r round(coefs[3, "estimate"], 4)` {}_{`r round(coefs[3, "std.error"], 4)`}O_{t-1} & O_t < 0 
+\end{cases}$$
+
+Esto implica, que el cambio en el precio de la gasolina como consecuencia del cambio en el precio del petroleo y el precio del mismo registrado justamente anterior, tienen un valor promedio mayor cuando el cambio en el precio del petroleo es mayor o igual a cero, lo cual respalda la _asimetría_ de la serie. Dicho de otro modo, el precio de la gasolina aumenta en $t$ a una tasa proporcional mayor cuando el precio del petroleo es mayor o igual cero, dado que el cambio proporcional base es positivo y no negativo.
+
+```{r p02-10-04-residuals, anchor="figura", fig.cap="Gráficos diagnósticos de residuales: _a)_ ACF, _b)_ PACF, _c)_ gráficos de residuales, y _d)_ gráfico _QQ_", fig.width=15}
+augmented_data <- broom::augment(reg_f)
+
+ggplot(tibble(lag=1:51, acf=acf(augmented_data$.resid, lag=50, plot=FALSE)$acf),
+	aes(x=lag, y=acf)) +
+	geom_hline(aes(yintercept = 0)) +
+	geom_segment(mapping = aes(xend = lag, yend = 0)) +
+	ylab(latex2exp::TeX("$\\rho(s, t)$")) + theme_light() +
+	geom_hline(yintercept = c(1, -1) / sqrt(length(oil)), linetype=2, color='blue') +
+    xlab("lag") -> acf
+
+ggplot(tibble(lag=1:50, acf=pacf(augmented_data$.resid, lag=50, plot=FALSE)$acf),
+	aes(x=lag, y=acf)) +
+	geom_hline(aes(yintercept = 0)) +
+	geom_segment(mapping = aes(xend = lag, yend = 0)) +
+	ylab(latex2exp::TeX("$\\rho(s, t)$")) + theme_light() +
+	geom_hline(yintercept = c(1, -1) / sqrt(length(oil)), linetype=2, color='blue') +
+    xlab("lag") -> pacf 
+
+res_series <- augmented_data %>%
+  ggplot(aes(x=1:nrow(augmented_data), y=.resid), colour="orange") +
+    geom_line(aes(y=.resid), colour="orange") +
+    scale_x_yearmonth(date_labels = "%Y") +
+    xlab("Tiempo") +
+    ylab("Residuales") +
+    theme_light() 
+
+res_qq_plot <- augmented_data %>% 
+  ggplot(aes(sample = .resid)) + 
+  stat_qq(colour="orange", fill="white") + stat_qq_line(color="grey") + 
+  theme_light()
+
+cowplot::plot_grid(acf, pacf, res_series, res_qq_plot, 
+  nrow=1, align="h",
+  labels=c("a)", "b)", "c)", "d)"), 
+  label_size=11, 
+  label_fontface="italic")
+```
+
+Aun así, el análisis de los residuales muestra que aun hay una gran cantidad de atípicos en los datos, y se percibe en el gráfico de residuales un comportamiento autoregresivo, así como las autocorrelaciones no tomadas en cuenta en el modelo mostradas en el ACF y PACF. 
+
+**Problema 2.11** Utilice dos técnicas de suavizado diferentes para estimar la tendencia en la serie de temperatura global ```globtemp```. Comente.
+
+En la `r figr("p02-11-01-setup", TRUE, type="figura")` se muestra la serie temporal para los índices de temperatura promedio de tierra-océano globales desde 1880 a 2015, con el periodo base de 1951-1980. En particular, los datos corresponden a desviaciones, medidas en grados centígrados, del promedio de 1951-1980, y son actualizaciones de Hansen _et al._. 
+Solapado sobre esta serie, se muestran las curvas suavizadas utilizando el método _loess_ (curva a trozos gris) y suavizado por _kernel_ (curva sólida gris) con parámetro $b = 2.5$.
+
+```{r p02-11-01-setup, anchor="figura", fig.cap=""}
+autoplot(globtemp, colour="dodgerblue") +
+     ggtitle("Desviaciones Globales de Temperatura") +
+     xlab("Tiempo") + ylab("") +
+     theme_light() +
+     scale_x_continuous(name="Tiempo", breaks=seq(1880, 2015, by=9), labels=seq(1880, 2015, by=9)) +
+     geom_line(
+         aes(y=ksmooth(time(globtemp %>% as.ts()), globtemp %>% as.ts(), "normal", bandwidth=2.5)$y), 
+         colour="200", lwd=1) +
+     geom_smooth(aes(y=value), method=loess, se=FALSE, color="200", linetype=2) +
+     theme(axis.text.x= element_text(angle=45, vjust=.5))
+```
+
+* Se observa que el uso del suavizado _loess_ muestra la tendencia de crecimiento de la serie, donde se muestra un paso de nivel de aproximadamente $0{,}25$ a $0{,}00$, que se alcanza en el año 1950, y 10 años después, en 1960 hay una tendencia de crecimiento lineal hasta el 2015. 
+* En el suavizado por _kernel_, se sigue la misma tendencia anterior, pero se hace claro el patrón repetitivo de cada $\sim5$ años, donde se alcanzan los picos en la serie, y que parecen correlacionarse con los valores anteriores durante la segunda mitad de la serie. 

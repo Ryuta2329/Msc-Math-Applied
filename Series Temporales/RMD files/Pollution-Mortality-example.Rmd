@@ -12,22 +12,13 @@ lang: es
 
 ```{r setup-1}
 library(astsa)
-
-if (!require("GGally"))
-	install.packages("GGally")
-if (!require("dplyr")){
-	install.packages("dplyr")
-	library(dplyr)
-}
-if (!require("tsibble")){
-	install.packages("tsibble")
-	library(tsibble)
-}
+library(dplyr)
+library(tsibble)
 
 df_ts <- ts(cbind(part, tempr, cmort), start=start(part), frequency = frequency(part))
 colnames(df_ts) <- c("Particulas", "Temperatura", "Mortalidad")
 df_ts_tidy <- as_tsibble(df_ts, key=index) |>
-	mutate(key=dplyr::recode(key, `tempr`="Temperatura", `cmort`="Mortalidad", `part`="Particulas"))
+	mutate(key=recode(key, `tempr`="Temperatura", `cmort`="Mortalidad", `part`="Particulas"))
 ```
 
 Los datos que se muestran son series extraídas de un estudio de Shumway _et al._ de los posibles efectos de la temperatura y la contaminación sobre la mortalidad semanal en el condado de Los Ángeles. Nótense los fuertes componentes estacionales en todas las series, correspondientes a las variaciones invierno-verano; y la tendencia decreciente de la mortalidad cardiovascular en el período de 10 años.
