@@ -413,7 +413,7 @@ donde $\beta_1$ y $\beta_2$ son los coeficientes de regresión. En el segundo ca
 
 <a name="eq-model-reg-trozos"></a>
 $$r_t = \begin{cases}
-  \omega + \beta_1 r_{t-5} & r_{t-5} < 0,05 \\
+  \omega + \beta_1 r_{t-5} & r_{t-5} < 0,05 \\\\
   \omega + \beta_2 + (\beta_1 + \beta_3) r_{t-5} & r_{t-5} \ge 0,05
 \end{cases}$$
 
