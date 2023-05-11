@@ -159,7 +159,9 @@ cowplot::plot_grid(
 
 El modelo seleccionado al realizar el ajuste es el $SARIMA(2,0,0)(3,0,0)_7$, cuyos coeficientes se muestran en la <a href="#sarima-coef">tabla 2</a> junto con sus desviaciones estándar, se escribe como:
 
-$(1 - {0,079}_{(0,019)}B^7 - {0,09}_{(0,019)}B^{14} - {0,068}_{(0,019)}B^{21})(1 - {0,267}_{(0,019)}B - {0,173}_{(0,019)}B^2) r_t^2 = w_t$
+
+$$(1 - 0,079_{(0,019)}B^7 - 0,09_{(0,019)}B^{14} - 0,068_{(0,019)}B^{21})(1 - 0,267_{(0,019)}B - 0,173_{(0,019)} B^2) r_t^2 = w_t$$
+
 
 <a name="sarima-coef"></a>
 
