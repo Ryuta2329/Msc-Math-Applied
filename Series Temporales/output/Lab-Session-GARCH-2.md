@@ -57,7 +57,7 @@ cowplot::plot_grid(
 ```
 
 <div class="figure" style="text-align: center">
-<img src="Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/tsla-series-1.png" alt="A la izquierda: Precio de Cierre de TESLA (Mayo 2015 - Mayo 2023). A la derecha: Rendimientos logarítmicos de TESLA (Mayo 2015 - Mayo 2023)."  />
+<img src="/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/tsla-series-1.png" alt="A la izquierda: Precio de Cierre de TESLA (Mayo 2015 - Mayo 2023). A la derecha: Rendimientos logarítmicos de TESLA (Mayo 2015 - Mayo 2023)."  />
 <p class="caption">(\#fig:tsla-series)A la izquierda: Precio de Cierre de TESLA (Mayo 2015 - Mayo 2023). A la derecha: Rendimientos logarítmicos de TESLA (Mayo 2015 - Mayo 2023).</p>
 </div>
 
