@@ -59,7 +59,7 @@ df_ts_tidy <- df_ts_tidy %>%
 		diff_Temp_Square=diff_Temp ** 2)
 
 # Se ajustan los modelos
-fitted_models <- tibble(models=
+fitted_models <- tibble(models =
 	c(Mortalidad ~ trend, 
 		Mortalidad ~ trend + diff_Temp, 
 		Mortalidad ~ trend + diff_Temp + diff_Temp_Square, 

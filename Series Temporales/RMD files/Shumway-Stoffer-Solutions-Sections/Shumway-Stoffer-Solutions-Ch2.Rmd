@@ -1,12 +1,24 @@
 ```{r ch2-setup}
-library(astsa)
-library(tsibble)
-library(fable)
-library(feasts)
-library(dplyr)
-library(ggplot2)
-library(kableExtra)
-library(kfigr)
+suppressPackageStartupMessages({
+	library(astsa)
+	library(tsibble)
+	library(fable)
+	library(feasts)
+	library(dplyr)
+	library(ggplot2)
+	library(lubridate)
+	library(kableExtra)
+	library(kfigr)
+})
+
+options(
+  knitr.table.format = "html",
+  knitr.kable.NA = "",
+  OutDec = ",", scipen=999)
+
+knitr::opts_chunk$set(
+  warning = FALSE, message = FALSE,
+  fig.pos = "!h", fig.align = "center")
 ```
 
 **Problema 2.1** Un modelo estructural para los datos de Johnson y Johnson, digamos $y_t$, sea $x_t = log(y_t)$. En este problema, vamos a ajustar un tipo especial de modelo estructural, $x_t = T_t + S_t + N_t$ donde $T_t$ es un componente de tendencia, $S_t$ es un componente estacional y $N_t$ es ruido. En nuestro caso, el tiempo $t$ está en trimestres ($1960{,}00, 1960{,}25, \ldots$) por lo que una unidad de tiempo es un año.  
@@ -20,31 +32,24 @@ _c)_ Si el modelo es correcto, ¿la tasa promedio de ganancias registradas aumen
 _d)_ ¿Qué sucede si incluye un término de intersección en el modelo en _a)_? Explique por qué hubo un problema.  
 _e)_ Grafique los datos, $x_t$, y superponga los valores ajustados, digamos $\hat{x}_t$, en el gráfico. Examine los residuos, $x_t − \hat{x}_t$, y establezca sus conclusiones. ¿Parece que el modelo se ajusta bien a los datos (los residuos se ven blancos)?
 
-```{r setup-jj}
-library(kfigr, quietly=TRUE)
-library(dplyr, quietly=TRUE, warn.conflicts = FALSE)
-```
-
 La `r figr("p02-01-01", TRUE, type="figura")` muestra las ganancias trimestrales por acción de la empresa estadounidense _Johnson & Johnson_, proporcionada por el profesor Paul Griffin (comunicación personal) de la _Graduate School of Management_ de la Universidad de California, Davis. Hay 84 trimestres (21 años) medidos desde el primer trimestre de 1960 hasta el último trimestre de 1980.
 
-```{r p02-01-01, anchor="figura", fig.cap="Serie temporal para los Pasajeros de la Clase Economica: Melbourne-Sydney."}
+```{r p02-01-01, anchor="figura", fig.cap="Serie temporal para los Pasajeros de la Clase Económica: Melbourne-Sydney."}
 autoplot(jj) +
-  ggtitle("Pasajeros de la Clase Economica: Melbourne-Sydney") +
+  ggtitle("Pasajeros de la Clase Económica: Melbourne-Sydney") +
   xlab("Año") +
   ylab("Miles") +
   theme_light()
 ```
 
-Para transformar los datos, reorganizo los datos a un fromato largo, y creo los regresores para el elemento de tendencia (usando ```lubridate::year```) y para los cuartos de cada año (usando ```lubridate::quarter```). Luego, para este ultimo, se crearon 4 variables distintas $Q_i$ usando una expresion condicional sobe ```quarter```.
+Para transformar los datos, reorganizo los datos a un formato largo, y creo los regresores para el elemento de tendencia (usando ```lubridate::year```) y para los cuartos de cada año (usando ```lubridate::quarter```). Luego, para este ultimo, se crearon 4 variables distintas $Q_i$ usando una expresion condicional sobe ```quarter```.
 
 ```{r p02-01-02}
-library(lubridate, quietly=TRUE, warn.conflicts = FALSE)
-
 # Transformando ls datos para obtener y_t
 # y generar los regresores t y Q_i
 df_jj <- jj |>
-	tsibble::as_tsibble(key=c("Q1", "Q2", "Q3", "Q4")) |>
-	dplyr::mutate(log_Earnings = log(value), 
+	as_tsibble(key=c("Q1", "Q2", "Q3", "Q4")) |>
+	mutate(log_Earnings = log(value), 
 		year = year(index), 
 		quarter=quarter(index),
 		Q1=ifelse(quarter == 1, 1, 0),
@@ -56,18 +61,16 @@ df_jj <- jj |>
 Ajustando el modelo de regresión, arroja los siguientes resultados mostrados en la `r figr("p02-01-03", TRUE, type="tabla")`. Los resultados del ajuste se interpretan tomando en cuenta el uso de variables indicadoras: ```year``` corresponde al elemento de tendencia $\beta$, y cada ```Q1, Q2, Q3``` y ```Q4``` corresponde a los valores de $\alpha_i$.
 
 ```{r p02-01-03, anchor="tabla", tab.cap=""}
-library(broom)
-
 # Ajuste del modelo
 # mod <- lm(log_Earnings ~ year + quarter, df_jj)
 mod <- lm(log_Earnings ~ year + Q1 + Q2 + Q3 + Q4 - 1, df_jj)
 
 # Resultados de la estimacion.
-tidy(mod) |> 
+broom::tidy(mod) |> 
 	kable(digits=4, 
 		col.names=c("Regresor", "$\\beta_i$", "$\\sigma_i$", "$Z$", "$p$"),
 		caption="Resultados de la regresión lineal: Estimadores para los coeficientes del modelo.", 
-		label="tab:p02-01", escape=FALSE)
+		escape=FALSE)
 ```
 
 Los resultados muestran que todos los coeficientes son significativos, con $p$-valores mucho menores a $0{,}01$. Es de hacer notar que la diferencia entre la contribución de cada cuarto a las ganancias (en escala logarítmica) es bastante similar, variando solo en las décimas o centésimas.  
@@ -75,7 +78,7 @@ Los cambios anuales en las ganancias viene dado por el coeficiente para $t$ (```
 
 $$x_t - x_{t-1} = \beta t - \beta (t-1) = \beta$$
 
-donde los terminos para los cuartos se cancelan en la diferencia. Usando $log(y_t) - log(y_t) = log(y_t/y_{t-1]})$ permite obtener:
+donde los términos para los cuartos se cancelan en la diferencia. Usando $log(y_t) - log(y_t) = log(y_t/y_{t-1]})$ permite obtener:
 
 $$y_t = y_{t-1}e^\beta$$
 
@@ -104,9 +107,8 @@ increment <- exp(diff(coef(mod)[c("Q1", "Q2", "Q3", "Q4", "Q1")]))
 # Tabla de incrementos cuarto a cuarto
 tibble(Etiqueta=labels, Incremento=increment) %>%
 	mutate(Porcentaje=100 * (Incremento - 1)) %>%
-	kable(digits=4,
-		caption="Incrementos en las ganancias promedio por acción trimestre a trimestre.", 
-		label="tab:p02-02")
+	kbl(digits=4,
+	  caption="Incrementos en las ganancias promedio por acción trimestre a trimestre.")
 ```
 
 Como se observa, a excepción del paso del tercer trimestre al cuarto, siempre ocurre un incremento en las ganancias promedio por acción: de $7{,}24$% en el $Q2$, de $11{,}8$% en el $Q3$, y un incremento de $4{,}62$% al pasar al $Q1$. Los resultados muestran que la caída en las ganancias al pasar al $Q4$ es el mayor cambio en las ganancias por acción en cada año, de $20{,}3$%. 
@@ -119,7 +121,7 @@ de forma que ```Q1``` en el modelo con intercepto es en realidad la diferencia $
 El gráfico para el modelo se observa en la `r figr("p02-01-05", TRUE, type="figura")`, donde se observa que la serie ajustada esta ligeramente mas suavizada que la serie observada, aunque se nota que de 1962 a 1965 la series ajustada parece sobrestimar de manera sistemática la serie observada, mientras que de 1970 a 1975 el modelo parece subestimar de forma sistemática la serie observada. El resto del tiempo, la serie parece variar por encima o por debajo.
 
 ```{r p02-01-05, anchor="figura", fig.cap="Serie observada superpuesta con la serie predicha por el modelo ajustado."}
-augmented_df <- dplyr::left_join(df_jj, augment(mod))
+augmented_df <- left_join(df_jj, broom::augment(mod))
 
 ggplot(df_jj[, c("index", "log_Earnings")], aes(x=as.Date(index), y=log_Earnings)) +
 	geom_line() + geom_point() + 
@@ -140,7 +142,8 @@ Al verificar los residuales, se observa en la `r figr("p02-01-06", TRUE, type="f
 ```{r p02-01-06, anchor="figura", fig.cap="Gráfico de residuales versus predichos"}
 ggplot(augmented_df[, c(".fitted", ".std.resid")], 
 	aes(x=.fitted, y=.std.resid)) +
-	geom_line(colour="orange") + geom_point(colour="orange") +
+	geom_line(colour="orange") +
+	geom_point(colour="orange") +
 	geom_hline(yintercept=0) +
 	xlab("Valores Estimados") +
   ylab("Residuales Estandarizados") + 
@@ -160,7 +163,7 @@ cowplot::plot_grid(
 	  geom_point() +
 	  geom_hline(aes(yintercept = 0)) +
 	  geom_segment(mapping = aes(xend = lag, yend = 0)) +
-	  geom_hline(yintercept = c(1/sqrt(20), -1/sqrt(20)), linetype=2, color='blue') +
+	  geom_hline(yintercept = c(1, -1) / sqrt(20), linetype=2, color='blue') +
 	  ylab(latex2exp::TeX("$\\rho(s, t)$")) +
 	  theme_light(), 
   ggplot(data = df_values, mapping = aes(x = lag, y = pacf_vals)) +
@@ -180,14 +183,11 @@ _a)_ Agregue otro componente a la regresión que represente el conteo de partíc
 _b)_ Dibuje una matriz de diagrama de dispersión de $M_t$, $T_t$, $P_t$ y $P_{t−4}$ y luego calcule las correlaciones por pares entre las series. Compare la relación entre $M_t$ y $P_t$ versus $M_t$ y $P_{t−4}$.
 
 ```{r p02-02-01, include=FALSE}
-#tempR <- tempfile(fileext = ".R")
-#library(knitr)
-#purl("./RMD files/Pollution-Mortality-example.Rmd", output=tempR)
-#source(tempR)
-#unlink(tempR)
-
-df_ts <- ts(cbind(part, tempr, cmort), start=start(part), frequency = frequency(part))
+df_ts <- ts(cbind(part, tempr, cmort), 
+	start=start(part), 
+	frequency = frequency(part))
 colnames(df_ts) <- c("Particulas", "Temperatura", "Mortalidad")
+
 df_ts_tidy <- as_tsibble(df_ts, key=index) |>
 	mutate(key=recode(key, `tempr`="Temperatura", `cmort`="Mortalidad", `part`="Particulas"))
 
@@ -204,13 +204,13 @@ fitted_models <- tibble(models=
 		Mortalidad ~ trend + diff_Temp + diff_Temp_Square, 
 		Mortalidad ~ trend + diff_Temp + diff_Temp_Square + Particulas)) %>%
 	mutate(fit=purrr::map(models, ~lm(., data=df_ts_tidy)),
-		glanced = purrr::map(fit, glance)) %>%
+		glanced = purrr::map(fit, broom::glance)) %>%
   tidyr::unnest(glanced)
 
 coef_matrix <- summary(fitted_models$fit[[4]])$coefficients[,1:2]
 ```
 
-La primera parte del análisis se encuentra en el archivo de ejemplo para [la mortalidad cardiovascular y partículas contaminantes](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/output/Pollution-Mortality-example.ipynb). Allí, se muestra que el mejor modelo encontrado para mortalidad fue:
+La primera parte del análisis se encuentra en el archivo de ejemplo para [la mortalidad cardiovascular y partículas contaminantes](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/colab-nb/Pollution-Mortality-example.ipynb). Allí, se muestra que el mejor modelo encontrado para mortalidad fue:
 
 $$Mt = `r round(coef_matrix[1,1], 1)` `r round(coef_matrix[2,1], 3)`t  `r round(coef_matrix[3,1], 3)`(T_t − T_\dot) + `r round(coef_matrix[4,1], 3)`(T_t − T_\dot)^2 + `r round(coef_matrix[5,1], 3)`P_t + w_t$$
 
@@ -232,14 +232,14 @@ df_lag <- pt_4 %>%
 mod_lag <- lm(Mortalidad ~ trend + diff_Temp + diff_Temp_Square + Particulas + `P_t-4`, df_lag)
 bind_rows(fitted_models[4,], glance(mod_lag)) %>%
 	mutate(SSE=sigma ** 2 * df.residual, MSE=sigma ** 2) %>%
-	dplyr::select(SSE, df.residual, MSE, adj.r.squared, AIC, BIC) %>%
+	select(SSE, df.residual, MSE, adj.r.squared, AIC, BIC) %>%
 	mutate(AIC=AIC / nrow(df_ts_tidy) - log(2*pi), BIC=BIC / nrow(df_ts_tidy) - log(2*pi)) %>%
 	tibble::add_column(Model=c(
 		"$M_t = \\beta_0 + \\beta_1 t + \\beta_2(T - T_\\dot ) + \\beta_3(T - T_\\dot )^2 + \\beta_4 P_t + w_t$", "$M_t = \\beta_0 + \\beta_1 t + \\beta_2(T - T_\\dot ) + \\beta_3(T - T_\\dot )^2 + \\beta_4 P_t + P_{t-4} + w_t$"), .before=1) %>%
-	kable(digits=3,
+	kbl(digits=3,
 		col.names=c("", "SSE", "df", "MSE", "$R^2$", "AIC", "BIC"),
 		caption="Medidas de ajuste y de información para los modelos ajustados.", 
-		label="tab:p02-02-01", escape=FALSE)
+		escape=FALSE)
 ```
 
 Los resultados muestran que hay una mejora en el ajuste al añadir a $P_{t-4}$, pero que solo resulta en un aumento de la varianza explicada de `r 100 * (0.604 - 0.592)`%. Podemos verificar si el modelo es significativo por medio de la prueba $F$:
@@ -427,7 +427,7 @@ $$Pr\{x_t - x_{t-1} \le c\} = Pr\{y_{t+h} - y_{t+h-1} + w_{t+h} \le c - \delta\}
 
 y $x_t-x_{t-1}$ es estrictamente estacionaria.
 
-[**Problema 2.8**](#problema-2-8) El registro de varvas glaciales muestra cierta no estacionaridad que se puede mejorar mediante la transformación a logaritmos y alguna no estacionaridad adicional que se puede corregir diferenciando los logaritmos.  
+<a name="problema-2-8">**Problema 2.8**<\a> El registro de varvas glaciales muestra cierta no estacionaridad que se puede mejorar mediante la transformación a logaritmos y alguna no estacionaridad adicional que se puede corregir diferenciando los logaritmos.  
 _a)_ Argumente que la serie de varvas glaciales, digamos $x_t$, exhibe heteroscedasticidad al calcular la varianza de la muestra sobre la primera mitad y la segunda mitad de los datos. Argumente que la transformación $y_t = \text{log }x_t$ estabiliza la varianza sobre la serie. Trace los histogramas de $x_t$ e $y_t$ para ver si la aproximación a la normalidad mejora al transformar los datos.  
 _b)_ Trace la serie $y_t$. ¿Existen intervalos de tiempo, del orden de 100 años, en los que se pueda observar un comportamiento comparable al observado en los registros de temperatura global?  
 _c)_ Examine la ACF de $y_t$ y comente.  

@@ -1,3 +1,12 @@
+```{r ch1-setup}
+suppressPackageStartupMessages({
+	library(astsa)
+	library(ggfortify)
+	library(kableExtra)
+	library(kfigr)
+})
+```
+
 **Problema 1.1** Para comparar las señales de terremotos y explosiones, represente los datos en el mismo gráfico usando diferentes colores o diferentes tipos de líneas y comente los resultados.
 
 ```{r p1-1, fig.caption=""}

@@ -3,7 +3,7 @@ title: Soluciones a problemas de _Time Series Analysis and its Applications_ de 
 author: Marcelo Molinatti
 date: "`r Sys.Date()`"
 output:
- html_document:
+ bookdown::html_document2:
   number_sections: yes
   keep_md: yes
 header-includes:
@@ -11,15 +11,6 @@ header-includes:
  - \usepackage{amsfonts}
 lang: es
 ---
-
-```{r setup}
-library(astsa)
-library(ggfortify, quietly = TRUE)
-library(kableExtra)
-library(here, quietly = TRUE)
-
-knitr::opts_knit$set(kfigr.prefix=TRUE, kfigr.link=TRUE)
-```
 
 * Ejercicios del [capitulo 1](#capitulo-1). Características de series temporales.
 * Ejercicios del [capitulo 2](#capitulo-2). Análisis de datos exploratorio.
