@@ -107,7 +107,7 @@ tibble::column_to_rownames(unit_root_tests, "method")[, 1:3] %>%
 ```
 
 Al revisar las ACF y PACF de los retornos se puede observar que la ACF es bastante fluctuante y con correlaciones significativas que se extienden hasta retrasos grandes, y que decae en $9k$ ($k=1,2,3,\ldots$). 
-Junto con la PACF, parece que el proceso es autoregresivo estacional de, al menos, segundo orden en el componente ARIMA, y de tercer orden con frecuencia $s=9$ en el componente estacional (ya que las correlaciones significativas en la PACF ocurren en $9P$, para $P=1, 2, y 3$ y luego se corta). 
+Junto con la PACF, parece que el proceso es autoregresivo estacional de, al menos, segundo orden en el componente ARIMA, y de tercer orden con frecuencia $s=9$ en el componente estacional (ya que las correlaciones significativas en la PACF ocurren en $9P$, para $P=1, 2$, y $3$ y luego se corta). 
 
 ```{r acf-pacf, anchor="figura", fig.cap="ACF y PACF de los rendimientos logarítmicos.", fig.width=10, fig.height=5}
 acf_pacf_df <- tsla_returns |>

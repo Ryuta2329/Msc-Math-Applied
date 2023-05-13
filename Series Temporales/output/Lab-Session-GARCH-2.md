@@ -119,7 +119,7 @@ tibble::column_to_rownames(unit_root_tests, "method")[, 1:3] %>%
 </table>
 
 Al revisar las ACF y PACF de los retornos se puede observar que la ACF es bastante fluctuante y con correlaciones significativas que se extienden hasta retrasos grandes, y que decae en $9k$ ($k=1,2,3,\ldots$). 
-Junto con la PACF, parece que el proceso es autoregresivo estacional de, al menos, segundo orden en el componente ARIMA, y de tercer orden con frecuencia $s=9$ en el componente estacional (ya que las correlaciones significativas en la PACF ocurren en $9P$, para $P=1, 2, y 3$ y luego se corta). 
+Junto con la PACF, parece que el proceso es autoregresivo estacional de, al menos, segundo orden en el componente ARIMA, y de tercer orden con frecuencia $s=9$ en el componente estacional (ya que las correlaciones significativas en la PACF ocurren en $9P$, para $P=1, 2$, y $3$ y luego se corta). 
 
 <a name="acf-pacf"></a>
 
@@ -175,7 +175,7 @@ tidied_model <- tidy(return_models) %>%
 
 El modelo seleccionado al realizar el ajuste es el $SARIMA(2,0,0)(2,0,0)_9$, cuyos coeficientes se muestran en la <a href="#sarima-coef">tabla 2</a> junto con sus desviaciones estándar, se escribe como:
 
-$$(1 - {0{,}057}_{(0{,}018)}B^9 {-0{,}048}_{(0{,}018)}B^{18})(1 - {0{,}211}_{(0{,}018)}B - {0{,}098}_{(0{,}018)}B^2)r_t = w_t$$
+$$(1 - 0{,}057_{(0{,}018)}B^9 -0{,}048_{(0{,}018)}B^{18})(1 - 0{,}211_{(0{,}018)}B - 0{,}098_{(0{,}018)}B^2)r_t = w_t$$
 
 Los coeficientes muestran que los componentes del modelo ARIMA son importantes explicando las correlaciones encontradas, y de igual forma, los coeficientes del componente estacional son significativos, dado que se capturan las correlaciones importantes mostradas en la <a href="#acf-pacf">figura 2</a>, en $h=1, 2, 9, 10, 11$ y $18$.
 
