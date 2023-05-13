@@ -1,10 +1,11 @@
 ```{r ch5-setup}
-library(astsa)
-library(fable)
-library(feasts)
-library(ggplot2)
-library(kableExtra)
-library(kfigr)
+suppressPackageStartupMessages({
+	library(astsa)
+	library(fable)
+	library(feasts)
+	library(ggplot2)
+	library(kableExtra)
+})
 ```
 
 [**Problema 5.1**](#problema-5-1) El conjunto de datos `arf` son 1000 observaciones simuladas de un modelo $ARFIMA(1, 1, 0)$ con $\phi = .75$ y $d = .4$.  

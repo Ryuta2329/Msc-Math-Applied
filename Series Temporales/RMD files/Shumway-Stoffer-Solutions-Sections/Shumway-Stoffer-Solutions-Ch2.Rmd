@@ -8,17 +8,7 @@ suppressPackageStartupMessages({
 	library(ggplot2)
 	library(lubridate)
 	library(kableExtra)
-	library(kfigr)
 })
-
-options(
-  knitr.table.format = "html",
-  knitr.kable.NA = "",
-  OutDec = ",", scipen=999)
-
-knitr::opts_chunk$set(
-  warning = FALSE, message = FALSE,
-  fig.pos = "!h", fig.align = "center")
 ```
 
 **Problema 2.1** Un modelo estructural para los datos de Johnson y Johnson, digamos $y_t$, sea $x_t = log(y_t)$. En este problema, vamos a ajustar un tipo especial de modelo estructural, $x_t = T_t + S_t + N_t$ donde $T_t$ es un componente de tendencia, $S_t$ es un componente estacional y $N_t$ es ruido. En nuestro caso, el tiempo $t$ está en trimestres ($1960{,}00, 1960{,}25, \ldots$) por lo que una unidad de tiempo es un año.  
@@ -27,10 +17,10 @@ _a)_ Ajuste el modelo de regresión
 $$x_t = \beta t + \alpha_1 Q_1(t) + \alpha_2 Q_2(t) + \alpha_3 Q_3(t) + \alpha_4 Q_4(t) + w_t$$
 
 donde $Q_i(t) = 1$ si el tiempo $t$ corresponde al trimestre $i = 1, 2, 3, 4$ y cero en caso contrario. Las $Q_i(t)$ se denominan variables indicadoras. Supondremos por ahora que $w_t$ es una secuencia de ruido blanco gaussiana.  
-_b)_ Si el modelo es correcto, ¿cuál es el incremento anual promedio estimado en las ganancias registradas por acción?
+_b)_ Si el modelo es correcto, ¿cuál es el incremento anual promedio estimado en las ganancias registradas por acción?  
 _c)_ Si el modelo es correcto, ¿la tasa promedio de ganancias registradas aumenta o disminuye del tercer trimestre al cuarto trimestre? y ¿en qué porcentaje aumenta o disminuye?  
 _d)_ ¿Qué sucede si incluye un término de intersección en el modelo en _a)_? Explique por qué hubo un problema.  
-_e)_ Grafique los datos, $x_t$, y superponga los valores ajustados, digamos $\hat{x}_t$, en el gráfico. Examine los residuos, $x_t − \hat{x}_t$, y establezca sus conclusiones. ¿Parece que el modelo se ajusta bien a los datos (los residuos se ven blancos)?
+_e)_ Grafique los datos, $x_t$, y superponga los valores ajustados, digamos $\hat{x}_t$, en el gráfico. Examine los residuos, $x_t - \hat{x}_t$, y establezca sus conclusiones. ¿Parece que el modelo se ajusta bien a los datos (los residuos se ven blancos)?
 
 La `r figr("p02-01-01", TRUE, type="figura")` muestra las ganancias trimestrales por acción de la empresa estadounidense _Johnson & Johnson_, proporcionada por el profesor Paul Griffin (comunicación personal) de la _Graduate School of Management_ de la Universidad de California, Davis. Hay 84 trimestres (21 años) medidos desde el primer trimestre de 1960 hasta el último trimestre de 1980.
 
@@ -42,9 +32,11 @@ autoplot(jj) +
   theme_light()
 ```
 
-Para transformar los datos, reorganizo los datos a un formato largo, y creo los regresores para el elemento de tendencia (usando ```lubridate::year```) y para los cuartos de cada año (usando ```lubridate::quarter```). Luego, para este ultimo, se crearon 4 variables distintas $Q_i$ usando una expresion condicional sobe ```quarter```.
+Para transformar los datos, reorganizo los datos a un formato largo, y creo los regresores para el elemento de tendencia (usando `lubridate::year`) y para los cuartos de cada año (usando `lubridate::quarter`). Luego, para este ultimo, se crearon 4 variables distintas $Q_i$ usando una expresion condicional sobe `quarter`.
 
-```{r p02-01-02}
+Ajustando el modelo de regresión, arroja los siguientes resultados mostrados en la `r figr("p02-01-03", TRUE, type="tabla")`. Los resultados del ajuste se interpretan tomando en cuenta el uso de variables indicadoras: `year` corresponde al elemento de tendencia $\beta$, y cada `Q1, Q2, Q3` y `Q4` corresponde a los valores de $\alpha_i$.
+
+```{r p02-01-03, anchor="tabla", tab.cap=""}
 # Transformando ls datos para obtener y_t
 # y generar los regresores t y Q_i
 df_jj <- jj |>
@@ -56,36 +48,32 @@ df_jj <- jj |>
 		Q2=ifelse(quarter == 2, 1, 0),
 		Q3=ifelse(quarter == 3, 1, 0),
 		Q4=ifelse(quarter == 4, 1, 0))
-```
 
-Ajustando el modelo de regresión, arroja los siguientes resultados mostrados en la `r figr("p02-01-03", TRUE, type="tabla")`. Los resultados del ajuste se interpretan tomando en cuenta el uso de variables indicadoras: ```year``` corresponde al elemento de tendencia $\beta$, y cada ```Q1, Q2, Q3``` y ```Q4``` corresponde a los valores de $\alpha_i$.
-
-```{r p02-01-03, anchor="tabla", tab.cap=""}
 # Ajuste del modelo
 # mod <- lm(log_Earnings ~ year + quarter, df_jj)
 mod <- lm(log_Earnings ~ year + Q1 + Q2 + Q3 + Q4 - 1, df_jj)
 
 # Resultados de la estimacion.
 broom::tidy(mod) |> 
-	kable(digits=4, 
+	kbl(digits=4, 
 		col.names=c("Regresor", "$\\beta_i$", "$\\sigma_i$", "$Z$", "$p$"),
 		caption="Resultados de la regresión lineal: Estimadores para los coeficientes del modelo.", 
 		escape=FALSE)
 ```
 
 Los resultados muestran que todos los coeficientes son significativos, con $p$-valores mucho menores a $0{,}01$. Es de hacer notar que la diferencia entre la contribución de cada cuarto a las ganancias (en escala logarítmica) es bastante similar, variando solo en las décimas o centésimas.  
-Los cambios anuales en las ganancias viene dado por el coeficiente para $t$ (```year```) de la siguiente forma:
+Los cambios anuales en las ganancias viene dado por el coeficiente para $t$ (`year`) de la siguiente forma:
 
-$$x_t - x_{t-1} = \beta t - \beta (t-1) = \beta$$
+$$x_t - x_{t-1} = \beta t - \beta(t-1) = \beta$$
 
-donde los términos para los cuartos se cancelan en la diferencia. Usando $log(y_t) - log(y_t) = log(y_t/y_{t-1]})$ permite obtener:
+donde los términos para los cuartos se cancelan en la diferencia. Usando $log(y_t) - log(y_{t-1}) = log(y_t/y_{t-1})$ permite obtener:
 
 $$y_t = y_{t-1}e^\beta$$
 
-Es decir, anualmente hay un incremento promedio de $e^\beta = `r round(exp(coef(mod)[["year"]]), 4)`$ en las ganancias por acción, suponiendo que el modelo es correcto.   
+Es decir, anualmente hay un incremento promedio de $e^\beta =$ `r round(exp(coef(mod)[["year"]]), 4)` en las ganancias por acción, suponiendo que el modelo es correcto.  
 Los incrementos/decrementos de cuarto a cuarto en un mismo año vienen dados por:
 
-$$x_{t,Q_i} - x_{t-1, Q_{i-1}} = \alpha_i - \alpha_{i-1}$$
+$$x_{t,Q_i} - x_{t-1,Q_{i-1}} = \alpha_i - \alpha_{i-1}$$
 
 y al devolver la transformación, como antes, se obtiene:
 
@@ -427,7 +415,7 @@ $$Pr\{x_t - x_{t-1} \le c\} = Pr\{y_{t+h} - y_{t+h-1} + w_{t+h} \le c - \delta\}
 
 y $x_t-x_{t-1}$ es estrictamente estacionaria.
 
-<a name="problema-2-8">**Problema 2.8**<\a> El registro de varvas glaciales muestra cierta no estacionaridad que se puede mejorar mediante la transformación a logaritmos y alguna no estacionaridad adicional que se puede corregir diferenciando los logaritmos.  
+<a name="problema-2-8">**Problema 2.8**</a> El registro de varvas glaciales muestra cierta no estacionaridad que se puede mejorar mediante la transformación a logaritmos y alguna no estacionaridad adicional que se puede corregir diferenciando los logaritmos.  
 _a)_ Argumente que la serie de varvas glaciales, digamos $x_t$, exhibe heteroscedasticidad al calcular la varianza de la muestra sobre la primera mitad y la segunda mitad de los datos. Argumente que la transformación $y_t = \text{log }x_t$ estabiliza la varianza sobre la serie. Trace los histogramas de $x_t$ e $y_t$ para ver si la aproximación a la normalidad mejora al transformar los datos.  
 _b)_ Trace la serie $y_t$. ¿Existen intervalos de tiempo, del orden de 100 años, en los que se pueda observar un comportamiento comparable al observado en los registros de temperatura global?  
 _c)_ Examine la ACF de $y_t$ y comente.  

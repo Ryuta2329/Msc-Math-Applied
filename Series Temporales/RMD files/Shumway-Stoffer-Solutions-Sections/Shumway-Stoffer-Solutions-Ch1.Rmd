@@ -2,8 +2,6 @@
 suppressPackageStartupMessages({
 	library(astsa)
 	library(ggfortify)
-	library(kableExtra)
-	library(kfigr)
 })
 ```
 

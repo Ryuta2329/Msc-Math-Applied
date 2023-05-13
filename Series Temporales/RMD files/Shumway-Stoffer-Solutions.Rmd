@@ -12,9 +12,24 @@ header-includes:
 lang: es
 ---
 
+```{r parent-setup, include=FALSE}
+options(
+  knitr.table.format = "html",
+  knitr.kable.NA = "",
+  OutDec = ",", scipen=999)
+
+knitr::opts_chunk$set(
+  warning = FALSE, message = FALSE,
+  fig.pos = "!h", fig.align = "center")
+
+library(kfigr)
+```
+
 * Ejercicios del [capitulo 1](#capitulo-1). Características de series temporales.
 * Ejercicios del [capitulo 2](#capitulo-2). Análisis de datos exploratorio.
 * Ejercicios del [capitulo 3](#capitulo-3). Modelos ARIMA.
+* Ejercicios del [capitulo 4](#capitulo-4). Análisis espectral y filtrado.
+* Ejercicios del [capitulo 5](#capitulo-5). Temas adicionales en el dominio temporal.
 
 # Capitulo 1.
 
