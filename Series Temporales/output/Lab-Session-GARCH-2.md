@@ -62,8 +62,7 @@ cowplot::plot_grid(
 ```
 
 <div class="figure" style="text-align: center">
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/tsla-series-1.png" alt="A la izquierda: Precio de Cierre de TESLA (Mayo 2015 - Mayo 2023). A la derecha: Rendimientos logarítmicos de TESLA (Mayo 2015 - Mayo 2023)."  />
-<p class="caption">(\#fig:tsla-series)A la izquierda: Precio de Cierre de TESLA (Mayo 2015 - Mayo 2023). A la derecha: Rendimientos logarítmicos de TESLA (Mayo 2015 - Mayo 2023).</p>
+<img src="/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/tsla-series-1.png" alt="A la izquierda: Precio de Cierre de TESLA (Mayo 2015 - Mayo 2023). A la derecha: Rendimientos logarítmicos de TESLA (Mayo 2015 - Mayo 2023)."  />
 </div><table><caption>Figura 1. A la izquierda: Precio de Cierre de TESLA (Mayo 2015 - Mayo 2023). A la derecha: Rendimientos logarítmicos de TESLA (Mayo 2015 - Mayo 2023).</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
 
 Los resultados de las pruebas para verificar que la serie es estacionaria mostrados en la <a href="#stationary-tests">tabla 1</a>, verifican que los rendimientos es una serie con un nivel de confianza del 95%. 
@@ -88,7 +87,7 @@ tibble::column_to_rownames(unit_root_tests, "method")[, 1:3] %>%
 ```
 
 <table>
-<caption>(\#tab:stationary-tests)Estadísticos de las pruebas de Raíz unitaria para estacionaridad.</caption>
+<caption>Tabla 1. Estadísticos de las pruebas de Raíz unitaria para estacionaridad.</caption>
  <thead>
   <tr>
    <th style="text-align:left;">   </th>
@@ -118,8 +117,6 @@ tibble::column_to_rownames(unit_root_tests, "method")[, 1:3] %>%
   </tr>
 </tbody>
 </table>
-
-<table><caption>Tabla 1. </caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
 
 Al revisar las ACF y PACF de los retornos se puede observar que la ACF es bastante fluctuante y con correlaciones significativas que se extienden hasta retrasos grandes, y que decae en $9k$ ($k=1,2,3,\ldots$). 
 Junto con la PACF, parece que el proceso es autoregresivo estacional de, al menos, segundo orden en el componente ARIMA, y de tercer orden con frecuencia $s=9$ en el componente estacional (ya que las correlaciones significativas en la PACF ocurren en $9P$, para $P=1, 2, y 3$ y luego se corta). 
@@ -154,8 +151,7 @@ cowplot::plot_grid(
 ```
 
 <div class="figure" style="text-align: center">
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/acf-pacf-1.png" alt="ACF y PACF de los rendimientos logarítmicos."  />
-<p class="caption">(\#fig:acf-pacf)ACF y PACF de los rendimientos logarítmicos.</p>
+<img src="/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/acf-pacf-1.png" alt="ACF y PACF de los rendimientos logarítmicos."  />
 </div><table><caption>Figura 2. ACF y PACF de los rendimientos logarítmicos.</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
 
 Es por ello que se escoge realizar un ajuste de los modelos $SARIMA(2,0,0)(2,0,0)_9$ y $SARIMA(2,0,0)(3,0,0)_9$ como alternativas posible para modelar los retornos diarios.
@@ -179,7 +175,7 @@ tidied_model <- tidy(return_models) %>%
 
 El modelo seleccionado al realizar el ajuste es el $SARIMA(2,0,0)(2,0,0)_9$, cuyos coeficientes se muestran en la <a href="#sarima-coef">tabla 2</a> junto con sus desviaciones estándar, se escribe como:
 
-$$(1 - {0,057}_{(0,018)}B^9 - {-0,048}_{(0,018)}B^{18})(1 - {0,211}_{(0,018)}B - {0,098}_{(0,018)}B^2) r_t = w_t$$
+$$(1 - {0,057}_{(0,018)}B^9 {-0,048}_{(0,018)}B^{18})(1 - {0,211}_{(0,018)}B - {0,098}_{(0,018)}B^2)r_t = w_t$$
 
 Los coeficientes muestran que los componentes del modelo ARIMA son importantes explicando las correlaciones encontradas, y de igual forma, los coeficientes del componente estacional son significativos, dado que se capturan las correlaciones importantes mostradas en la <a href="#acf-pacf">figura 2</a>, en $h=1, 2, 9, 10, 11$ y $18$.
 
@@ -196,7 +192,7 @@ tidied_model %>%
 ```
 
 <table>
-<caption>(\#tab:sarima-coef)Estimados de los coeficientes de ajuste del modelo $SARIMA(2,0,0)(2,0,0)_9$.</caption>
+<caption>Tabla 2. Estimados de los coeficientes de ajuste del modelo $SARIMA(2,0,0)(2,0,0)_9$.</caption>
  <thead>
   <tr>
    <th style="text-align:left;"> Termino </th>
@@ -238,8 +234,6 @@ tidied_model %>%
 </tbody>
 </table>
 
-<table><caption>Tabla 2. </caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
-
 Los diagnósticos para este modelo se muestran en la <a href="#res-diagnostics">figura 3</a>, donde se observan aun los _cluster_ de volatilidad en la serie de residuales, aunque es mas normal. El ACF y PACF tienen un comportamiento mejor, pero aun se observan correlaciones significativas no tomadas en cuenta en $h=5,8$ y $42$ pero cuyo valor es pequeño (menor a $0{,}05$).
 
 <a name="res-diagnostics"></a>
@@ -266,8 +260,7 @@ cowplot::plot_grid(
 ```
 
 <div class="figure" style="text-align: center">
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/res-diagnostics-1.png" alt="Gráfico temporal de residuales y ACF y PACF de los mismos, para el modelo SARIMA ajustado."  />
-<p class="caption">(\#fig:res-diagnostics)Gráfico temporal de residuales y ACF y PACF de los mismos, para el modelo SARIMA ajustado.</p>
+<img src="/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/res-diagnostics-1.png" alt="Gráfico temporal de residuales y ACF y PACF de los mismos, para el modelo SARIMA ajustado."  />
 </div><table><caption>Figura 3. Gráfico temporal de residuales y ACF y PACF de los mismos, para el modelo SARIMA ajustado.</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
 
 ## Evaluación de la volatilidad de la serie TSLA.
@@ -294,8 +287,7 @@ month_window_agg %>%
 ```
 
 <div class="figure" style="text-align: center">
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/volatility-month-1.png" alt="Gráficos de dispersión de la varianza mensual de las innovaciones con respecto a retrasos de los retornos al cuadrado."  />
-<p class="caption">(\#fig:volatility-month)Gráficos de dispersión de la varianza mensual de las innovaciones con respecto a retrasos de los retornos al cuadrado.</p>
+<img src="/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/volatility-month-1.png" alt="Gráficos de dispersión de la varianza mensual de las innovaciones con respecto a retrasos de los retornos al cuadrado."  />
 </div><table><caption>Figura 4. Gráficos de dispersión de la varianza mensual de las innovaciones con respecto a retrasos de los retornos al cuadrado.</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
 
 Se puede observar en la <a href="#returns-lag">figura 5</a> que existen correlaciones importantes entre la varianza y los retornos cuadrados ($0{,}98$), y también una correlación moderadamente pequeña ($0{,}51$) con respecto a los retornos cuadrados en $t-1$, y una correlación pequeña ($0{,}30$) con respecto al retraso en $t-2$.
@@ -308,8 +300,7 @@ month_window_agg %$%
 ```
 
 <div class="figure" style="text-align: center">
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/returns-lag-1.png" alt="Gráficos de dispersión de la varianza mensual de las innovaciones con respectoa  retrasos de los retornos al cuadrado."  />
-<p class="caption">(\#fig:returns-lag)Gráficos de dispersión de la varianza mensual de las innovaciones con respectoa  retrasos de los retornos al cuadrado.</p>
+<img src="/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/returns-lag-1.png" alt="Gráficos de dispersión de la varianza mensual de las innovaciones con respectoa  retrasos de los retornos al cuadrado."  />
 </div><table><caption>Figura 5. Gráficos de dispersión de la varianza mensual de las innovaciones con respectoa  retrasos de los retornos al cuadrado.</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
 
 Además, en la <a href="#var-lags">figura 6</a> se muestra que existe una correlación moderada entre la varianza mensual de las innovaciones con respecto al retraso de la misma en $t-1$, y que las correlaciones subsiguientes, de $h=2$ a $6$ son pequeñas (alrededor de $0{,}15$ a $0{,}33$).
@@ -325,8 +316,7 @@ month_window_agg %$%
 ```
 
 <div class="figure" style="text-align: center">
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/var-lags-1.png" alt="Gráficos de dispersión de la varianza mensual de las innovaciones con respecto a retrasos de la misma."  />
-<p class="caption">(\#fig:var-lags)Gráficos de dispersión de la varianza mensual de las innovaciones con respecto a retrasos de la misma.</p>
+<img src="/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/var-lags-1.png" alt="Gráficos de dispersión de la varianza mensual de las innovaciones con respecto a retrasos de la misma."  />
 </div><table><caption>Figura 6. Gráficos de dispersión de la varianza mensual de las innovaciones con respecto a retrasos de la misma.</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
 
 Al realizar una prueba Arch por multiplicadores de Lagrange, al descomponer la varianza de la serie e identificar si sus rezagos son significativos, se obtiene que la serie tiene efectos Arch significativos ($\chi^2=$ 167,91, $p=$ 0).
@@ -375,7 +365,7 @@ garch_fitting %>%
 ```
 
 <table>
-<caption>(\#tab:inf-criteria)Criterios de información para los modelos GARCH ajustados.</caption>
+<caption>Tabla 3. Criterios de información para los modelos GARCH ajustados.</caption>
  <thead>
   <tr>
    <th style="text-align:left;"> Garch </th>
@@ -410,8 +400,6 @@ garch_fitting %>%
 </tbody>
 </table>
 
-<table><caption>Tabla 3. </caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
-
 Al observar la tabla de coeficientes, observamos que $\beta$ es significativo, como se esperaba, dada la relación de la volatilidad en $t$ con la volatilidad en $t-1$. Sin embargo, el coeficiente para $r_{t-2}$ en el modelo $GARCH(2, 1)$ no es significativo en absoluto, por lo que se puede prescindir de este termino, eligiéndose como modelo final el $GARCH(1, 1)$. 
 Notese que los valores de los coeficientes del componente ARMA son significativos y similares a los ajustados para el modelo SARIMA encontrado antes.
 
@@ -445,7 +433,7 @@ garch_fitting %>%
 ```
 
 <table>
-<caption>(\#tab:coef-garch)Estimados de los coeficiente para los modelos GARCH de orden $(p, q=1)$.</caption>
+<caption>Tabla 4. Estimados de los coeficiente para los modelos GARCH de orden $(p, q=1)$.</caption>
  <thead>
   <tr>
    <th style="text-align:left;"> Modelo </th>
@@ -516,8 +504,6 @@ garch_fitting %>%
 </tbody>
 </table>
 
-<table><caption>Tabla 4. </caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
-
 Los gráficos de diagnósticos muestran que la serie ahora se comporta como una normal (similar a la observada para el modelo SARIMA ajustado antes), con _clusters_ de varianza desigual. Por otro lado, las ACF y PACF muestran menos correlaciones significativas, principalmente, las correspondientes a las del componente autoregresivo de segundo orden, y la correlación importante en $h=9$. 
 
 
@@ -543,8 +529,7 @@ cowplot::plot_grid(
 ```
 
 <div class="figure" style="text-align: center">
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/garch-diagnostics-1.png" alt="Grafico diagnostico de residuales del modelo $GARCH(1,1)$, junto a la ACF y PACF."  />
-<p class="caption">(\#fig:garch-diagnostics)Grafico diagnostico de residuales del modelo $GARCH(1,1)$, junto a la ACF y PACF.</p>
+<img src="/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/garch-diagnostics-1.png" alt="Grafico diagnostico de residuales del modelo $GARCH(1,1)$, junto a la ACF y PACF."  />
 </div><table><caption>Figura 7. Grafico diagnostico de residuales del modelo $GARCH(1,1)$, junto a la ACF y PACF.</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
 
 Esto lleva a concluir que la volatilidad cambiante parece añadir correlaciones importantes que realmente no son necesarias, simplificando el modelo a solo un modelo de segundo orden.
@@ -569,8 +554,7 @@ cowplot::plot_grid(
 ```
 
 <div class="figure" style="text-align: center">
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/volatilidad-plot-1.png" alt="Gráfico de volatilidad en conjunto con los retornos (en valor absoluto) y gráfico _QQ_ de los residuales del modelo $GARCH(1,1)$."  />
-<p class="caption">(\#fig:volatilidad-plot)Gráfico de volatilidad en conjunto con los retornos (en valor absoluto) y gráfico _QQ_ de los residuales del modelo $GARCH(1,1)$.</p>
+<img src="/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/volatilidad-plot-1.png" alt="Gráfico de volatilidad en conjunto con los retornos (en valor absoluto) y gráfico _QQ_ de los residuales del modelo $GARCH(1,1)$."  />
 </div><table><caption>Figura 8. Gráfico de volatilidad en conjunto con los retornos (en valor absoluto) y gráfico _QQ_ de los residuales del modelo $GARCH(1,1)$.</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
 
 Un análisis mas profundo de los residuales muestra que la distribución de estos no es normal (<a href="#volatilidad-plot">figura 7</a>), sino que tiene colas pesadas. La forma es característica de una distribución $t$-Student sesgada (dado que una cola se ve más desviada que la otra). 
@@ -614,7 +598,7 @@ garch_fitting %>%
 ```
 
 <table>
-<caption>(\#tab:unnamed-chunk-1)Criterios de información para los nuevos modelos GARCH ajustados usando un componente $ARMA(2,0)$ y modelo de distribución $t$-Student.</caption>
+<caption>Tabla 5. Criterios de información para los nuevos modelos GARCH ajustados usando un componente $ARMA(2,0)$ y modelo de distribución $t$-Student.</caption>
  <thead>
   <tr>
    <th style="text-align:left;"> Garch </th>
@@ -662,7 +646,7 @@ garch_fitting$mod_fit[[1]]@fit$matcoef %>%
 ```
 
 <table>
-<caption>(\#tab:coef-garch-2)Coeficientes estimados para el modelo final escogido.</caption>
+<caption>Tabla 6. Coeficientes estimados para el modelo final escogido.</caption>
  <thead>
   <tr>
    <th style="text-align:left;"> Termino </th>

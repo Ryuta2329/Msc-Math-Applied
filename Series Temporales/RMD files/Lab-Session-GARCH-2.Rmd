@@ -156,7 +156,7 @@ tidied_model <- tidy(return_models) %>%
 
 El modelo seleccionado al realizar el ajuste es el $SARIMA(2,0,0)(2,0,0)_9$, cuyos coeficientes se muestran en la `r figr("sarima-coef", TRUE, type="tabla")` junto con sus desviaciones estándar, se escribe como:
 
-$$(1 - {`r round(tidied_model[3, "estimate"], 3)`}_{(`r round(tidied_model[3, "std.error"], 3)`)}B^9 - {`r round(tidied_model[4, "estimate"], 3)`}_{(`r round(tidied_model[4, "std.error"], 3)`)}B^{18})(1 - {`r round(tidied_model[1, "estimate"], 3)`}_{(`r round(tidied_model[1, "std.error"], 3)`)}B - {`r round(tidied_model[2, "estimate"], 3)`}_{(`r round(tidied_model[2, "std.error"], 3)`)}B^2) r_t = w_t$$
+$$(1 - {`r round(tidied_model[3, "estimate"], 3)`}_{(`r round(tidied_model[3, "std.error"], 3)`)}B^9 {`r round(tidied_model[4, "estimate"], 3)`}_{(`r round(tidied_model[4, "std.error"], 3)`)}B^{18})(1 - {`r round(tidied_model[1, "estimate"], 3)`}_{(`r round(tidied_model[1, "std.error"], 3)`)}B - {`r round(tidied_model[2, "estimate"], 3)`}_{(`r round(tidied_model[2, "std.error"], 3)`)}B^2)r_t = w_t$$
 
 Los coeficientes muestran que los componentes del modelo ARIMA son importantes explicando las correlaciones encontradas, y de igual forma, los coeficientes del componente estacional son significativos, dado que se capturan las correlaciones importantes mostradas en la `r figr("acf-pacf", TRUE, type = "figura")`, en $h=1, 2, 9, 10, 11$ y $18$.
 
