@@ -216,8 +216,8 @@ Cuando $s=t$, entonces $\gamma(s, t) = 2\sigma_w^2$. Cuando $s=t-1$, entonces $\
 
 $$
 \gamma_y(s, t) = \begin{cases}
-		2\sigma_w^2, & \vert h\vert = 0,
-		\sigma_w^2, & \vert h \vert = 1,
+		2\sigma_w^2, & \vert h\vert = 0, \\
+		\sigma_w^2, & \vert h \vert = 1, \\
 		0, & \vert h \vert > 1 
 	\end{cases}
 $$

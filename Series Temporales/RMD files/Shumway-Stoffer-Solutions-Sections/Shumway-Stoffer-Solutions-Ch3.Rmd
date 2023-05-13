@@ -11,7 +11,8 @@ suppressPackageStartupMessages({
 
 **Problema 3.1** Para un $MA(1)$, $x_t = w_t + \theta w_{t−1}$, demuestre que $\vert\rho_x(1)\vert \le 1/2$ para cualquier número $\theta$. ¿Para qué valores de $\theta$ $\rho_x(1)$ alcanza su máximo y mínimo?
 
-[**Problema 3.4**](#problema-3-4) Identifique los siguientes modelos como modelos $ARMA(p, q)$ (tenga cuidado con la redundancia de parámetros) y determine si son causales y/o invertibles:  
+<a name="problema-3-4"></a>
+**Problema 3.4** Identifique los siguientes modelos como modelos $ARMA(p, q)$ (tenga cuidado con la redundancia de parámetros) y determine si son causales y/o invertibles:  
 _a)_ $x_t = .80x_{t−1} − .15x_{t−2} + w_t − .30w_{t−1}$.  
 _b)_ $x_t = x_{t−1} − .50x_{t−2} + w_t − w_{t−1}$.
 
@@ -23,7 +24,8 @@ El modelo del inciso _b)_ se escribe como $(1 - B + {,}50 B^2)x_t = (1 - B)w_t$,
 Las raíces de $\phi(z) = 1 - z + {,}5 z^2 = 0$ son $z = 1 \pm i$, por lo que $\vert z \vert = \sqrt{2}$, el cual cae fuera del circulo unitario. Por lo tanto, el modelo es causal. 
 Por otro lado, el modelo no es invertible dado que $\theta(z) = 1-z = 0 \rightarrow z = 1$, cae dentro del circulo unitario.
 
-[**Problema 3.33**](#problema-3-33) Ajuste un modelo $ARIMA(p, d, q)$ a los datos de temperatura global `globtemp` realizando todos los diagnósticos necesarios. Después de decidirse por un modelo apropiado, pronostique (con límites) los próximos $10$ años. Comente.
+<a name="problema-3-33"></a>
+**Problema 3.33** Ajuste un modelo $ARIMA(p, d, q)$ a los datos de temperatura global `globtemp` realizando todos los diagnósticos necesarios. Después de decidirse por un modelo apropiado, pronostique (con límites) los próximos $10$ años. Comente.
 
 Ya en el [ejemplo 2.6](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/colab-nb/global-temperature-example.ipynb) que la serie de temperatura global parece comportarse más como un paseo aleatorio que como una serie estacionaria de tendencia, y por lo tanto, en lugar de eliminar la tendencia de los datos, es más apropiado utilizar la diferenciación para forzarlos a la estacionaridad. Al realizar esto, se encontró una autocorrelación mínima, lo que puede implicar que la serie de temperatura global es casi un paseo aleatorio con deriva. La ACF y PACF de la serie diferenciada se muestra en la `r figr("p03-33-01-example-2-6", TRUE, type="figura")`. 
 LA PACF muestra correlaciones significativas hasta el _lag_ 3, otra autocorrelación importante en $h=36$, y una autocorrelación pequeña, pero significativa) en $h=5$. La ACF muestra correlaciones importantes en $h=4$, $9$ y $27$.

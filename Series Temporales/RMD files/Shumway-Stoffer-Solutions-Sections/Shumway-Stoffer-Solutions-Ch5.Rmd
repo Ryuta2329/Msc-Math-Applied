@@ -3,12 +3,14 @@ suppressPackageStartupMessages({
 	library(astsa)
 	library(fable)
 	library(feasts)
+	library(dplyr)
 	library(ggplot2)
 	library(kableExtra)
 })
 ```
 
-[**Problema 5.1**](#problema-5-1) El conjunto de datos `arf` son 1000 observaciones simuladas de un modelo $ARFIMA(1, 1, 0)$ con $\phi = .75$ y $d = .4$.  
+<a name="problema-5-1"></a>
+**Problema 5.1** El conjunto de datos `arf` son 1000 observaciones simuladas de un modelo $ARFIMA(1, 1, 0)$ con $\phi = .75$ y $d = .4$.  
 _a)_ Grafique los datos y comente.  
 _b)_ Trazar el ACF y PACF de los datos y comentar.  
 _c)_ Estime los parámetros y pruebe la significación de las estimaciones $\hat{\phi}$ y $\hat{d}$.  
@@ -43,4 +45,53 @@ cowplot::plot_grid(
 #library(fracdiff)
 ```
 
-[**Problema 5.7**](#problema-5-7) El paquete `stats` de R contiene los precios de cierre diarios de los cuatro principales índices bursátiles europeos; escriba `help(EuStockMarkets)` para obtener más detalles. Ajuste un modelo $GARCH$ a los rendimientos de una de estas series y discuta sus hallazgos. (Nota: el conjunto de datos contiene valores reales y no retornos. Por lo tanto, los datos deben transformarse antes del ajuste del modelo).
+**Problema 5.3** Grafique la serie de temperatura global, `globtemp`, y luego pruebe si hay una raíz unitaria versus la alternativa de que el proceso es estacionario usando las tres pruebas: DF, ADF y PP, discutidas en el Ejemplo 5.3. Comente.
+
+```{r}
+list(
+	  df=tseries::adf.test(globtemp, k=0),
+	  adf=tseries::adf.test(globtemp),
+	  pp=tseries::pp.test(globtemp)) |>
+  purrr::map(broom::tidy) |>
+  purrr::list_rbind() |>
+  select(method, statistic:parameter) |>
+  kbl(
+    col.names=c("Prieba", "Estadístico", "$p$", "df"),
+    escape=FALSE, 
+    caption="Estadísticos de las pruebas de Raíz unitaria para estacionaridad."
+  )
+```
+
+
+
+<a name="problema-5-7"></a>
+**Problema 5.7** El paquete `stats` de R contiene los precios de cierre diarios de los cuatro principales índices bursátiles europeos; escriba `help(EuStockMarkets)` para obtener más detalles. Ajuste un modelo $GARCH$ a los rendimientos de una de estas series y discuta sus hallazgos. (Nota: el conjunto de datos contiene valores reales y no retornos. Por lo tanto, los datos deben transformarse antes del ajuste del modelo).
+
+```{r p05-07-01-data, anchor="figura", fig.cap="Indice bursátil de Suiza.", fig.height=5, fig.width=12}
+daily_returns <- diff(log(EuStockMarkets[, "SMI"])) %>%
+	as_tsibble()
+
+cowplot::plot_grid(
+	EuStockMarkets[, "SMI"] %>%
+	  as_tsibble() %>%
+	  autoplot(value, colour="dodgerblue3") +
+	    theme_light() +
+	    xlab("") + ylab("Precios de cierre diario") +
+	    ggtitle("Indice bursátil Europeo (Suiza SMI)"),
+	daily_returns %>%
+	  autoplot(value, colour="dodgerblue3") +
+	    theme_light() +
+	    xlab("") + ylab("Retornos") +
+	    ggtitle("Retornos logarítmicos del SMI."),
+	nrow=1)
+```
+
+Para el análisis se seleccionó el indice bursátil correspondiente a Suiza (SMI), el cual se muestra en la `r figr("p05-07-01-data", TRUE, type = "figura")`, junto a los retornos calculados a partir de la misma. 
+La serie tiene una tendencia creciente clara que se elimina al calcular los retornos, con caídas importantes durante todo el año 1994, y a la mitad del año 1997. Es en estos momentos que se observan los _clusters_ de volatilidad más importantes de la serie de retornos. 
+
+```{r}
+daily_returns %>%
+  tsibble::scan_gaps()
+	  ACF(value, lag_max=100) %>%
+  autoplot()
+```
