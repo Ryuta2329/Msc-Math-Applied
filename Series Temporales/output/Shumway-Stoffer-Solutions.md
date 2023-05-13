@@ -256,7 +256,7 @@ $$
 Cuando $s=t$, entonces $\gamma(s, t) = 2\sigma_w^2$. Cuando $s=t-1$, entonces $\gamma(s, t) = E[(w_t - w_{t-1})(w_{t-1} - w_{t-2})] = \sigma_w^2$; cuando $s \le t-2$, $\gamma(s, t) = 0$. Por lo que se puede escribir:
 
 $$
-gamma_y(s, t) = \begin{cases}
+\gamma_y(s, t) = \begin{cases}
 		2\sigma_w^2, & \vert h\vert = 0,
 		\sigma_w^2, & \vert h \vert = 1,
 		0, & \vert h \vert > 1 
@@ -299,11 +299,11 @@ $$
 \end{aligned}
 $$
 
-Si $s=t-2$, se tiene que solo quedan $2q - 1$ terminos que no se anulan, y por lo tanto, $(2q - 1)\sigma_w^2$. De forma que se puede escribri la función de aitocovarianza en terminos de la diferencia $h=s-t$ como:
+Si $s=t-2$, se tiene que solo quedan $2q - 1$ términos que no se anulan, y por lo tanto, $(2q - 1)\sigma_w^2$. De forma que se puede escribir la función de autocovarianza en términos de la diferencia $h=s-t$ como:
 
 $$\gamma_v(s, t) = \left(\frac{2q + 1 - h}{(2q + 1)^2}\right)\sigma_w^2$$
 
-lo cual muestra que la funcion de autocovarianza va decreciendo con la diferencia de tiempo $h$.
+lo cual muestra que la función de autocovarianza va decreciendo con la diferencia de tiempo $h$.
 
 **Problema 1.7** Para un proceso de promedio móvil de la forma $x_t = w_{t−1} + 2w_t + w_{t+1}$, donde $w_t$ son independientes con medias cero y varianza $\sigma_w^2$, determine las funciones de autocovarianza y autocorrelación en función del desfase $h = s − t$ y grafique el ACF en función de $h$.
 
@@ -352,7 +352,10 @@ ggplot(data = df, mapping = aes(x = lag, y = rho)) +
 <img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/fig:p1-7-1.png" style="display: block; margin: auto;" />
 
 **Problema 1.8** Considere el modelo de paseo aleatorio con deriva $x_t = \delta + x_{t−1} + w_t$, para $t = 1, 2, \ldots$, con $x_0 = 0$, donde $w_t$ es ruido blanco con varianza $\sigma_w^2$.  
-_a)_ Demuestre que el modelo se puede escribir como $x_t = \delta t + \sum_{k=1}^t w_k$.  
+_a)_ Demuestre que el modelo se puede escribir como:
+
+$$x_t = \delta t + \sum_{k=1}^t w_k$$
+
 _b)_ Encuentre la función media y la función de autocovarianza de $x_t$.  
 _c)_ Argumente que $x_t$ no es estacionario.  
 _d)_ Muestre $\rho_x(t − 1, t) = \sqrt{\frac{t−1}{t}} \rightarrow 1$ cuando $t \rightarrow \infty$. ¿Cuál es la implicación de este resultado?  
@@ -383,7 +386,7 @@ $$
 	\gamma(t,s) &= E[(x_t - \mu_t)(x_s - \mu_s)] \\
 		&= E\left[\left(t\delta + \sum_{j=1}^t w_j - t\delta\right)\left(s\delta + \sum_{j=1}^s w_j - s\delta\right)\right] \\
 		&= E\left[\left(\sum_{j=1}^t w_j\right)\left(\sum_{j=1}^s w_j\right)\right] \\
-		&= \text{min}\{s, t\} \sigma_w^2
+		&= \text{min}\left{s,t\right} \sigma_w^2
 \end{aligned}
 $$
 
@@ -421,7 +424,9 @@ $$
 \end{aligned}
 $$
 
-donde el termino central sea nula dado que $U_1$ y $U_2$ son independientes (tal que $E[U_1U_2] = E[U_1]E[U_2] = 0$) y la identidad trigonométrica para suma de ángulos para el coseno ($cos(\alpha - \beta) = cos(\alpha)cos(\beta) + sen(\alpha)sen(\beta)$).
+donde el termino central sea nula dado que $U_1$ y $U_2$ son independientes (tal que $E[U_1U_2] = E[U_1]E[U_2] = 0$) y la identidad trigonométrica para suma de ángulos para el coseno:
+
+$$cos(\alpha-\beta) = cos(\alpha)cos(\beta)+sen(\alpha)sen(\beta)$$
 
 **Problema 1.10** Supongamos que nos gustaría predecir una sola serie estacionaria $x_t$ con media cero y función de autocorrelación $\rho(h)$ en algún momento en el futuro, digamos, $t + \ell$, para $l > 0$.  
 _a)_ Si predecimos usando solo $x_t$ y algún multiplicador de escala $A$, demuestre que el error de predicción cuadrático medio $MSE(A) = E[(x_{t+l} - Ax_t)^2]$ es minimizado por $A = \rho(l)$.  
@@ -431,7 +436,7 @@ _c)_ Demuestre que si $x_{t+l} = Ax_t$, entonces $\rho(l) = 1$ si $A > 0$, y $ρ
 De la definición de $MSE$, se tiene por producto notable que:
 
 $$\begin{aligned}
-MSE(A) = E[(x_{t+l} − Ax_t)^2] \\
+MSE(A) &= E[(x_{t+l} − Ax_t)^2] \\
   &= E[x_{t+l}^2 - 2Ax_tx_{t+l} + A^2x_t^2] \\
 	&= E[x_{t+l}^2] - 2AE[x_tx_{t+l}] + A^2E[x_t^2]
 \end{aligned}
@@ -450,7 +455,7 @@ El numerador es la autocovarianza $\gamma(l)$ ya que $x_t$ tiene media cero. El 
 Para demostrar el inciso _b)_, solo se necesita sacar $\gamma(0)$ como factor comun de la expansión del producto notable:
 
 $$\begin{aligned}
-MSE(A) = E[(x_{t+l} − Ax_t)^2]  \\
+MSE(A) &= E[(x_{t+l} − Ax_t)^2]  \\
 	&= E[x_{t+l}^2] - 2AE[x_tx_{t+l}] + A^2E[x_t^2] \\
 	&= \gamma(0) - 2\frac{\gamma(l)}{\gamma(0)}\gamma(l) + \left(\frac{\gamma(l)}{\gamma(0)}\right)^2\gamma(0) \\
 	&= \gamma(0)\left(1 - 2\left(\frac{\gamma(l)}{\gamma(0)}\right)^2 + \left(\frac{\gamma(l)}{\gamma(0)}\right)^2\right) \\
@@ -541,26 +546,26 @@ $$
 
 Como se ve arriba, la función de covarianza cruzada $\gamma_{xy}(h)$ depende solo del retraso $h$ y, por lo tanto, las series son conjuntamente estacionarias.
 
-**Problema 1.14** Sea $x_t$ un proceso normal estacionario con media $\mu_x$ y función de autocovarianza $\gamma(h)$. Definir la serie de tiempo no lineal $y_t = exp\{x_t\}$.  
+**Problema 1.14** Sea $x_t$ un proceso normal estacionario con media $\mu_x$ y función de autocovarianza $\gamma(h)$. Definir la serie de tiempo no lineal $y_t = exp\left{x_t\right}$.  
 _a)_ Exprese la función media $E(y_t)$ en términos de $\mu_x$ y $\gamma(0)$. La función generadora de momentos de una variable aleatoria normal $x$ con media $\mu$ y varianza $\sigma^2$ es:
 
-$$M_x(\lambda) = E[exp\{\lambda x\}] = exp\left{\mu\lambda + \frac{1}{2}\sigma^2\lambda^2\right}$$
+$$M_x(\lambda) = E[exp\left{\lambda x\right}] = exp\left{\mu\lambda + \frac{1}{2}\sigma^2\lambda^2\right}$$
 
 _b)_ Determine la función de autocovarianza de $y_t$. La suma de las dos variables aleatorias normales $x_{t+h} + x_t$ sigue siendo una variable aleatoria normal.
 
-Para el inciso _a)_, se nota que $E(y_t)=E[exp\{x_t\}]$, la cual es la función generadora de momentos $M_x(\lambda=1)$ para $\lambda=1$. De forma que:
+Para el inciso _a)_, se nota que $E(y_t)=E[exp\left\{x_t\right\}]$, la cual es la función generadora de momentos $M_x(\lambda=1)$ para $\lambda=1$. De forma que:
 
-$$E(y_t)= exp\left{\mu_x + \frac{1}{2}\sigma^2\right}$$
+$$E(y_t)= e^{\mu_x + \frac{1}{2}\sigma^2}$$
 
 La función de autocovarianza es:
 
 $$
 \begin{aligned}
     \gamma_y(h) &= E[(y_t - \mu_y)(y_{t+h} - \mu_y)] \\
-        &= E\left[\left(exp\{x_t\} - \left{\mu + \frac{1}{2}\sigma^2\right}\right)\left(exp\{x_{t+h}\} - \left{\mu + \frac{1}{2}\sigma^2\right}\right)\right] \\
-        &= E\left[exp\{x_t + x_{t+h}\} - exp\left{\mu + \frac{1}{2}\sigma^2\right}^2\right] \\
-        &= E\left[exp\{x_t + x_{t+h}\}\right] - exp\left{\mu + \frac{1}{2}\sigma^2\right}^2 \\
-        &= E\left[exp\{x_t + x_{t+h}\}\right] - exp\left{2\mu + \sigma^2\right}
+        &= E\left[\left(exp\{x_t\} - \left\{\mu + \frac{1}{2}\sigma^2\right\}\right)\left(exp\{x_{t+h}\} - \left\{\mu + \frac{1}{2}\sigma^2\right\}\right)\right] \\
+        &= E\left[exp\{x_t + x_{t+h}\} - exp\left\{\mu + \frac{1}{2}\sigma^2\right\}^2\right] \\
+        &= E\left[exp\{x_t + x_{t+h}\}\right] - exp\left\{\mu + \frac{1}{2}\sigma^2\right\}^2 \\
+        &= E\left[exp\{x_t + x_{t+h}\}\right] - exp\left\{2\mu + \sigma^2\right\}
 \end{aligned}
 $$
 
@@ -568,8 +573,8 @@ Como $z_t = x_t + x_{t+h}$ es otra normal, entonces $E(z_t) = 2\mu_x$ y $var(z_t
 
 $$
 \begin{aligned}
-	\gamma_y(h) &= E\left[exp\{x_t + x_{t+h}\}\right] - exp\left{2\mu + \sigma^2\right} \\
-		&= exp\left{2\mu + \sigma^2\right} - exp\left{2\mu + \sigma^2\right} \\
+	\gamma_y(h) &= E\left[exp\{x_t + x_{t+h}\}\right] - exp\left\{2\mu + \sigma^2\right\} \\
+		&= exp\left\{2\mu + \sigma^2\right\} - exp\left\{2\mu + \sigma^2\right\} \\
 		&= 0
 \end{aligned}
 $$
@@ -595,14 +600,14 @@ $$\begin{aligned}
 \end{aligned}
 $$
 
-Cuando $h=0$, se tiene que $\gamma(h) = E\left[sen^2(2\pi U_t)\right] = \int_0^1 sen^2(2\pi U_t)dU_t = 1/2$ (la varianza de la distribución uniforme en el intervalo $(0, 1)$). Cuando $h>0$, $\gamma(h) = 0$ dado que $U_t$ y $U_{t+h}$ son independientes entre si. Como la función media es constante y la función de autocovarianza depende del retraso solamente, y como la varianza es finita, entonces se demuestra que $x_t$ es débilmente estacionaria. 
+Cuando $h=0$, se tiene que $\gamma(h) = E\left[sen^2(2\pi U_t)\right] = \int_0^1 sen^2(2\pi U_t)dU_t = 1/2$ (la varianza de la distribución uniforme en el intervalo $(0,1)$ ). Cuando $h>0$, $\gamma(h) = 0$ dado que $U_t$ y $U_{t+h}$ son independientes entre si. Como la función media es constante y la función de autocovarianza depende del retraso solamente, y como la varianza es finita, entonces se demuestra que $x_t$ es débilmente estacionaria. 
 
 
 
 
 
-**Problema 1.17** Supongamos que tenemos el proceso lineal $x_t$ generado por $x_t = w_t − \theta w_{t−1}$, $t = 0, 1, 2, \ldots$, donde $\{wt\}$ es independiente e idénticamente distribuida con función característica $\phi_w(\dot)$, y $\theta$ es una constante fija. [Reemplazar _función característica_ con _función generadora de momento_ si se le indica que lo haga].  
-_a)_ Exprese la función característica conjunta de $x_1, x_2, \ldots, x_n$, digamos, $\phi_{x_1,x_2,\ldots,x_n}(\lambda_1, \lambda_2, \ldots , \lambda_n)$, en términos de $\phi w(\dot)$.  
+**Problema 1.17** Supongamos que tenemos el proceso lineal $x_t$ generado por $x_t = w_t − \theta w_{t−1}$, $t = 0, 1, 2, \ldots$, donde $\{w_t\}$ es independiente e idénticamente distribuida con función característica $\phi_w()$, y $\theta$ es una constante fija. [Reemplazar _función característica_ con _función generadora de momento_ si se le indica que lo haga].  
+_a)_ Exprese la función característica conjunta de $x_1, x_2, \ldots, x_n$, digamos, $\phi_{x_1,x_2,\ldots,x_n}(\lambda_1, \lambda_2, \ldots , \lambda_n)$, en términos de $\phi_w()$.  
 _b)_ Deducir de _a)_ que $x_t$ es estrictamente estacionario.
 
 
@@ -974,7 +979,7 @@ _b)_ Dibuje una matriz de diagrama de dispersión de $M_t$, $T_t$, $P_t$ y $P_{t
 
 La primera parte del análisis se encuentra en el archivo de ejemplo para [la mortalidad cardiovascular y partículas contaminantes](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/colab-nb/Pollution-Mortality-example.ipynb). Allí, se muestra que el mejor modelo encontrado para mortalidad fue:
 
-$$Mt = 2831,5 -1,396t  -0,472(T_t − T_\dot) + 0,023(T_t − T_\dot)^2 + 0,255P_t + w_t$$
+$$Mt = 2831,5 -1,396t  -0,472(T_t − T_{.}) + 0,023(T_t − T_{.})^2 + 0,255P_t + w_t$$
 
 En esta parte se busca añadir la información del retraso $P_{t-4}$ para verificar si hay una mejora en el ajuste. Los resultados se muestran a continuación:
 
@@ -998,7 +1003,7 @@ bind_rows(fitted_models[4,], glance(mod_lag)) %>%
 	select(SSE, df.residual, MSE, adj.r.squared, AIC, BIC) %>%
 	mutate(AIC=AIC / nrow(df_ts_tidy) - log(2*pi), BIC=BIC / nrow(df_ts_tidy) - log(2*pi)) %>%
 	tibble::add_column(Model=c(
-		"$M_t = \\beta_0 + \\beta_1 t + \\beta_2(T - T_\\dot ) + \\beta_3(T - T_\\dot )^2 + \\beta_4 P_t + w_t$", "$M_t = \\beta_0 + \\beta_1 t + \\beta_2(T - T_\\dot ) + \\beta_3(T - T_\\dot )^2 + \\beta_4 P_t + P_{t-4} + w_t$"), .before=1) %>%
+		"$M_t = \\beta_0 + \\beta_1 t + \\beta_2(T - T_{.} ) + \\beta_3(T - T_{.} )^2 + \\beta_4 P_t + w_t$", "$M_t = \\beta_0 + \\beta_1 t + \\beta_2(T - T_{.} ) + \\beta_3(T - T_{.} )^2 + \\beta_4 P_t + P_{t-4} + w_t$"), .before=1) %>%
 	kbl(digits=3,
 		col.names=c("", "SSE", "df", "MSE", "$R^2$", "AIC", "BIC"),
 		caption="Medidas de ajuste y de información para los modelos ajustados.", 
@@ -1020,7 +1025,7 @@ bind_rows(fitted_models[4,], glance(mod_lag)) %>%
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:left;"> $M_t = \beta_0 + \beta_1 t + \beta_2(T - T_\dot ) + \beta_3(T - T_\dot )^2 + \beta_4 P_t + w_t$ </td>
+   <td style="text-align:left;"> $M_t = \beta_0 + \beta_1 t + \beta_2(T - T_{.} ) + \beta_3(T - T_{.} )^2 + \beta_4 P_t + w_t$ </td>
    <td style="text-align:right;"> 20508,44 </td>
    <td style="text-align:right;"> 503 </td>
    <td style="text-align:right;"> 40,772 </td>
@@ -1029,7 +1034,7 @@ bind_rows(fitted_models[4,], glance(mod_lag)) %>%
    <td style="text-align:right;"> 4,772 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> $M_t = \beta_0 + \beta_1 t + \beta_2(T - T_\dot ) + \beta_3(T - T_\dot )^2 + \beta_4 P_t + P_{t-4} + w_t$ </td>
+   <td style="text-align:left;"> $M_t = \beta_0 + \beta_1 t + \beta_2(T - T_{.} ) + \beta_3(T - T_{.} )^2 + \beta_4 P_t + P_{t-4} + w_t$ </td>
    <td style="text-align:right;"> 19687,01 </td>
    <td style="text-align:right;"> 498 </td>
    <td style="text-align:right;"> 39,532 </td>
@@ -1404,7 +1409,8 @@ plot(freqs, P,
 
 Se muestra el pico obvio a la frecuencia de $38/456 = 0,08333 \ldots$, el cual corresponde al periodo de 12 meses. El otro pico relevante ocurre a la frecuencia $12 / 456 = 0,02632 \ldots$, el cual corresponde a un periodo de 38 meses, o de $3\frac{1}{6}$ años, el cual correspondería al ciclo más probable para el efecto del Niño.
 
-[**Problema 2.10**](#problema-2-10) Considere las dos series de tiempo semanales de petróleo (`oil`) y gasolina (`gas`). La serie `oil` está en dólares por barril, mientras que la serie del `gas` está en centavos por galón.  
+<a name="problema-2-10"></a>
+**Problema 2.10** Considere las dos series de tiempo semanales de petróleo (`oil`) y gasolina (`gas`). La serie `oil` está en dólares por barril, mientras que la serie del `gas` está en centavos por galón.  
 _a)_ Trace los datos en el mismo gráfico ¿Crees que las series son estacionarias (explica tu respuesta)?  
 _b)_ En economía, a menudo es el cambio porcentual en el precio (denominado tasa de crecimiento o rendimiento), más que el cambio absoluto del precio, es lo que es importante. Argumente que se podría aplicar a los datos una transformación de la forma $y_t = \nabla\text{log }x_t$, donde $x_t$ es la serie de precios del petróleo o de la gasolina.  
 _c)_ Transforme los datos como se describe en la parte _b)_, trace los datos en el mismo gráfico, mire las ACF de los datos transformados y comente.  
@@ -1914,11 +1920,13 @@ y los diagnósticos (no mostrados) muestran un comportamiento similar al anterio
 
 
 ```r
-library(astsa)
-library(fable)
-library(feasts)
-library(ggplot2)
-library(kableExtra)
+suppressPackageStartupMessages({
+	library(astsa)
+	library(fable)
+	library(feasts)
+	library(ggplot2)
+	library(kableExtra)
+})
 ```
 
 [**Problema 5.1**](#problema-5-1) El conjunto de datos `arf` son 1000 observaciones simuladas de un modelo $ARFIMA(1, 1, 0)$ con $\phi = .75$ y $d = .4$.  
