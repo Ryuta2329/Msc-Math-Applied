@@ -175,7 +175,7 @@ tidied_model <- tidy(return_models) %>%
 
 El modelo seleccionado al realizar el ajuste es el $SARIMA(2,0,0)(2,0,0)_9$, cuyos coeficientes se muestran en la <a href="#sarima-coef">tabla 2</a> junto con sus desviaciones estándar, se escribe como:
 
-$$(1 - {0,057}_{(0,018)}B^9 {-0,048}_{(0,018)}B^{18})(1 - {0,211}_{(0,018)}B - {0,098}_{(0,018)}B^2)r_t = w_t$$
+$$(1 - {0{,}057}_{(0{,}018)}B^9 {-0{,}048}_{(0{,}018)}B^{18})(1 - {0{,}211}_{(0{,}018)}B - {0{,}098}_{(0{,}018)}B^2)r_t = w_t$$
 
 Los coeficientes muestran que los componentes del modelo ARIMA son importantes explicando las correlaciones encontradas, y de igual forma, los coeficientes del componente estacional son significativos, dado que se capturan las correlaciones importantes mostradas en la <a href="#acf-pacf">figura 2</a>, en $h=1, 2, 9, 10, 11$ y $18$.
 
@@ -192,7 +192,7 @@ tidied_model %>%
 ```
 
 <table>
-<caption>Tabla 2. Estimados de los coeficientes de ajuste del modelo $SARIMA(2,0,0)(2,0,0)_9$.</caption>
+<caption>Tabla 2. Estimados de los coeficientes de ajuste del modelo SARIMA.</caption>
  <thead>
   <tr>
    <th style="text-align:left;"> Termino </th>
@@ -433,7 +433,7 @@ garch_fitting %>%
 ```
 
 <table>
-<caption>Tabla 4. Estimados de los coeficiente para los modelos GARCH de orden $(p, q=1)$.</caption>
+<caption>Tabla 4. Estimados de los coeficiente para los modelos GARCH de orden (p, q=1).</caption>
  <thead>
   <tr>
    <th style="text-align:left;"> Modelo </th>
@@ -530,7 +530,7 @@ cowplot::plot_grid(
 
 <div class="figure" style="text-align: center">
 <img src="/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/garch-diagnostics-1.png" alt="Grafico diagnostico de residuales del modelo $GARCH(1,1)$, junto a la ACF y PACF."  />
-</div><table><caption>Figura 7. Grafico diagnostico de residuales del modelo $GARCH(1,1)$, junto a la ACF y PACF.</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
+</div><table><caption>Figura 7. Grafico diagnostico de residuales del modelo GARCH(1,1), junto a la ACF y PACF.</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
 
 Esto lleva a concluir que la volatilidad cambiante parece añadir correlaciones importantes que realmente no son necesarias, simplificando el modelo a solo un modelo de segundo orden.
 
@@ -555,7 +555,7 @@ cowplot::plot_grid(
 
 <div class="figure" style="text-align: center">
 <img src="/Series Temporales/output/Lab-Session-GARCH-2_files/figure-html/volatilidad-plot-1.png" alt="Gráfico de volatilidad en conjunto con los retornos (en valor absoluto) y gráfico _QQ_ de los residuales del modelo $GARCH(1,1)$."  />
-</div><table><caption>Figura 8. Gráfico de volatilidad en conjunto con los retornos (en valor absoluto) y gráfico _QQ_ de los residuales del modelo $GARCH(1,1)$.</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
+</div><table><caption>Figura 8. Gráfico de volatilidad en conjunto con los retornos (en valor absoluto) y gráfico <em>QQ</em> de los residuales del modelo GARCH(1,1).</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
 
 Un análisis mas profundo de los residuales muestra que la distribución de estos no es normal (<a href="#volatilidad-plot">figura 7</a>), sino que tiene colas pesadas. La forma es característica de una distribución $t$-Student sesgada (dado que una cola se ve más desviada que la otra). 
 Se observa que el modelo paras la volatilidad no es capaz de tomar en cuenta toda la volatilidad asociada a la serie de retornos, dada la cobertura de la serie. 
@@ -598,7 +598,7 @@ garch_fitting %>%
 ```
 
 <table>
-<caption>Tabla 5. Criterios de información para los nuevos modelos GARCH ajustados usando un componente $ARMA(2,0)$ y modelo de distribución $t$-Student.</caption>
+<caption>Tabla 5. Criterios de información para los nuevos modelos GARCH ajustados usando un componente ARMA(2,0) y modelo de distribución t-Student.</caption>
  <thead>
   <tr>
    <th style="text-align:left;"> Garch </th>
