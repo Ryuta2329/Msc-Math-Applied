@@ -713,8 +713,8 @@ El modelo final escogido es:
 
 $$
 \begin{aligned}
-  r_t &= \phi_1 r_{t-1} + \phi_2 r_{t-2} + \sigma_t\epsilon_t \\
-  \sigma_t &= \alpha_0 + \alpha_1 r_{t-1} + \beta \sigma_{t-1}
+  r_t &= 0{,}296_{(0{,}0221)} r_{t-1} + 0{,}087_{(0{,}0158)} r_{t-2} + \sigma_t\epsilon_t \\
+  \sigma_t &= 0{,}001_{(0{,}0001)} + 0{,}904_{(0{,}1566)} r_{t-1} + 0{,}095_{(0{,}0459)} \sigma_{t-1}
 \end{aligned}
 $$
 
