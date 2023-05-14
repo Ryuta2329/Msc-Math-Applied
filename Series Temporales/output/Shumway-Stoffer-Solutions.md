@@ -1,7 +1,7 @@
 ---
 title: Soluciones a problemas de _Time Series Analysis and its Applications_ de Shumway y Stoffer
 author: Marcelo Molinatti
-date: "2023-05-13"
+date: "2023-05-14"
 output:
  bookdown::html_document2:
   number_sections: yes
@@ -257,8 +257,8 @@ Cuando $s=t$, entonces $\gamma(s, t) = 2\sigma_w^2$. Cuando $s=t-1$, entonces $\
 
 $$
 \gamma_y(s, t) = \begin{cases}
-		2\sigma_w^2, & \vert h\vert = 0,
-		\sigma_w^2, & \vert h \vert = 1,
+		2\sigma_w^2, & \vert h\vert = 0, \\
+		\sigma_w^2, & \vert h \vert = 1, \\
 		0, & \vert h \vert > 1 
 	\end{cases}
 $$
@@ -1617,7 +1617,8 @@ suppressPackageStartupMessages({
 
 **Problema 3.1** Para un $MA(1)$, $x_t = w_t + \theta w_{t−1}$, demuestre que $\vert\rho_x(1)\vert \le 1/2$ para cualquier número $\theta$. ¿Para qué valores de $\theta$ $\rho_x(1)$ alcanza su máximo y mínimo?
 
-[**Problema 3.4**](#problema-3-4) Identifique los siguientes modelos como modelos $ARMA(p, q)$ (tenga cuidado con la redundancia de parámetros) y determine si son causales y/o invertibles:  
+<a name="problema-3-4"></a>
+**Problema 3.4** Identifique los siguientes modelos como modelos $ARMA(p, q)$ (tenga cuidado con la redundancia de parámetros) y determine si son causales y/o invertibles:  
 _a)_ $x_t = .80x_{t−1} − .15x_{t−2} + w_t − .30w_{t−1}$.  
 _b)_ $x_t = x_{t−1} − .50x_{t−2} + w_t − w_{t−1}$.
 
@@ -1629,7 +1630,8 @@ El modelo del inciso _b)_ se escribe como $(1 - B + {,}50 B^2)x_t = (1 - B)w_t$,
 Las raíces de $\phi(z) = 1 - z + {,}5 z^2 = 0$ son $z = 1 \pm i$, por lo que $\vert z \vert = \sqrt{2}$, el cual cae fuera del circulo unitario. Por lo tanto, el modelo es causal. 
 Por otro lado, el modelo no es invertible dado que $\theta(z) = 1-z = 0 \rightarrow z = 1$, cae dentro del circulo unitario.
 
-[**Problema 3.33**](#problema-3-33) Ajuste un modelo $ARIMA(p, d, q)$ a los datos de temperatura global `globtemp` realizando todos los diagnósticos necesarios. Después de decidirse por un modelo apropiado, pronostique (con límites) los próximos $10$ años. Comente.
+<a name="problema-3-33"></a>
+**Problema 3.33** Ajuste un modelo $ARIMA(p, d, q)$ a los datos de temperatura global `globtemp` realizando todos los diagnósticos necesarios. Después de decidirse por un modelo apropiado, pronostique (con límites) los próximos $10$ años. Comente.
 
 Ya en el [ejemplo 2.6](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/colab-nb/global-temperature-example.ipynb) que la serie de temperatura global parece comportarse más como un paseo aleatorio que como una serie estacionaria de tendencia, y por lo tanto, en lugar de eliminar la tendencia de los datos, es más apropiado utilizar la diferenciación para forzarlos a la estacionaridad. Al realizar esto, se encontró una autocorrelación mínima, lo que puede implicar que la serie de temperatura global es casi un paseo aleatorio con deriva. La ACF y PACF de la serie diferenciada se muestra en la <a href="#p03-33-01-example-2-6">figura 17</a>. 
 LA PACF muestra correlaciones significativas hasta el _lag_ 3, otra autocorrelación importante en $h=36$, y una autocorrelación pequeña, pero significativa) en $h=5$. La ACF muestra correlaciones importantes en $h=4$, $9$ y $27$.
@@ -1922,14 +1924,21 @@ y los diagnósticos (no mostrados) muestran un comportamiento similar al anterio
 ```r
 suppressPackageStartupMessages({
 	library(astsa)
+	library(tsibble)
 	library(fable)
 	library(feasts)
+	library(dplyr)
+	library(tidyr)
+	library(purrr)
+	library(magrittr)
 	library(ggplot2)
+	library(rugarch)
 	library(kableExtra)
 })
 ```
 
-[**Problema 5.1**](#problema-5-1) El conjunto de datos `arf` son 1000 observaciones simuladas de un modelo $ARFIMA(1, 1, 0)$ con $\phi = .75$ y $d = .4$.  
+<a name="problema-5-1"></a>
+**Problema 5.1** El conjunto de datos `arf` son 1000 observaciones simuladas de un modelo $ARFIMA(1, 1, 0)$ con $\phi = .75$ y $d = .4$.  
 _a)_ Grafique los datos y comente.  
 _b)_ Trazar el ACF y PACF de los datos y comentar.  
 _c)_ Estime los parámetros y pruebe la significación de las estimaciones $\hat{\phi}$ y $\hat{d}$.  
@@ -1973,7 +1982,516 @@ cowplot::plot_grid(
 #library(fracdiff)
 ```
 
-[**Problema 5.7**](#problema-5-7) El paquete `stats` de R contiene los precios de cierre diarios de los cuatro principales índices bursátiles europeos; escriba `help(EuStockMarkets)` para obtener más detalles. Ajuste un modelo $GARCH$ a los rendimientos de una de estas series y discuta sus hallazgos. (Nota: el conjunto de datos contiene valores reales y no retornos. Por lo tanto, los datos deben transformarse antes del ajuste del modelo).
+**Problema 5.3** Grafique la serie de temperatura global, `globtemp`, y luego pruebe si hay una raíz unitaria versus la alternativa de que el proceso es estacionario usando las tres pruebas: DF, ADF y PP, discutidas en el Ejemplo 5.3. Comente.
+
+
+```r
+list(
+	  df=tseries::adf.test(globtemp, k=0),
+	  adf=tseries::adf.test(globtemp),
+	  pp=tseries::pp.test(globtemp)) |>
+  map(broom::tidy) |>
+  list_rbind() |>
+  select(method, statistic:parameter) |>
+  kbl(
+    col.names=c("Prieba", "Estadístico", "$p$", "df"),
+    escape=FALSE, 
+    caption="Estadísticos de las pruebas de Raíz unitaria para estacionaridad."
+  )
+```
+
+<table>
+<caption>(\#tab:unnamed-chunk-6)Estadísticos de las pruebas de Raíz unitaria para estacionaridad.</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Prieba </th>
+   <th style="text-align:right;"> Estadístico </th>
+   <th style="text-align:right;"> $p$ </th>
+   <th style="text-align:right;"> df </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Augmented Dickey-Fuller Test </td>
+   <td style="text-align:right;"> -4,044159 </td>
+   <td style="text-align:right;"> 0,0100000 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Augmented Dickey-Fuller Test </td>
+   <td style="text-align:right;"> -1,621884 </td>
+   <td style="text-align:right;"> 0,7337801 </td>
+   <td style="text-align:right;"> 5 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Phillips-Perron Unit Root Test </td>
+   <td style="text-align:right;"> -25,061713 </td>
+   <td style="text-align:right;"> 0,0200280 </td>
+   <td style="text-align:right;"> 4 </td>
+  </tr>
+</tbody>
+</table>
+
+
+
+<a name="problema-5-7"></a>
+**Problema 5.7** El paquete `stats` de R contiene los precios de cierre diarios de los cuatro principales índices bursátiles europeos; escriba `help(EuStockMarkets)` para obtener más detalles. Ajuste un modelo $GARCH$ a los rendimientos de una de estas series y discuta sus hallazgos. (Nota: el conjunto de datos contiene valores reales y no retornos. Por lo tanto, los datos deben transformarse antes del ajuste del modelo).
+
+
+```r
+EU_SMI <- EuStockMarkets[, "SMI"] %>% 
+  as_tsibble() %>%
+  mutate(dates = lubridate::date(index), .before = 2) %>%
+  index_by(dates) %>%
+  summarise(
+    smi_difflog = value
+  ) %>%
+  mutate(smi_difflog = difference(log(smi_difflog))) %>%
+  slice(-1) %>%
+  complete(dates = seq(min(dates), max(dates), by = "day")) %>%
+  mutate(smi_difflog=zoo::na.approx(smi_difflog)) %>%
+  as_tsibble()
+```
+
+Para el análisis se seleccionó el indice bursátil correspondiente a Suiza (SMI). Al revisar la serie se nota de inmediato que la serie contiene `NA`, introducidos de forma alternativa cada 2 a 3 días. Estos datos faltantes se imputaron usando interpolación lineal.
+
+<a name="p05-07-01-data"></a>
+
+```r
+cowplot::plot_grid(
+	EuStockMarkets[, "SMI"] %>% 
+    as_tsibble() %>%
+	  autoplot(, colour="dodgerblue3") +
+	    theme_light() +
+	    xlab("") + ylab("Precios de cierre diario") +
+	    ggtitle("Indice bursátil Europeo (Suiza SMI)"),
+	EU_SMI %>%
+	  autoplot(smi_difflog, colour="dodgerblue3") +
+	    theme_light() +
+	    xlab("") + ylab("Retornos") +
+	    ggtitle("Retornos logarítmicos del SMI."),
+	nrow=1)
+```
+
+<div class="figure" style="text-align: center">
+<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-07-01-data-1.png" alt="Indice bursátil de Suiza."  />
+<p class="caption">(\#fig:p05-07-01-data)Indice bursátil de Suiza.</p>
+</div>
+
+El indice bursátil correspondiente a Suiza (SMI), el cual se muestra en la <a href="#p05-07-01-data">figura 22</a>, junto a los retornos calculados a partir de la misma. 
+La serie tiene una tendencia creciente clara que se elimina al calcular los retornos, con caídas importantes durante todo el año 1994, y a la mitad del año 1997. Es en estos momentos es que se observan los _clusters_ de volatilidad más importantes de la serie de retornos. 
+
+La ACF y PACF muestran que los retornos parecen ser generados por un proceso autoregresivo de primer o segundo orden en el componente ARMA, y se observan múltiples correlaciones pequeñas, pero significativas, que pueden resultar de la volatilidad cambiante.  
+La volatilidad se observa a la derecha en la misma figura, la cual se calcula usando una ventana de un mes, y presenta un comportamiento bastante fluctuante, con crestas particularmente grandes durante los años 1994 y 1997.
+
+<a name="acf-pacf"></a>
+
+```r
+monthly_aggregates <- EU_SMI %>%
+  index_by(year_month = ~ yearmonth(.)) %>%
+  summarise(
+  	month_var = var(smi_difflog, na.rm = TRUE),
+    month_mean_return = mean(smi_difflog ** 2, na.rm = TRUE))
+
+cowplot::plot_grid(
+	cowplot::plot_grid(
+		EU_SMI %>%
+		  ACF(smi_difflog, lag_max=100) %>%
+		  autoplot() +
+		    xlab("h") +
+		    ylab("ACF") +
+		    theme_light(),
+		EU_SMI %>%
+		  PACF(smi_difflog, lag_max=100) %>%
+		  autoplot() +
+		    xlab("h") +
+		    ylab("PACF") +
+		    theme_light(),
+		ncol=1), 
+	monthly_aggregates %>%
+	  autoplot(month_var, colour = "dodgerblue4") +
+      theme_light() +
+      ylab("Volatilidad") +
+      xlab(""),
+  nrow=1)
+```
+
+<div class="figure" style="text-align: center">
+<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/acf-pacf-1.png" alt="Funciones de autocorrelación y autocorrelación parcial para los retornos (a la izquierda) y volatilidad mensual de los retornos."  />
+<p class="caption">(\#fig:acf-pacf)Funciones de autocorrelación y autocorrelación parcial para los retornos (a la izquierda) y volatilidad mensual de los retornos.</p>
+</div>
+
+El siguiente fragmento de código muestra los resultados de la prueba Arch por multiplicadores de Lagrange, al descomponer la varianza de la serie e identificar si sus rezagos son significativos:
+
+<a name="var-lags"></a>
+
+```r
+arch_test <- EU_SMI %$%
+  FinTS::ArchTest(smi_difflog, lags = 4, demean = FALSE)
+
+arch_test
+```
+
+```
+## 
+## 	ARCH LM-test; Null hypothesis: no ARCH effects
+## 
+## data:  smi_difflog
+## Chi-squared = 280,47, df = 4, p-value < 0,00000000000000022
+```
+
+de lo que se obtiene que la serie tiene efectos Arch significativos ($p < 0{,}05$), y que existe una correlación importante entre la varianza y los retornos cuadrados. 
+
+Se procede a ajustar modelos GARCH para la volatilidad, con componente $ARCH(1)$ y $ARCH(2)$ solamente, y con volatilidad independiente de sus retrasos, y regresada sobre retrasos $h=1$ y $2$. Además, se prueban estos modelos usando la posibilidad de un modelo ARMA para la media con componente autoregresivo de primer o segundo orden. 
+
+
+```r
+ARMA_mod <- rep(c("ARMA(1, 0)", "ARMA(2, 0)"), each=4)
+GARCH_mod <- rep(c("GARCH(1,0)", "GARCH(1,1)", "GARCH(2,1)", "GARCH(2,2)"), 2)
+arma_pars <- rep(list(fisrt_order=c(1,0), second_order=c(2,0)), each=4)
+garch_mod_pars <- rep(list(c(1, 0), c(1, 1), c(2, 1), c(2, 2)), 2)
+
+garch_fitting <- tibble(
+	ARMA_mod, GARCH_mod,
+	arma_mod=arma_pars,
+  garch_mod=garch_mod_pars) %>%
+  mutate(
+  	garch_mods_spec=map2(
+	    arma_mod, garch_mod,
+      ~ugarchspec(
+   	    mean.model = list(
+   		    armaOrder=.x, 
+   		    include.mean = FALSE),
+        variance.model=list(model = "sGARCH", garchOrder=.y),
+        distribution.model = "norm")
+    ),
+    garch_mods_fit=map(garch_mods_spec,
+      ~ugarchfit(., EU_SMI)),
+    convergence=map_dbl(garch_mods_fit, convergence)
+  ) %>%
+  filter(convergence == 0)
+```
+
+En total, se ajustan 8 modelos, de los cuales solo el modelo $GARCH(1,0)$ con componente $ARMA(1,0)$ para la media, fallo en converger. 
+En la tabla <a href="#criteria-inf">tabla 8</a> se muestran los resultados de los criterios de información para el resto de los modelos ajustados, donde se observa que los mejores modelos, de acuerdo al AIC, son los $GARCH(2,2)$, tanto para el componente $ARMA(1,0)$ como para $ARMA(2,0)$; seguido de los modelos con componente $ARMA(2,0)$ y componente $GARCH(1, 1)$ y $GARCH(2, 1)$. 
+La misma tendencia se sigue del resto de los criterios de información mostrados en la tabla. 
+
+<a name="criteria-inf"></a>
+
+```r
+garch_fitting %>%
+  mutate(glanced=map(garch_mods_fit, infocriteria), .after=2) %>% 
+  unnest(glanced) %>% 
+  mutate(criteria=rep(c("AIC", "BIC", "Shibata", "Hannan-Quinn"), 7), .after=2) %>%
+  select(1:4) %>%
+  spread(key="criteria", value=4) %>%
+  arrange(AIC) %>%
+  slice(1:5) %>%
+  kbl(digits = 3,
+    caption="Criterios de información para 5 de los modelos GARCH ajustados.")
+```
+
+<table>
+<caption>(\#tab:criteria-inf)Criterios de información para 5 de los modelos GARCH ajustados.</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> ARMA_mod </th>
+   <th style="text-align:left;"> GARCH_mod </th>
+   <th style="text-align:right;"> AIC </th>
+   <th style="text-align:right;"> BIC </th>
+   <th style="text-align:right;"> Hannan-Quinn </th>
+   <th style="text-align:right;"> Shibata </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> ARMA(2, 0) </td>
+   <td style="text-align:left;"> GARCH(2,2) </td>
+   <td style="text-align:right;"> -7,026 </td>
+   <td style="text-align:right;"> -7,010 </td>
+   <td style="text-align:right;"> -7,020 </td>
+   <td style="text-align:right;"> -7,026 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ARMA(1, 0) </td>
+   <td style="text-align:left;"> GARCH(2,2) </td>
+   <td style="text-align:right;"> -7,011 </td>
+   <td style="text-align:right;"> -6,998 </td>
+   <td style="text-align:right;"> -7,006 </td>
+   <td style="text-align:right;"> -7,011 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ARMA(2, 0) </td>
+   <td style="text-align:left;"> GARCH(1,1) </td>
+   <td style="text-align:right;"> -6,999 </td>
+   <td style="text-align:right;"> -6,988 </td>
+   <td style="text-align:right;"> -6,995 </td>
+   <td style="text-align:right;"> -6,999 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ARMA(2, 0) </td>
+   <td style="text-align:left;"> GARCH(2,1) </td>
+   <td style="text-align:right;"> -6,998 </td>
+   <td style="text-align:right;"> -6,985 </td>
+   <td style="text-align:right;"> -6,993 </td>
+   <td style="text-align:right;"> -6,998 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ARMA(1, 0) </td>
+   <td style="text-align:left;"> GARCH(1,1) </td>
+   <td style="text-align:right;"> -6,988 </td>
+   <td style="text-align:right;"> -6,979 </td>
+   <td style="text-align:right;"> -6,985 </td>
+   <td style="text-align:right;"> -6,988 </td>
+  </tr>
+</tbody>
+</table>
+
+Sin embargo, al verificar los coeficientes de los modelos $GARCH(2,2)$ y $GARCH(2,1)$, se obtiene que los coeficientes $\\alpha_2$ no son significativos (resultado no mostrado). 
+Es por ello que se escoge el modelo $GARCH(1,1)$ con componente $ARMA(2,0)$, dados los criterios de información mostrados antes. 
+Los coeficientes de este modelo se muestran a continuación.
+
+<a name="coef-est"></a>
+
+```r
+garch_fitting %>%
+  mutate(tidied=map(garch_mods_fit, 
+    \(x) {
+    x@fit$matcoef %>%
+      as_tibble()
+  }), .after=2) %>% 
+  unnest(tidied) %>%
+  filter(ARMA_mod == "ARMA(2, 0)" & GARCH_mod == "GARCH(1,1)") %>%
+  mutate(
+  	criteria=c("$\\phi_1$", "$\\phi_2$", "$\\alpha_0$", "$\\alpha_1$", "$\\beta$"),
+  	.after=2) %>%
+  select(criteria:`Pr(>|t|)`) %>%
+  kbl(digits = c(NA, 6, 7, 2, 4),
+  	escape=FALSE,
+  	col.names=c("Coef.", "Estimado", "Desv. Estand.", "$t$", "$p$"),
+    caption="Coeficientes estimados para el modelo ARMA(2,0) con GARCH(1,1).")
+```
+
+<table>
+<caption>(\#tab:coef-est)Coeficientes estimados para el modelo ARMA(2,0) con GARCH(1,1).</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Coef. </th>
+   <th style="text-align:right;"> Estimado </th>
+   <th style="text-align:right;"> Desv. Estand. </th>
+   <th style="text-align:right;"> $t$ </th>
+   <th style="text-align:right;"> $p$ </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> $\phi_1$ </td>
+   <td style="text-align:right;"> 0,442653 </td>
+   <td style="text-align:right;"> 0,0211138 </td>
+   <td style="text-align:right;"> 20,97 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> $\phi_2$ </td>
+   <td style="text-align:right;"> -0,114352 </td>
+   <td style="text-align:right;"> 0,0211563 </td>
+   <td style="text-align:right;"> -5,41 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> $\alpha_0$ </td>
+   <td style="text-align:right;"> 0,000007 </td>
+   <td style="text-align:right;"> 0,0000002 </td>
+   <td style="text-align:right;"> 27,57 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> $\alpha_1$ </td>
+   <td style="text-align:right;"> 0,174565 </td>
+   <td style="text-align:right;"> 0,0138680 </td>
+   <td style="text-align:right;"> 12,59 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> $\beta$ </td>
+   <td style="text-align:right;"> 0,721929 </td>
+   <td style="text-align:right;"> 0,0141531 </td>
+   <td style="text-align:right;"> 51,01 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+</tbody>
+</table>
+
+El modelo final escogido se escribe entonces:
+
+$$
+\begin{aligned}
+  r_t &= \phi_1 r_{t-1} + \phi_2 r_{t-2} + \sigma_t\epsilon_t \\
+  \sigma_t &= \alpha_0 + \alpha_1 r_{t-1} + \beta \sigma_{t-1}
+\end{aligned}
+$$
+
+donde $\epsilon_t \sim N(0, 1)$. 
+Los residuales, tal como se observan en la <a href="#residuals">figura 15</a>, <a href="#residuals">figura 25</a>, donde se observa que ya no hay correlaciones importantes en las ACF y PACF, pero los residuales no se distribuyen normalmente, sino que parecen seguir una $t$-Student simétrica. 
+
+<a name="residuals"></a>
+
+```r
+residuals_garch <- garch_fitting %>%
+  filter(ARMA_mod == "ARMA(2, 0)" & GARCH_mod == "GARCH(1,1)") %$%
+  residuals(garch_mods_fit[[1]]) %>%
+  zoo::fortify.zoo() %>%
+  as_tsibble()
+
+cowplot::plot_grid(
+  autoplot(residuals_garch, ., colour="orange") +
+    theme_light() + xlab("") + ylab("Innovaciones"),
+  residuals_garch %>% 
+    ggplot(aes(sample = .)) + 
+    stat_qq() + stat_qq_line(color="dodgerblue") + 
+    theme_light(),
+  cowplot::plot_grid(
+    ACF(residuals_garch, ., lag_max=50) %>%
+      autoplot() + theme_light() +
+      xlab("lag") + ylab("ACF"),
+    PACF(residuals_garch, ., lag_max=50) %>%
+      autoplot() + theme_light() +
+      xlab("lag") + ylab("PACF"),
+    nrow=2
+  ),
+  nrow=1
+)
+```
+
+<div class="figure" style="text-align: center">
+<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/residuals-1.png" alt="Gráficos diagnósticos de residuales."  />
+<p class="caption">(\#fig:residuals)Gráficos diagnósticos de residuales.</p>
+</div>
+
+Al realizar un ultimo ajuste del modelo $GARCH(1,1)$ con modelo para la media $ARMA(2,0)$, y usando como modelo de distribución una $t$-Student, se obtienen criterios de información menores que los encontrados para los modelos anteriores, indicando una preferencia por el nuevo modelo. 
+Los coeficientes estimados se muestran en la siguiente tabla:
+
+
+```r
+final_spec <- ugarchspec(
+  mean.model = list(
+    armaOrder=c(2, 0), 
+   	include.mean = FALSE),
+  variance.model=list(
+  	model = "sGARCH",
+  	garchOrder=c(1,1)),
+  distribution.model = "std")
+
+final_fit <- ugarchfit(final_spec, EU_SMI)
+final_coefs <- final_fit@fit$matcoef
+
+final_coefs %>%
+  as_tibble() %>%
+  mutate(Coef=c("$\\phi_1$", "$\\phi_2$", "$\\alpha_0$", "$\\alpha_1$", "$\\beta$", "shape"), .before=1) %>%
+  kbl(digits = c(NA, 5, 6, 2, 4),
+  	escape=FALSE,
+  	col.names=c("Coef.", "Estimado", "Desv. Estand.", "$t$", "$p$"),
+    caption="Coeficientes estimados para el modelo ARMA(2,0) con GARCH(1,1)."
+  )
+```
+
+<table>
+<caption>(\#tab:unnamed-chunk-8)Coeficientes estimados para el modelo ARMA(2,0) con GARCH(1,1).</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Coef. </th>
+   <th style="text-align:right;"> Estimado </th>
+   <th style="text-align:right;"> Desv. Estand. </th>
+   <th style="text-align:right;"> $t$ </th>
+   <th style="text-align:right;"> $p$ </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> $\phi_1$ </td>
+   <td style="text-align:right;"> 0,53257 </td>
+   <td style="text-align:right;"> 0,022174 </td>
+   <td style="text-align:right;"> 24,02 </td>
+   <td style="text-align:right;"> 0,0000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> $\phi_2$ </td>
+   <td style="text-align:right;"> -0,11589 </td>
+   <td style="text-align:right;"> 0,016532 </td>
+   <td style="text-align:right;"> -7,01 </td>
+   <td style="text-align:right;"> 0,0000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> $\alpha_0$ </td>
+   <td style="text-align:right;"> 0,00003 </td>
+   <td style="text-align:right;"> 0,000002 </td>
+   <td style="text-align:right;"> 14,02 </td>
+   <td style="text-align:right;"> 0,0000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> $\alpha_1$ </td>
+   <td style="text-align:right;"> 0,67608 </td>
+   <td style="text-align:right;"> 0,080122 </td>
+   <td style="text-align:right;"> 8,44 </td>
+   <td style="text-align:right;"> 0,0000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> $\beta$ </td>
+   <td style="text-align:right;"> 0,01382 </td>
+   <td style="text-align:right;"> 0,017169 </td>
+   <td style="text-align:right;"> 0,80 </td>
+   <td style="text-align:right;"> 0,4209 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> shape </td>
+   <td style="text-align:right;"> 4,97331 </td>
+   <td style="text-align:right;"> 0,483095 </td>
+   <td style="text-align:right;"> 10,29 </td>
+   <td style="text-align:right;"> 0,0000 </td>
+  </tr>
+</tbody>
+</table>
+
+De los valores de probabilidad se tiene que en este caso, el modelo no necesita de términos retrasados de la volatilidad, dado que $\\beta$ no es significativamente distinto de cero, por lo que el modelo se puede escribir como uno con solo componente $Arch(1)$:
+
+$$
+\begin{aligned}
+  r_t &= 0,533{}_{(0,022)} r_{t-1} + -0,116{}_{(0,017)} r_{t-2} + \sigma_t\epsilon_t \\
+  \sigma_t &= {0,00003}_{(0,000002)} + {0,676}_{(0,08)} r_{t-1}
+\end{aligned}
+$$
+
+con $\epsilon \sim t(\sim 5)$. 
+El gráfico de los retornos versus la volatilidad muestra que el modelo es capaz de toma en cuenta las desviaciones en la serie; y el gráfico _QQ_ muestra que al usar como modelo teórico la distribución $t(5)$, las observaciones se ajustan muy bien a la recta.
+
+
+```r
+residuals_garch <- residuals(final_fit) %>%
+  zoo::fortify.zoo() %>%
+  as_tsibble()
+
+cowplot::plot_grid(
+  EU_SMI %>%
+    mutate(abs_returns = abs(smi_difflog)) %>%
+    autoplot(abs_returns, colour="200", alpha = .6) +
+    autolayer(sigma(final_fit) %>%
+      zoo::fortify.zoo() %>%
+      as_tsibble(), ., colour="dodgerblue", linewidth = .5) +
+    theme_light() +
+    ylab("Volatilidad") + xlab(""),
+  residuals_garch %>% 
+    ggplot(aes(sample = .)) + 
+    stat_qq(distribution=stats::qt,
+    	dparams=list(df=4.97)) + 
+    stat_qq_line(distribution=stats::qt,
+    	dparams=list(df=4.97),
+    	color="dodgerblue") + 
+    theme_light(),
+    nrow=1
+)
+```
+
+<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/volatility-plot-1.png" style="display: block; margin: auto;" />
 
 <!---
 [19/4 7:15 p. m.] Marcano: https://rpubs.com/jrodriguezmam/series_temporales
