@@ -72,7 +72,7 @@ list(
 <a name="problema-5-7"></a>
 **Problema 5.7** El paquete `stats` de R contiene los precios de cierre diarios de los cuatro principales índices bursátiles europeos; escriba `help(EuStockMarkets)` para obtener más detalles. Ajuste un modelo $GARCH$ a los rendimientos de una de estas series y discuta sus hallazgos. (Nota: el conjunto de datos contiene valores reales y no retornos. Por lo tanto, los datos deben transformarse antes del ajuste del modelo).
 
-```{r}
+```{r p05-07-01-cleansing}
 EU_SMI <- EuStockMarkets[, "SMI"] %>% 
   as_tsibble() %>%
   mutate(dates = lubridate::date(index), .before = 2) %>%
@@ -89,7 +89,7 @@ EU_SMI <- EuStockMarkets[, "SMI"] %>%
 
 Para el análisis se seleccionó el indice bursátil correspondiente a Suiza (SMI). Al revisar la serie se nota de inmediato que la serie contiene `NA`, introducidos de forma alternativa cada 2 a 3 días. Estos datos faltantes se imputaron usando interpolación lineal.
 
-```{r p05-07-01-data, anchor="figura", fig.cap="Indice bursátil de Suiza.", fig.height=5, fig.width=12}
+```{r p05-07-02-data, anchor="figura", fig.cap="Indice bursátil de Suiza.", fig.height=5, fig.width=12}
 cowplot::plot_grid(
 	EuStockMarkets[, "SMI"] %>% 
     as_tsibble() %>%
@@ -105,13 +105,13 @@ cowplot::plot_grid(
 	nrow=1)
 ```
 
-El indice bursátil correspondiente a Suiza (SMI), el cual se muestra en la `r figr("p05-07-01-data", TRUE, type = "figura")`, junto a los retornos calculados a partir de la misma. 
+El indice bursátil correspondiente a Suiza (SMI), el cual se muestra en la `r figr("p05-07-02-data", TRUE, type = "figura")`, junto a los retornos calculados a partir de la misma. 
 La serie tiene una tendencia creciente clara que se elimina al calcular los retornos, con caídas importantes durante todo el año 1994, y a la mitad del año 1997. Es en estos momentos es que se observan los _clusters_ de volatilidad más importantes de la serie de retornos. 
 
 La ACF y PACF muestran que los retornos parecen ser generados por un proceso autoregresivo de primer o segundo orden en el componente ARMA, y se observan múltiples correlaciones pequeñas, pero significativas, que pueden resultar de la volatilidad cambiante.  
 La volatilidad se observa a la derecha en la misma figura, la cual se calcula usando una ventana de un mes, y presenta un comportamiento bastante fluctuante, con crestas particularmente grandes durante los años 1994 y 1997.
 
-```{r acf-pacf, anchor="figura", fig.cap="Funciones de autocorrelación y autocorrelación parcial para los retornos (a la izquierda) y volatilidad mensual de los retornos.", fig.height=7, fig.width=10}
+```{r p05-07-03-acf-pacf, anchor="figura", fig.cap="Funciones de autocorrelación y autocorrelación parcial para los retornos (a la izquierda) y volatilidad mensual de los retornos.", fig.height=7, fig.width=10}
 monthly_aggregates <- EU_SMI %>%
   index_by(year_month = ~ yearmonth(.)) %>%
   summarise(
@@ -143,7 +143,7 @@ cowplot::plot_grid(
 
 El siguiente fragmento de código muestra los resultados de la prueba Arch por multiplicadores de Lagrange, al descomponer la varianza de la serie e identificar si sus rezagos son significativos:
 
-```{r var-lags, anchor="figura", fig.cap="Gráficos de dispersión de la varianza mensual de las innovaciones con respecto a retrasos de la misma."}
+```{r p05-07-04-var-lags, anchor="figura", fig.cap="Gráficos de dispersión de la varianza mensual de las innovaciones con respecto a retrasos de la misma."}
 arch_test <- EU_SMI %$%
   FinTS::ArchTest(smi_difflog, lags = 4, demean = FALSE)
 
@@ -154,7 +154,7 @@ de lo que se obtiene que la serie tiene efectos Arch significativos ($p < 0{,}05
 
 Se procede a ajustar modelos GARCH para la volatilidad, con componente $ARCH(1)$ y $ARCH(2)$ solamente, y con volatilidad independiente de sus retrasos, y regresada sobre retrasos $h=1$ y $2$. Además, se prueban estos modelos usando la posibilidad de un modelo ARMA para la media con componente autoregresivo de primer o segundo orden. 
 
-```{r models-fitting}
+```{r p05-07-05-models-fitting}
 ARMA_mod <- rep(c("ARMA(1, 0)", "ARMA(2, 0)"), each=4)
 GARCH_mod <- rep(c("GARCH(1,0)", "GARCH(1,1)", "GARCH(2,1)", "GARCH(2,2)"), 2)
 arma_pars <- rep(list(fisrt_order=c(1,0), second_order=c(2,0)), each=4)
@@ -182,10 +182,10 @@ garch_fitting <- tibble(
 ```
 
 En total, se ajustan 8 modelos, de los cuales solo el modelo $GARCH(1,0)$ con componente $ARMA(1,0)$ para la media, fallo en converger. 
-En la tabla `r figr("criteria-inf", TRUE, type = "tabla")` se muestran los resultados de los criterios de información para el resto de los modelos ajustados, donde se observa que los mejores modelos, de acuerdo al AIC, son los $GARCH(2,2)$, tanto para el componente $ARMA(1,0)$ como para $ARMA(2,0)$; seguido de los modelos con componente $ARMA(2,0)$ y componente $GARCH(1, 1)$ y $GARCH(2, 1)$. 
+En la tabla `r figr("p05-07-06-criteria-inf", TRUE, type = "tabla")` se muestran los resultados de los criterios de información para el resto de los modelos ajustados, donde se observa que los mejores modelos, de acuerdo al AIC, son los $GARCH(2,2)$, tanto para el componente $ARMA(1,0)$ como para $ARMA(2,0)$; seguido de los modelos con componente $ARMA(2,0)$ y componente $GARCH(1, 1)$ y $GARCH(2, 1)$. 
 La misma tendencia se sigue del resto de los criterios de información mostrados en la tabla. 
 
-```{r criteria-inf, anchor="tabla"}
+```{r p05-07-06-criteria-inf, anchor="tabla"}
 garch_fitting %>%
   mutate(glanced=map(garch_mods_fit, infocriteria), .after=2) %>% 
   unnest(glanced) %>% 
@@ -202,7 +202,7 @@ Sin embargo, al verificar los coeficientes de los modelos $GARCH(2,2)$ y $GARCH(
 Es por ello que se escoge el modelo $GARCH(1,1)$ con componente $ARMA(2,0)$, dados los criterios de información mostrados antes. 
 Los coeficientes de este modelo se muestran a continuación.
 
-```{r coef-est, anchor="tabla"}
+```{r p05-07-07-coef-est, anchor="tabla"}
 garch_fitting %>%
   mutate(tidied=map(garch_mods_fit, 
     \(x) {
@@ -231,9 +231,9 @@ $$
 $$
 
 donde $\epsilon_t \sim N(0, 1)$. 
-Los residuales, tal como se observan en la `r figr("residuals", TRUE, type = "figura")`, donde se observa que ya no hay correlaciones importantes en las ACF y PACF, pero los residuales no se distribuyen normalmente, sino que parecen seguir una $t$-Student simétrica. 
+Los residuales, tal como se observan en la `r figr("p05-07-08-residuals", TRUE, type = "figura")`, donde se observa que ya no hay correlaciones importantes en las ACF y PACF, pero los residuales no se distribuyen normalmente, sino que parecen seguir una $t$-Student simétrica. 
 
-```{r residuals, anchor="figura", fig.cap="Gráficos diagnósticos de residuales."}
+```{r p05-07-08-residuals, anchor="figura", fig.cap="Gráficos diagnósticos de residuales."}
 residuals_garch <- garch_fitting %>%
   filter(ARMA_mod == "ARMA(2, 0)" & GARCH_mod == "GARCH(1,1)") %$%
   residuals(garch_mods_fit[[1]]) %>%
@@ -263,7 +263,7 @@ cowplot::plot_grid(
 Al realizar un ultimo ajuste del modelo $GARCH(1,1)$ con modelo para la media $ARMA(2,0)$, y usando como modelo de distribución una $t$-Student, se obtienen criterios de información menores que los encontrados para los modelos anteriores, indicando una preferencia por el nuevo modelo. 
 Los coeficientes estimados se muestran en la siguiente tabla:
 
-```{r}
+```{r p05-07-09-final-fit}
 final_spec <- ugarchspec(
   mean.model = list(
     armaOrder=c(2, 0), 
@@ -290,15 +290,15 @@ De los valores de probabilidad se tiene que en este caso, el modelo no necesita 
 
 $$
 \begin{aligned}
-  r_t &= `r round(final_coefs[1,1], 3)`{}_{(`r round(final_coefs[1,2], 3)`)} r_{t-1} + `r round(final_coefs[2,1], 3)`{}_{(`r round(final_coefs[2,2], 3)`)} r_{t-2} + \sigma_t\epsilon_t \\
-  \sigma_t &= {`r round(final_coefs[3,1], 5)`}_{(`r round(final_coefs[3,2], 6)`)} + {`r round(final_coefs[4,1], 3)`}_{(`r round(final_coefs[4,2], 3)`)} r_{t-1}
+  r_t &= `r round(final_coefs[1,1], 3)`_{(`r round(final_coefs[1,2], 3)`)} r_{t-1} + `r round(final_coefs[2,1], 3)`_{(`r round(final_coefs[2,2], 3)`)} r_{t-2} + \sigma_t\epsilon_t \\
+  \sigma_t &= `r round(final_coefs[3,1], 5)`_{(`r round(final_coefs[3,2], 6)`)} + `r round(final_coefs[4,1], 3)`_{(`r round(final_coefs[4,2], 3)`)} r_{t-1}
 \end{aligned}
 $$
 
 con $\epsilon \sim t(\sim 5)$. 
 El gráfico de los retornos versus la volatilidad muestra que el modelo es capaz de toma en cuenta las desviaciones en la serie; y el gráfico _QQ_ muestra que al usar como modelo teórico la distribución $t(5)$, las observaciones se ajustan muy bien a la recta.
 
-```{r volatility-plot}
+```{r p05-07-10-volatility-plot}
 residuals_garch <- residuals(final_fit) %>%
   zoo::fortify.zoo() %>%
   as_tsibble()

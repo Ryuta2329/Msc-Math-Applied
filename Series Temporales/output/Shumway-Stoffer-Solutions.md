@@ -2055,7 +2055,7 @@ EU_SMI <- EuStockMarkets[, "SMI"] %>%
 
 Para el análisis se seleccionó el indice bursátil correspondiente a Suiza (SMI). Al revisar la serie se nota de inmediato que la serie contiene `NA`, introducidos de forma alternativa cada 2 a 3 días. Estos datos faltantes se imputaron usando interpolación lineal.
 
-<a name="p05-07-01-data"></a>
+<a name="p05-07-02-data"></a>
 
 ```r
 cowplot::plot_grid(
@@ -2074,17 +2074,17 @@ cowplot::plot_grid(
 ```
 
 <div class="figure" style="text-align: center">
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-07-01-data-1.png" alt="Indice bursátil de Suiza."  />
-<p class="caption">(\#fig:p05-07-01-data)Indice bursátil de Suiza.</p>
+<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-07-02-data-1.png" alt="Indice bursátil de Suiza."  />
+<p class="caption">(\#fig:p05-07-02-data)Indice bursátil de Suiza.</p>
 </div>
 
-El indice bursátil correspondiente a Suiza (SMI), el cual se muestra en la <a href="#p05-07-01-data">figura 22</a>, junto a los retornos calculados a partir de la misma. 
+El indice bursátil correspondiente a Suiza (SMI), el cual se muestra en la <a href="#p05-07-02-data">figura 22</a>, junto a los retornos calculados a partir de la misma. 
 La serie tiene una tendencia creciente clara que se elimina al calcular los retornos, con caídas importantes durante todo el año 1994, y a la mitad del año 1997. Es en estos momentos es que se observan los _clusters_ de volatilidad más importantes de la serie de retornos. 
 
 La ACF y PACF muestran que los retornos parecen ser generados por un proceso autoregresivo de primer o segundo orden en el componente ARMA, y se observan múltiples correlaciones pequeñas, pero significativas, que pueden resultar de la volatilidad cambiante.  
 La volatilidad se observa a la derecha en la misma figura, la cual se calcula usando una ventana de un mes, y presenta un comportamiento bastante fluctuante, con crestas particularmente grandes durante los años 1994 y 1997.
 
-<a name="acf-pacf"></a>
+<a name="p05-07-03-acf-pacf"></a>
 
 ```r
 monthly_aggregates <- EU_SMI %>%
@@ -2117,13 +2117,13 @@ cowplot::plot_grid(
 ```
 
 <div class="figure" style="text-align: center">
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/acf-pacf-1.png" alt="Funciones de autocorrelación y autocorrelación parcial para los retornos (a la izquierda) y volatilidad mensual de los retornos."  />
-<p class="caption">(\#fig:acf-pacf)Funciones de autocorrelación y autocorrelación parcial para los retornos (a la izquierda) y volatilidad mensual de los retornos.</p>
+<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-07-03-acf-pacf-1.png" alt="Funciones de autocorrelación y autocorrelación parcial para los retornos (a la izquierda) y volatilidad mensual de los retornos."  />
+<p class="caption">(\#fig:p05-07-03-acf-pacf)Funciones de autocorrelación y autocorrelación parcial para los retornos (a la izquierda) y volatilidad mensual de los retornos.</p>
 </div>
 
 El siguiente fragmento de código muestra los resultados de la prueba Arch por multiplicadores de Lagrange, al descomponer la varianza de la serie e identificar si sus rezagos son significativos:
 
-<a name="var-lags"></a>
+<a name="p05-07-04-var-lags"></a>
 
 ```r
 arch_test <- EU_SMI %$%
@@ -2173,10 +2173,10 @@ garch_fitting <- tibble(
 ```
 
 En total, se ajustan 8 modelos, de los cuales solo el modelo $GARCH(1,0)$ con componente $ARMA(1,0)$ para la media, fallo en converger. 
-En la tabla <a href="#criteria-inf">tabla 8</a> se muestran los resultados de los criterios de información para el resto de los modelos ajustados, donde se observa que los mejores modelos, de acuerdo al AIC, son los $GARCH(2,2)$, tanto para el componente $ARMA(1,0)$ como para $ARMA(2,0)$; seguido de los modelos con componente $ARMA(2,0)$ y componente $GARCH(1, 1)$ y $GARCH(2, 1)$. 
+En la tabla <a href="#p05-07-06-criteria-inf">tabla 8</a> se muestran los resultados de los criterios de información para el resto de los modelos ajustados, donde se observa que los mejores modelos, de acuerdo al AIC, son los $GARCH(2,2)$, tanto para el componente $ARMA(1,0)$ como para $ARMA(2,0)$; seguido de los modelos con componente $ARMA(2,0)$ y componente $GARCH(1, 1)$ y $GARCH(2, 1)$. 
 La misma tendencia se sigue del resto de los criterios de información mostrados en la tabla. 
 
-<a name="criteria-inf"></a>
+<a name="p05-07-06-criteria-inf"></a>
 
 ```r
 garch_fitting %>%
@@ -2192,7 +2192,7 @@ garch_fitting %>%
 ```
 
 <table>
-<caption>(\#tab:criteria-inf)Criterios de información para 5 de los modelos GARCH ajustados.</caption>
+<caption>(\#tab:p05-07-06-criteria-inf)Criterios de información para 5 de los modelos GARCH ajustados.</caption>
  <thead>
   <tr>
    <th style="text-align:left;"> ARMA_mod </th>
@@ -2251,7 +2251,7 @@ Sin embargo, al verificar los coeficientes de los modelos $GARCH(2,2)$ y $GARCH(
 Es por ello que se escoge el modelo $GARCH(1,1)$ con componente $ARMA(2,0)$, dados los criterios de información mostrados antes. 
 Los coeficientes de este modelo se muestran a continuación.
 
-<a name="coef-est"></a>
+<a name="p05-07-07-coef-est"></a>
 
 ```r
 garch_fitting %>%
@@ -2273,7 +2273,7 @@ garch_fitting %>%
 ```
 
 <table>
-<caption>(\#tab:coef-est)Coeficientes estimados para el modelo ARMA(2,0) con GARCH(1,1).</caption>
+<caption>(\#tab:p05-07-07-coef-est)Coeficientes estimados para el modelo ARMA(2,0) con GARCH(1,1).</caption>
  <thead>
   <tr>
    <th style="text-align:left;"> Coef. </th>
@@ -2332,9 +2332,9 @@ $$
 $$
 
 donde $\epsilon_t \sim N(0, 1)$. 
-Los residuales, tal como se observan en la <a href="#residuals">figura 15</a>, <a href="#residuals">figura 25</a>, donde se observa que ya no hay correlaciones importantes en las ACF y PACF, pero los residuales no se distribuyen normalmente, sino que parecen seguir una $t$-Student simétrica. 
+Los residuales, tal como se observan en la <a href="#p05-07-08-residuals">figura 25</a>, donde se observa que ya no hay correlaciones importantes en las ACF y PACF, pero los residuales no se distribuyen normalmente, sino que parecen seguir una $t$-Student simétrica. 
 
-<a name="residuals"></a>
+<a name="p05-07-08-residuals"></a>
 
 ```r
 residuals_garch <- garch_fitting %>%
@@ -2364,8 +2364,8 @@ cowplot::plot_grid(
 ```
 
 <div class="figure" style="text-align: center">
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/residuals-1.png" alt="Gráficos diagnósticos de residuales."  />
-<p class="caption">(\#fig:residuals)Gráficos diagnósticos de residuales.</p>
+<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-07-08-residuals-1.png" alt="Gráficos diagnósticos de residuales."  />
+<p class="caption">(\#fig:p05-07-08-residuals)Gráficos diagnósticos de residuales.</p>
 </div>
 
 Al realizar un ultimo ajuste del modelo $GARCH(1,1)$ con modelo para la media $ARMA(2,0)$, y usando como modelo de distribución una $t$-Student, se obtienen criterios de información menores que los encontrados para los modelos anteriores, indicando una preferencia por el nuevo modelo. 
@@ -2396,7 +2396,7 @@ final_coefs %>%
 ```
 
 <table>
-<caption>(\#tab:unnamed-chunk-8)Coeficientes estimados para el modelo ARMA(2,0) con GARCH(1,1).</caption>
+<caption>(\#tab:p05-07-09-final-fit)Coeficientes estimados para el modelo ARMA(2,0) con GARCH(1,1).</caption>
  <thead>
   <tr>
    <th style="text-align:left;"> Coef. </th>
@@ -2456,8 +2456,8 @@ De los valores de probabilidad se tiene que en este caso, el modelo no necesita 
 
 $$
 \begin{aligned}
-  r_t &= 0,533{}_{(0,022)} r_{t-1} + -0,116{}_{(0,017)} r_{t-2} + \sigma_t\epsilon_t \\
-  \sigma_t &= {0,00003}_{(0,000002)} + {0,676}_{(0,08)} r_{t-1}
+  r_t &= 0,533_{(0,022)} r_{t-1} + -0,116_{(0,017)} r_{t-2} + \sigma_t\epsilon_t \\
+  \sigma_t &= 0,00003_{(0,000002)} + 0,676_{(0,08)} r_{t-1}
 \end{aligned}
 $$
 
@@ -2491,7 +2491,7 @@ cowplot::plot_grid(
 )
 ```
 
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/volatility-plot-1.png" style="display: block; margin: auto;" />
+<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-07-10-volatility-plot-1.png" style="display: block; margin: auto;" />
 
 <!---
 [19/4 7:15 p. m.] Marcano: https://rpubs.com/jrodriguezmam/series_temporales
