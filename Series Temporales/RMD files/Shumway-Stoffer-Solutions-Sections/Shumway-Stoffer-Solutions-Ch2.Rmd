@@ -311,6 +311,7 @@ donde $E_1$ denota expectativa con respecto a la densidad determinada por $\thet
 
 $$I(\theta_1;\theta_2) = \frac{1}{2}\left(\frac{\sigma^2_1}{\sigma^2_2} - log\frac{\sigma^2_1}{\sigma^2_2} - 1\right) + \frac{1}{2}\frac{(\beta_1 - \beta_2)^\prime Z^\prime Z(\beta_1 - \beta_2)}{n\sigma_2^2}$$
 
+<!---
 La función de densidad gaussiana es:
 
 $$f(x; \theta) = \frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{1}{2}\frac{\beta^\prime Z^\prime Z\beta}{\sigma^2}}$$
@@ -325,7 +326,7 @@ $$
 		&= n^{-1}
 \end{aligned}
 $$
-
+--->
 
 **Problema 2.5 Selección del modelo.** Ambos criterios de selección (2.15) y (2.16) se derivan de argumentos teóricos de la información, basados en los bien conocidos números de discriminación de información de Kullback-Leibler. Consideramos que la medida dada por la ecuación obtenida en el problema anterior mide la discrepancia entre las dos densidades, caracterizada por los valores de los parámetros $\theta_1^\prime = (\beta_1^\prime, \sigma_1^2)^\prime$ y $\theta_2^\prime = (\beta_2^\prime, \sigma_2^2)^\prime$. Ahora, si el verdadero valor del vector de parámetros es $\theta_1$, argumentamos que el mejor modelo sería uno que minimice la discrepancia entre el valor teórico y la muestra, digamos $I(\theta_1; \hat{\theta})$. Debido a que no se conocerá $\theta_1$, Hurvich y Tsai consideraron encontrar un estimador insesgado para $E_1[I(\beta_1, \sigma_1^2; \hat{β},\hat{σ}^2)]$, donde
 
@@ -409,9 +410,9 @@ $$
 $$
 
 donde la ultima igualdad se obtiene del resultado en el ejercicio anterior. Luego, la serie es débilmente estacionaria.  
-La serie es también estrictamente estacionaria, dado que $Pr\{x_t - x_{t-1} \le c\} = Pr\{y_t - y_{t-1} + w_t \le c - \delta\}$, y si $y_t$ y $w_t$ son estacionarios, entonces $Pr\{y_t - y_{t-1} + w_t \le c - \delta\} = Pr\{y_{t+h} - y_{t+h-1} + w_{t+h} \le c - \delta\}$. Luego, 
+La serie es también estrictamente estacionaria, dado que $Pr\left[x_t - x_{t-1} \le c\right] = Pr\left[y_t - y_{t-1} + w_t \le c - \delta\right]$, y si $y_t$ y $w_t$ son estacionarios, entonces $Pr\left[y_t - y_{t-1} + w_t \le c - \delta\right] = Pr\left[y_{t+h} - y_{t+h-1} + w_{t+h} \le c - \delta\right]$. Luego, 
 
-$$Pr\{x_t - x_{t-1} \le c\} = Pr\{y_{t+h} - y_{t+h-1} + w_{t+h} \le c - \delta\}$$ 
+$$Pr\left[x_t - x_{t-1} \le c\right] = Pr\left[y_{t+h} - y_{t+h-1} + w_{t+h} \le c - \delta\right]$$ 
 
 y $x_t-x_{t-1}$ es estrictamente estacionaria.
 
@@ -519,7 +520,7 @@ tidy(mod) %>%
 
 El modelo ajustado es:
 
-$$SOI = `r tidy(mod)[1, "estimate"]`{}_{`r tidy(mod)[1, "std.error"]`}  `r tidy(mod)[2, "estimate"]`{}_{`r tidy(mod)[2, "std.error"]`} t$$
+$$SOI = `r tidy(mod)[1, "estimate"]`_{`r tidy(mod)[1, "std.error"]`}  `r tidy(mod)[2, "estimate"]`_{`r tidy(mod)[2, "std.error"]`} t$$
 
 Los valores encontrado para los coeficientes de regresión son significativos según os resultados obtenidos, indicando que hay una caída del $SOI$ con respecto al tiempo. Al eliminar el componente con tendencia y realizar el análisis espectral de los residuales (que representan a la serie $SOI$ sin el componente con tendencia), se obtiene el peridiograma mostrado en la `r figr("p02-09-02-peridiogram", TRUE, type="figura")` (que solo muestra una sección del peridiograma donde se encuentran las frecuencias relevantes).
 
@@ -629,8 +630,8 @@ coefs <- broom::tidy(reg_f)
 ```
 
 $$G_t = \begin{cases}
-	`r round(sum(coefs[c(1, 4), "estimate"]), 4)` {}_{`r round(sum(coefs[c(1, 4), "std.error"]), 4)`} + `r round(coefs[2, "estimate"], 4)` {}_{`r round(coefs[2, "std.error"], 4)`}O_t + `r round(coefs[3, "estimate"], 4)` {}_{`r round(coefs[3, "std.error"], 4)`}O_{t-1} & O_t \ge 0 \\
-	`r round(coefs[1, "estimate"], 4)` {}_{`r round(coefs[1, "std.error"], 4)`} + `r round(coefs[2, "estimate"], 4)` {}_{`r round(coefs[2, "std.error"], 4)`}O_t + `r round(coefs[3, "estimate"], 4)` {}_{`r round(coefs[3, "std.error"], 4)`}O_{t-1} & O_t < 0 
+	`r round(sum(coefs[c(1, 4), "estimate"]), 4)`_{`r round(sum(coefs[c(1, 4), "std.error"]), 4)`} + `r round(coefs[2, "estimate"], 4)`_{`r round(coefs[2, "std.error"], 4)`}O_t + `r round(coefs[3, "estimate"], 4)`_{`r round(coefs[3, "std.error"], 4)`}O_{t-1} & O_t \ge 0 \\
+	`r round(coefs[1, "estimate"], 4)`_{`r round(coefs[1, "std.error"], 4)`} + `r round(coefs[2, "estimate"], 4)`_{`r round(coefs[2, "std.error"], 4)`}O_t + `r round(coefs[3, "estimate"], 4)`_{`r round(coefs[3, "std.error"], 4)`}O_{t-1} & O_t < 0 
 \end{cases}$$
 
 Esto implica, que el cambio en el precio de la gasolina como consecuencia del cambio en el precio del petroleo y el precio del mismo registrado justamente anterior, tienen un valor promedio mayor cuando el cambio en el precio del petroleo es mayor o igual a cero, lo cual respalda la _asimetría_ de la serie. Dicho de otro modo, el precio de la gasolina aumenta en $t$ a una tasa proporcional mayor cuando el precio del petroleo es mayor o igual cero, dado que el cambio proporcional base es positivo y no negativo.

@@ -52,22 +52,49 @@ cowplot::plot_grid(
 
 **Problema 5.3** Grafique la serie de temperatura global, `globtemp`, y luego pruebe si hay una raíz unitaria versus la alternativa de que el proceso es estacionario usando las tres pruebas: DF, ADF y PP, discutidas en el Ejemplo 5.3. Comente.
 
-```{r}
+Los detalles de la prueba DF y ADF en el paquete `tseries` indican que la regresión general que se hace sobre la serie incluye un termino constante y uno con tendencia lineal, además de los $k$ retrasos usados para considerar el proceso autoregresivo. 
+Esto implica, que la hipótesis nula prueba si el proceso es uno con tendencia lineal y deriva (prueba Df), y la alternativa estipula que se trata de un paseo aleatorio con componentes de tendencia lineal y deriva.
+
+En el <a href="/Series%20Temporales/output/Shunway-Stoffer-Solutions.md#problema-3-33">Problema 3.33</a> vimos que el modelo autoregresivo mas adecuado para la serie involucra uno de orden $p=2$, por lo que se usa $k=2$ para la prueba ADF. 
+
+```{r p05-03-01}
 list(
 	  df=tseries::adf.test(globtemp, k=0),
-	  adf=tseries::adf.test(globtemp),
+	  adf=tseries::adf.test(globtemp, k=2),
 	  pp=tseries::pp.test(globtemp)) |>
   map(broom::tidy) |>
   list_rbind() |>
   select(method, statistic:parameter) |>
   kbl(
-    col.names=c("Prieba", "Estadístico", "$p$", "df"),
+    col.names=c("Prueba", "Estadístico", "$p$", "df"),
     escape=FALSE, 
     caption="Estadísticos de las pruebas de Raíz unitaria para estacionaridad."
   )
 ```
 
+Los resultados de aplicar las pruebas de raíz unitaria de DF y PP muestran que la serie de temperatura global es estacionaria ($p<0{,}05$), dado que se rechaza la hipótesis nula de raíz unitaria. Esto es de esperar, dado que ambas pruebas analizan el mismo esquema de dependencia. 
+Por otro lado, la ADF resulta en aceptación de la hipótesis nula, indicando que la serie sigue un paseo aleatorio con deriva.
 
+La discrepancia entre los resultados de la prueba DF y la prueba ADF resulta de que, al considerar los retrasos hasta $h=2$, se captura la dependencia de la serie con respecto a los retrasos en $t-1$ y $t-2$, haciendo innecesario el termino extra para $x_{t-1}$. 
+Al usar $k=1$ en la prueba ADF, el resultado sigue siendo mantener la hipótesis nula, (aunque el resultado es marginal), lo cual podría indicar que la serie diferenciada se trata de un proceso $AR(1)$ con una tendencia lineal y deriva ($DF_\gamma =$ `r round(tseries::adf.test(globtemp, k=1)$statistic, 3)`, $p=$ `r round(tseries::adf.test(globtemp, k=1)$p.value, 4)`). 
+
+Es interesante que al realizar las pruebas sobre la serie `globtemp` luego de realizar una primera diferencia, todas las pruebas son significativas, indicadno que la serie diferenciada si es estacioanria. 
+Además, la  prueba ADF se hace usando $k=1$, lo cual toma en cuenta la autocorrelación con respecto al retraso $h=2$ en la serie sin diferenciar. 
+
+```{r p05-03-02}
+list(
+	  df=tseries::adf.test(diff(globtemp), k=0),
+	  adf=tseries::adf.test(diff(globtemp), k=1),
+	  pp=tseries::pp.test(diff(globtemp))) |>
+  map(broom::tidy) |>
+  list_rbind() |>
+  select(method, statistic:parameter) |>
+  kbl(
+    col.names=c("Prueba", "Estadístico", "$p$", "df"),
+    escape=FALSE, 
+    caption="Estadísticos de las pruebas de Raíz unitaria para estacionaridad."
+  )
+```
 
 <a name="problema-5-7"></a>
 **Problema 5.7** El paquete `stats` de R contiene los precios de cierre diarios de los cuatro principales índices bursátiles europeos; escriba `help(EuStockMarkets)` para obtener más detalles. Ajuste un modelo $GARCH$ a los rendimientos de una de estas series y discuta sus hallazgos. (Nota: el conjunto de datos contiene valores reales y no retornos. Por lo tanto, los datos deben transformarse antes del ajuste del modelo).

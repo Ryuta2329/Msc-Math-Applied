@@ -342,7 +342,7 @@ $$
 	\gamma(t,s) &= E[(x_t - \mu_t)(x_s - \mu_s)] \\
 		&= E\left[\left(t\delta + \sum_{j=1}^t w_j - t\delta\right)\left(s\delta + \sum_{j=1}^s w_j - s\delta\right)\right] \\
 		&= E\left[\left(\sum_{j=1}^t w_j\right)\left(\sum_{j=1}^s w_j\right)\right] \\
-		&= \text{min}\left{s,t\right} \sigma_w^2
+		&= \text{min}(s,t) \sigma_w^2
 \end{aligned}
 $$
 
@@ -502,14 +502,14 @@ $$
 
 Como se ve arriba, la función de covarianza cruzada $\gamma_{xy}(h)$ depende solo del retraso $h$ y, por lo tanto, las series son conjuntamente estacionarias.
 
-**Problema 1.14** Sea $x_t$ un proceso normal estacionario con media $\mu_x$ y función de autocovarianza $\gamma(h)$. Definir la serie de tiempo no lineal $y_t = exp\left{x_t\right}$.  
+**Problema 1.14** Sea $x_t$ un proceso normal estacionario con media $\mu_x$ y función de autocovarianza $\gamma(h)$. Definir la serie de tiempo no lineal $y_t = e^{x_t}$.  
 _a)_ Exprese la función media $E(y_t)$ en términos de $\mu_x$ y $\gamma(0)$. La función generadora de momentos de una variable aleatoria normal $x$ con media $\mu$ y varianza $\sigma^2$ es:
 
-$$M_x(\lambda) = E[exp\left{\lambda x\right}] = exp\left{\mu\lambda + \frac{1}{2}\sigma^2\lambda^2\right}$$
+$$M_x(\lambda) = E[e^{\lambda x}] = e^{\mu\lambda + \frac{1}{2}\sigma^2\lambda^2}$$
 
 _b)_ Determine la función de autocovarianza de $y_t$. La suma de las dos variables aleatorias normales $x_{t+h} + x_t$ sigue siendo una variable aleatoria normal.
 
-Para el inciso _a)_, se nota que $E(y_t)=E[exp\left\{x_t\right\}]$, la cual es la función generadora de momentos $M_x(\lambda=1)$ para $\lambda=1$. De forma que:
+Para el inciso _a)_, se nota que $E(y_t)=E[e^{x_t}]$, la cual es la función generadora de momentos $M_x(\lambda=1)$ para $\lambda=1$. De forma que:
 
 $$E(y_t)= e^{\mu_x + \frac{1}{2}\sigma^2}$$
 
@@ -518,10 +518,10 @@ La función de autocovarianza es:
 $$
 \begin{aligned}
     \gamma_y(h) &= E[(y_t - \mu_y)(y_{t+h} - \mu_y)] \\
-        &= E\left[\left(exp\{x_t\} - \left\{\mu + \frac{1}{2}\sigma^2\right\}\right)\left(exp\{x_{t+h}\} - \left\{\mu + \frac{1}{2}\sigma^2\right\}\right)\right] \\
-        &= E\left[exp\{x_t + x_{t+h}\} - exp\left\{\mu + \frac{1}{2}\sigma^2\right\}^2\right] \\
-        &= E\left[exp\{x_t + x_{t+h}\}\right] - exp\left\{\mu + \frac{1}{2}\sigma^2\right\}^2 \\
-        &= E\left[exp\{x_t + x_{t+h}\}\right] - exp\left\{2\mu + \sigma^2\right\}
+        &= E\left[\left(e^{x_t} - \mu + \frac{1}{2}\sigma^2\right)\left(e^{x_{t+h}} - \mu + \frac{1}{2}\sigma^2\right)\right] \\
+        &= E\left[e^{x_t + x_{t+h}} - e^{\mu + \frac{1}{2}\sigma^2}^2\right] \\
+        &= E\left[e^{x_t + x_{t+h}}\right] - e^{\mu + \frac{1}{2}\sigma^2}^2 \\
+        &= E\left[e^{x_t + x_{t+h}}\right] - e^{2\mu + \sigma^2\right}
 \end{aligned}
 $$
 
@@ -529,8 +529,8 @@ Como $z_t = x_t + x_{t+h}$ es otra normal, entonces $E(z_t) = 2\mu_x$ y $var(z_t
 
 $$
 \begin{aligned}
-	\gamma_y(h) &= E\left[exp\{x_t + x_{t+h}\}\right] - exp\left\{2\mu + \sigma^2\right\} \\
-		&= exp\left\{2\mu + \sigma^2\right\} - exp\left\{2\mu + \sigma^2\right\} \\
+	\gamma_y(h) &= E\left[e^{x_t + x_{t+h}}\right] - e^{2\mu + \sigma^2\right} \\
+		&= e^{2\mu + \sigma^2} - e^{2\mu + \sigma^2} \\
 		&= 0
 \end{aligned}
 $$

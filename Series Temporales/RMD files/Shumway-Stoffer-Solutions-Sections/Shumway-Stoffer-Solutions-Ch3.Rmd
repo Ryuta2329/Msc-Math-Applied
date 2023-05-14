@@ -27,16 +27,18 @@ Por otro lado, el modelo no es invertible dado que $\theta(z) = 1-z = 0 \rightar
 <a name="problema-3-33"></a>
 **Problema 3.33** Ajuste un modelo $ARIMA(p, d, q)$ a los datos de temperatura global `globtemp` realizando todos los diagnósticos necesarios. Después de decidirse por un modelo apropiado, pronostique (con límites) los próximos $10$ años. Comente.
 
-Ya en el [ejemplo 2.6](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/colab-nb/global-temperature-example.ipynb) que la serie de temperatura global parece comportarse más como un paseo aleatorio que como una serie estacionaria de tendencia, y por lo tanto, en lugar de eliminar la tendencia de los datos, es más apropiado utilizar la diferenciación para forzarlos a la estacionaridad. Al realizar esto, se encontró una autocorrelación mínima, lo que puede implicar que la serie de temperatura global es casi un paseo aleatorio con deriva. La ACF y PACF de la serie diferenciada se muestra en la `r figr("p03-33-01-example-2-6", TRUE, type="figura")`. 
-LA PACF muestra correlaciones significativas hasta el _lag_ 3, otra autocorrelación importante en $h=36$, y una autocorrelación pequeña, pero significativa) en $h=5$. La ACF muestra correlaciones importantes en $h=4$, $9$ y $27$.
+Ya en el [ejemplo 2.6](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/colab-nb/global-temperature-example.ipynb) que la serie de temperatura global parece comportarse más como un paseo aleatorio que como una serie estacionaria de tendencia (ver el <a href="/Series%20Temporales/output/Shunway-Stoffer-Solutions.md#problema-5-3">problema 5.3</a>), y por lo tanto, en lugar de eliminar la tendencia de los datos, es más apropiado utilizar la diferenciación para forzarlos a la estacionaridad. 
+
+Al realizar esto, se encontró una autocorrelación mínima, lo que puede implicar que la serie de temperatura global es casi un paseo aleatorio con deriva. La ACF y PACF de la serie diferenciada se muestra en la `r figr("p03-33-01-example-2-6", TRUE, type="figura")`. 
+LA PACF muestra correlaciones significativas hasta el _lag_ 3, otra autocorrelación importante en $h=36$, y una autocorrelación pequeña (pero significativa) en $h=5$. La ACF muestra correlaciones importantes en $h=4$, $9$ y $27$.
 
 ```{r p03-33-01-example-2-6, anchor="figura", fig.cap="ACF y PACF de la serie diferenciada de Temperatura Global."}
-df_globtemp <- as_tsibble(diff(gtemp))
+df_globtemp <- as_tsibble(gtemp)
 
 cowplot::plot_grid(
-    ACF(df_globtemp, value, lag_max = 48) %>%
+    ACF(df_globtemp, diff(value), lag_max = 48) %>%
       autoplot() + theme_light(),
-    PACF(df_globtemp, value, lag_max = 48) %>%
+    PACF(df_globtemp, diff(value), lag_max = 48) %>%
       autoplot() + theme_light(),
   nrow = 1)
 ```
@@ -49,22 +51,37 @@ que se expande como:
 
 $$x_t = (1 + \phi) x_{t-1} - \phi x_{t-2} + w_t + \theta_1 w_{t-1} + \theta_2 w_{t-2} + \theta_3 w_{t-3}$$
 
+Además, se considera un modelo similar pero con una constante $c = \mu(1 - \phi)$, para verificar si el componente con deriva es significativo o no. 
+
 ```{r p03-33-02-first-model-2}
 first_model <- df_globtemp %>%
-  model(first_arima = ARIMA(value ~ pdq(1, 1, 3), stepwise = FALSE))
+  model(
+    first_arima_c = ARIMA(value ~ pdq(1, 1, 3), stepwise = FALSE),
+    first_arima = ARIMA(value ~ 0 + pdq(1, 1, 3), stepwise = FALSE)
+  )
 ```
 
-Los resultados del ajuste se muestran en la `r figr("p03-33-02-first-model", TRUE, type="tabla")`, donde se observa que los coeficientes $\theta_2$ y $\theta_3$ no son significativos. 
-La varianza residual del modelo ajustado es $\sigma^2 = `r round(glance(first_model)$sigma2, 5)`$. 
+Los resultados del ajuste se muestran en la `r figr("p03-33-02-models-criteria", TRUE, type="tabla")`, donde se observa que el modelo con la deriva es preferible al modelo sin termino constante, de acuerdo a los criterios de información. 
+
+```{r p03-33-02-models-criteria, anchor="tabla"}
+glance(first_model) %>%
+  select(sigma2:BIC) %>%
+  mutate(Model=c("ARIMA(1,1,3) con deriva", "ARIMA(1,1,3)"), .before=1) %>%
+  kbl(digits = c(NA, 4, 2, 2, 2, 2), escape=FALSE,
+    col.names=c("Modelo", "$\\sigma^2$", "Func. Verosim.", "AIC", "AICc", "BIC"),
+    caption="Criterios de información para los modelos ARIMA(1,1,3) con y sin deriva.")
+```
+
+Los coeficientes estimados para el modelo con deriva se muestran adelante, observándose que todos son significativos. 
+La varianza residual del modelo ajustado es $\sigma^2 =$ `r round(glance(first_model %>% select(first_arima_c))$sigma2, 5)`. 
 
 ```{r p03-33-02-first-model, anchor="tabla", tab.cap=""}
-inf_crit <- glance(first_model) %>%
-  select(sigma2:BIC) %>%
-  tidyr::gather(key="Inf. Crit.", value="value")  
+chosen_mod <- first_model %>%
+  select(first_arima_c)
 
-tidy(first_model) %>%
+tidy(chosen_mod) %>%
   select(-.model) %>%
-  mutate(term = c("$\\phi$", "$\\theta_1$", "$\\theta_2$", "$\\theta_3$")) %>%
+  mutate(term = c("$\\phi$", "$\\theta_1$", "$\\theta_2$", "$\\theta_3$", "$c$")) %>%
   kbl(digits=c(NA, 3, 3, 3, 4), escape=FALSE, booktabs=TRUE,
   	caption="Resultados del auste ARIMA.",
     col.names=c("Coeficiente", "Estimado", "Desv. Est.", "Estadistico", "p"))
@@ -72,24 +89,28 @@ tidy(first_model) %>%
 
 Los gráficos diagnósticos se muestran a continuación, donde se puede observar que la ACF y PACF se asemejan a los esperados para ruido blanco, a excepción de las correlaciones significativas. 
 En la ACF se observa una correlación significativa en $h=27$, y en la PACF se observa una correlación significativa en $h=36$. 
-El gráfico _QQ_, así como el gráfico temporal de residuales, muestran que la distribución es bastante normal, pero que existen 4 datos atípicos.
+El gráfico _QQ_, así como el gráfico temporal de residuales, muestran que la distribución es bastante normal, pero que existen 2 datos atípicos que se desvían de la recta teórica normal, y corresponden a las observaciones de 1991 y 1999.
 
 ```{r p03-33-03-diagnostics, anchor="figura", fig.width=20, fig.height=5, fig.cap='Gráficos diagnósticos de residuales: _a)_ ACF, _b)_ PACF, _c)_ gráficos de residuales, y _d)_ gráfico _QQ_'}
-augment(first_model) %>%
+augmented_df <- first_model %>%
+  select(first_arima_c) %>%
+  augment()
+
+augmented_df %>%
   ACF(.innov, lag_max=50) %>%
   autoplot() +
     theme_light() +
     xlab("lag") + 
     ylab(latex2exp::TeX("$\\rho(s, t)$")) -> acf
 
-augment(first_model) %>%
+augmented_df %>%
   PACF(.innov, lag_max=50) %>%
   autoplot() +
     theme_light() +
     xlab("lag") + 
     ylab(latex2exp::TeX("$\\rho(s, t)$")) -> pacf 
 
-res_series <- augment(first_model) %>%
+res_series <- augmented_df %>%
      autoplot(.resid, colour="orange") +
      geom_point(aes(y=.resid), colour="orange") +
      xlab("Tiempo") +
@@ -98,7 +119,7 @@ res_series <- augment(first_model) %>%
      geom_hline(yintercept=c(0), 
      	color=c("black"), linetype=c(1))
 
-res_qq_plot <- augment(first_model) %>% 
+res_qq_plot <- augmented_df %>% 
   ggplot(aes(sample = .resid)) + 
   stat_qq() + stat_qq_line(color="red") + 
   theme_light()
@@ -110,66 +131,21 @@ cowplot::plot_grid(acf, pacf, res_series, res_qq_plot,
   label_fontface="italic")
 ```
 
-<!---
-Al revisar gráficos de dispersión de la serie `globtemp` versus las series retrasadas con correlaciones significativas mencionadas antes, $h=27$ y $h=36$, se pude observar que hay una relación no lineal entre las series. 
-La relación parece ser no lineal, de acuerdo a la curva suaviada por _loess_ superpuesta en los gráficos de dispersión. Sin embargo, en el grafico de la derecha se observa comop varios puntos se desvian de este comportamiento.
-
-```{r p03-33-scatter, anchor="figura", fig.cap=""}
-#corr_series <- ts.intersect(globtemp, 
-#  globTL27=stats::lag(globtemp, 27), 
-#  globTL36=stats::lag(globtemp, 36), 
-#  dframe=TRUE) %>%
-#  ts(start=1880) %>%
-#  as_tsibble() %>%
-#  tidyr::spread("key", "value")
-
-#third_model <- corr_series %>%
-#  model(third_model = ARIMA(globtemp  ~ pdq(1, 1, 2) + xreg(globTL36), stepwise = FALSE))
-
-#cowplot::plot_grid(
-#	corr_series %>%
-#	  ggplot(aes(x=globTL27, y=globtemp)) +
-#	    geom_point() + theme_light() +
-#	    geom_smooth(method=loess, se=FALSE, colour="orange"),
-#	corr_series %>%
-#	  ggplot(aes(x=globTL36, y=globtemp)) +
-#	    geom_point() + theme_light() +
-#	    geom_smooth(method=loess, se=FALSE, colour="orange"),
-#	nrow=1)
-```
---->
-
-```{r p03-33-04-scatter}
-second_model <- df_globtemp %>%
-  model(second_model = ARIMA(value  ~ pdq(1, 1, 2), stepwise = FALSE))
-```
-
-Dado los resultados obtenidos, se decide optar por un modelo más simple, $ARIMA(1,1,2)$. El nuevo modelo tiene una varianza residual menor, $\sigma^2 = `r round(glance(second_model)$sigma2, 5)`$. 
-Además, todos los criterios de información son menores en el nuevo modelo ajustado, por lo que se prefiere el nuevo modelo en contraste con el anterior. 
-
-```{r p03-33-05-second-model, anchor="tabla", tab.cap=""}
-bind_cols(first_model, second_model) %>%
-  glance() %>%
-  mutate(.model=c("$ARIMA(1,1,3)$", "$ARIMA(1,1,2)$")) %>%
-  select(.model:BIC) %>%
-  kbl(digits=c(NA, 4, 2, 2, 2, 2), escape=FALSE, booktabs=TRUE,
-  	caption="Comparación de modelos ARIMA ajustados.",
-    col.names=c("Modelo", "$\\sigma^2$", "Func. Verosim.", "AIC", "AICc", "BIC"))
-```
-
-Los coeficientes estimados junto con su desviación estándar se muestran en la `r figr("p03-33-05-coef-second", TRUE, type="tabla")`, donde se observan que ahora todos son signficativos. 
-
-```{r p03-33-06-coef-second, anchor="tabla", tab.cap=""}
-tidy(second_model) %>%
-  select(-.model) %>%
-  mutate(term = c("$\\phi$", "$\\theta_1$", "$\\theta_2$")) %>%
-  kbl(digits=c(NA, 3, 3, 3, 4), escape=FALSE, booktabs=TRUE,
-  	caption="Resultados del auste ARIMA.",
-    col.names=c("Coeficiente", "Estimado", "Desv. Est.", "Estadistico", "p"))
-```
-
 El modelo ajustado se escribe:
 
-$$x_t = `r 1 + round(tidy(second_model)$estimate[1], 2)`{}_{(`r round(tidy(second_model)$std.error[1], 3)`)} x_{t-1} - `r round(tidy(second_model)$estimate[1], 2)`{}_{(`r round(tidy(second_model)$std.error[1], 3)`)} x_{t-2} + w_t + `r round(tidy(second_model)$estimate[2], 2)`{}_{(`r round(tidy(second_model)$std.error[2], 3)`)} w_{t-1} + `r round(tidy(second_model)$estimate[3], 2)`{}_{(`r round(tidy(second_model)$std.error[3], 3)`)} w_{t-2}$$
+$$x_t = `r round(tidy(chosen_mod)$estimate[5], 4)`_{(`r round(tidy(chosen_mod)$std.error[5], 4)`)} `r 1  round(tidy(chosen_mod)$estimate[1], 2)`_{(`r round(tidy(chosen_mod)$std.error[1], 3)`)} x_{t-1}  `r round(tidy(chosen_mod)$estimate[1], 2)`_{(`r round(tidy(chosen_mod)$std.error[1], 3)`)} x_{t-2} + w_t + `r round(tidy(chosen_mod)$estimate[2], 2)`_{(`r round(tidy(chosen_mod)$std.error[2], 3)`)} w_{t-1}  `r round(tidy(chosen_mod)$estimate[3], 2)`_{(`r round(tidy(chosen_mod)$std.error[3], 3)`)} w_{t-2}  `r round(tidy(chosen_mod)$estimate[4], 2)`_{(`r round(tidy(chosen_mod)$std.error[4], 3)`)} w_{t-3}$$
 
-y los diagnósticos (no mostrados) muestran un comportamiento similar al anterior.
+Lo pronósticos para los próximos 10 años se muestran a continuación:
+
+```{r p03-33-07-forecast, anchor="figura", fig.cap="Pronósticos para los próximos 10 años"}
+mod_forecast <- chosen_mod %>%
+  forecast(h=10)
+
+autoplot(df_globtemp, colour="dodgerblue3") +
+  autolayer(mod_forecast, colour="orange") +
+    theme_light() + 
+    xlab('Tiempo') + ylab('Dif. de Temperatura') +
+    theme(legend.position="none")
+```
+
+donde se observa una pequeña tendencia lineal creciente y fluctuante en los próximos 10 años.
