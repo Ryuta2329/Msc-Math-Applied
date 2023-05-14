@@ -1,10 +1,15 @@
 ```{r ch5-setup}
 suppressPackageStartupMessages({
 	library(astsa)
+	library(tsibble)
 	library(fable)
 	library(feasts)
 	library(dplyr)
+	library(tidyr)
+	library(purrr)
+	library(magrittr)
 	library(ggplot2)
+	library(rugarch)
 	library(kableExtra)
 })
 ```
@@ -52,8 +57,8 @@ list(
 	  df=tseries::adf.test(globtemp, k=0),
 	  adf=tseries::adf.test(globtemp),
 	  pp=tseries::pp.test(globtemp)) |>
-  purrr::map(broom::tidy) |>
-  purrr::list_rbind() |>
+  map(broom::tidy) |>
+  list_rbind() |>
   select(method, statistic:parameter) |>
   kbl(
     col.names=c("Prieba", "Estadístico", "$p$", "df"),
@@ -67,31 +72,203 @@ list(
 <a name="problema-5-7"></a>
 **Problema 5.7** El paquete `stats` de R contiene los precios de cierre diarios de los cuatro principales índices bursátiles europeos; escriba `help(EuStockMarkets)` para obtener más detalles. Ajuste un modelo $GARCH$ a los rendimientos de una de estas series y discuta sus hallazgos. (Nota: el conjunto de datos contiene valores reales y no retornos. Por lo tanto, los datos deben transformarse antes del ajuste del modelo).
 
-```{r p05-07-01-data, anchor="figura", fig.cap="Indice bursátil de Suiza.", fig.height=5, fig.width=12}
-daily_returns <- diff(log(EuStockMarkets[, "SMI"])) %>%
-	as_tsibble()
+```{r}
+EU_SMI <- EuStockMarkets[, "SMI"] %>% 
+  as_tsibble() %>%
+  mutate(dates = lubridate::date(index), .before = 2) %>%
+  index_by(dates) %>%
+  summarise(
+    smi_difflog = value
+  ) %>%
+  mutate(smi_difflog = difference(log(smi_difflog))) %>%
+  slice(-1) %>%
+  complete(dates = seq(min(dates), max(dates), by = "day")) %>%
+  mutate(smi_difflog=zoo::na.approx(smi_difflog)) %>%
+  as_tsibble()
+```
 
+Para el análisis se seleccionó el indice bursátil correspondiente a Suiza (SMI). Al revisar la serie se nota de inmediato que la serie contiene `NA`, introducidos de forma alternativa cada 2 a 3 días. Estos datos faltantes se imputaron usando interpolación lineal.
+
+```{r p05-07-01-data, anchor="figura", fig.cap="Indice bursátil de Suiza.", fig.height=5, fig.width=12}
 cowplot::plot_grid(
-	EuStockMarkets[, "SMI"] %>%
-	  as_tsibble() %>%
-	  autoplot(value, colour="dodgerblue3") +
+	EuStockMarkets[, "SMI"] %>% 
+    as_tsibble() %>%
+	  autoplot(, colour="dodgerblue3") +
 	    theme_light() +
 	    xlab("") + ylab("Precios de cierre diario") +
 	    ggtitle("Indice bursátil Europeo (Suiza SMI)"),
-	daily_returns %>%
-	  autoplot(value, colour="dodgerblue3") +
+	EU_SMI %>%
+	  autoplot(smi_difflog, colour="dodgerblue3") +
 	    theme_light() +
 	    xlab("") + ylab("Retornos") +
 	    ggtitle("Retornos logarítmicos del SMI."),
 	nrow=1)
 ```
 
-Para el análisis se seleccionó el indice bursátil correspondiente a Suiza (SMI), el cual se muestra en la `r figr("p05-07-01-data", TRUE, type = "figura")`, junto a los retornos calculados a partir de la misma. 
-La serie tiene una tendencia creciente clara que se elimina al calcular los retornos, con caídas importantes durante todo el año 1994, y a la mitad del año 1997. Es en estos momentos que se observan los _clusters_ de volatilidad más importantes de la serie de retornos. 
+El indice bursátil correspondiente a Suiza (SMI), el cual se muestra en la `r figr("p05-07-01-data", TRUE, type = "figura")`, junto a los retornos calculados a partir de la misma. 
+La serie tiene una tendencia creciente clara que se elimina al calcular los retornos, con caídas importantes durante todo el año 1994, y a la mitad del año 1997. Es en estos momentos es que se observan los _clusters_ de volatilidad más importantes de la serie de retornos. 
+
+La ACF y PACF muestran que los retornos parecen ser generados por un proceso autoregresivo de primer o segundo orden en el componente ARMA, y se observan múltiples correlaciones pequeñas, pero significativas, que pueden resultar de la volatilidad cambiante.  
+La volatilidad se observa a la derecha en la misma figura, la cual se calcula usando una ventana de un mes, y presenta un comportamiento bastante fluctuante, con crestas particularmente grandes durante los años 1994 y 1997.
+
+```{r acf-pacf, anchor="figura", fig.cap="Funciones de autocorrelación y autocorrelación parcial para los retornos (a la izquierda) y volatilidad mensual de los retornos.", fig.height=7, fig.width=10}
+monthly_aggregates <- EU_SMI %>%
+  index_by(year_month = ~ yearmonth(.)) %>%
+  summarise(
+  	month_var = var(smi_difflog, na.rm = TRUE),
+    month_mean_return = mean(smi_difflog ** 2, na.rm = TRUE))
+
+cowplot::plot_grid(
+	cowplot::plot_grid(
+		EU_SMI %>%
+		  ACF(smi_difflog, lag_max=100) %>%
+		  autoplot() +
+		    xlab("h") +
+		    ylab("ACF") +
+		    theme_light(),
+		EU_SMI %>%
+		  PACF(smi_difflog, lag_max=100) %>%
+		  autoplot() +
+		    xlab("h") +
+		    ylab("PACF") +
+		    theme_light(),
+		ncol=1), 
+	monthly_aggregates %>%
+	  autoplot(month_var, colour = "dodgerblue4") +
+      theme_light() +
+      ylab("Volatilidad") +
+      xlab(""),
+  nrow=1)
+```
+
+El siguiente fragmento de código muestra los resultados de la prueba Arch por multiplicadores de Lagrange, al descomponer la varianza de la serie e identificar si sus rezagos son significativos:
+
+```{r var-lags, anchor="figura", fig.cap="Gráficos de dispersión de la varianza mensual de las innovaciones con respecto a retrasos de la misma."}
+arch_test <- EU_SMI %$%
+  FinTS::ArchTest(smi_difflog, lags = 4, demean = FALSE)
+
+arch_test
+```
+
+de lo que se obtiene que la serie tiene efectos Arch significativos ($p < 0{,}05$), y que existe una correlación importante entre la varianza y los retornos cuadrados. 
+
+Se procede a ajustar modelos GARCH para la volatilidad, con componente $ARCH(1)$ y $ARCH(2)$ solamente, y con volatilidad independiente de sus retrasos, y regresada sobre retrasos $h=1$ y $2$. Además, se prueban estos modelos usando la posibilidad de un modelo ARMA para la media con componente autoregresivo de primer o segundo orden. 
+
+```{r models-fitting}
+ARMA_mod <- rep(c("ARMA(1, 0)", "ARMA(2, 0)"), each=4)
+GARCH_mod <- rep(c("GARCH(1,0)", "GARCH(1,1)", "GARCH(2,1)", "GARCH(2,2)"), 2)
+arma_pars <- rep(list(fisrt_order=c(1,0), second_order=c(2,0)), each=4)
+garch_mod_pars <- rep(list(c(1, 0), c(1, 1), c(2, 1), c(2, 2)), 2)
+
+garch_fitting <- tibble(
+	ARMA_mod, GARCH_mod,
+	arma_mod=arma_pars,
+  garch_mod=garch_mod_pars) %>%
+  mutate(
+  	garch_mods_spec=map2(
+	    arma_mod, garch_mod,
+      ~ugarchspec(
+   	    mean.model = list(
+   		    armaOrder=.x, 
+   		    include.mean = FALSE),
+        variance.model=list(model = "sGARCH", garchOrder=.y),
+        distribution.model = "norm")
+    ),
+    garch_mods_fit=map(garch_mods_spec,
+      ~ugarchfit(., EU_SMI)),
+    convergence=map_dbl(garch_mods_fit, convergence)
+  ) %>%
+  filter(convergence == 0)
+```
+
+En total, se ajustan 8 modelos, de los cuales solo el modelo $GARCH(1,0)$ con componente $ARMA(1,0)$ para la media, fallo en converger. 
+En la tabla `r figr("criteria-inf", TRUE, type = "tabla")` se muestran los resultados de los criterios de información para el resto de los modelos ajustados, donde se observa que los mejores modelos, de acuerdo al AIC, son los $GARCH(2,2)$, tanto para el componente $ARMA(1,0)$ como para $ARMA(2,0)$; seguido de los modelos con componente $ARMA(2,0)$ y componente $GARCH(1, 1)$ y $GARCH(2, 1)$. 
+La misma tendencia se sigue del resto de los criterios de información mostrados en la tabla. 
+
+```{r criteria-inf, anchor="tabla"}
+garch_fitting %>%
+  mutate(glanced=map(garch_mods_fit, infocriteria), .after=2) %>% 
+  unnest(glanced) %>% 
+  mutate(criteria=rep(c("AIC", "BIC", "Shibata", "Hannan-Quinn"), 7), .after=2) %>%
+  select(1:4) %>%
+  spread(key="criteria", value=4) %>%
+  arrange(AIC) 
+  slice(1:5) %>%
+  kbl(digits = 3,
+    caption="Criterios de información para 5 de los modelos GARCH ajustados.")
+```
+
+Sin embargo, al verificar los coeficientes de los modelos $GARCH(2,2)$ y $GARCH(2,1)$, se obtiene que los coeficientes $\\alpha_2$ no son significativos (resultado no mostrado). 
+Es por ello que se escoge el modelo $GARCH(1,1)$ con componente $ARMA(2,0)$, dados los criterios de información mostrados antes. 
+Los coeficientes de este modelo se muestran a continuación.
+
+```{r coef-est, anchor="tabla"}
+garch_fitting %>%
+  mutate(tidied=map(garch_mods_fit, 
+    \(x) {
+    x@fit$matcoef %>%
+      as_tibble()
+  }), .after=2) %>% 
+  unnest(tidied) %>%
+  filter(ARMA_mod == "ARMA(2, 0)" & GARCH_mod == "GARCH(1,1)") %>%
+  mutate(
+  	criteria=c("$\\phi_1$", "$\\phi_2$", "$\\alpha_0$", "$\\alpha_1$", "$\\beta$"),
+  	.after=2) %>%
+  select(ARMA_mod:`Pr(>|t|)`)
+  kbl(digits = c(NA, NA, NA, 6, 7, 2, 4),
+    caption="Criterios de información para 5 de los modelos GARCH ajustados.")
+```
+
+El modelo final escogido se escribe entonces:
+
+$$
+\begin{aligned}
+  r_t &= \phi_1 r_{t-1} + \phi_2 r_{t-2} + \sigma_t\epsilon_t \\
+  \sigma_t &= \alpha_0 + \alpha_1 r_{t-1} + \beta \sigma_{t-1}
+\end{aligned}
+$$
+
+donde $\epsilon_t \sim N(0, 1)$. 
+Los residuales, tal como se observan en la `r figr("residuals", TRUE, type = "figura")`, donde se observa que ya no hay correlaciones importantes en las ACF y PACF, pero los residuales no se distribuyen normalmente, sino que parecen seguir una $t$-Student simétrica. 
+
+```{r residuals, anchor="figura", fig.cap="Gráficos diagnósticos de residuales."}
+residuals_garch <- garch_fitting %>%
+  filter(ARMA_mod == "ARMA(2, 0)" & GARCH_mod == "GARCH(1,1)") %$%
+  residuals(garch_mods_fit[[1]]) %>%
+  zoo::fortify.zoo() %>%
+  as_tsibble()
+
+cowplot::plot_grid(
+  autoplot(residuals_garch, ., colour="orange") +
+    theme_light() + xlab("") + ylab("Innovaciones"),
+  residuals_garch %>% 
+    ggplot(aes(sample = .)) + 
+    stat_qq() + stat_qq_line(color="dodgerblue") + 
+    theme_light(),
+  cowplot::plot_grid(
+    ACF(residuals_garch, ., lag_max=50) %>%
+      autoplot() + theme_light() +
+      xlab("lag") + ylab("ACF"),
+    PACF(residuals_garch, ., lag_max=50) %>%
+      autoplot() + theme_light() +
+      xlab("lag") + ylab("PACF"),
+    nrow=2
+  ),
+  nrow=1
+)
+```
 
 ```{r}
-daily_returns %>%
-  tsibble::scan_gaps()
-	  ACF(value, lag_max=100) %>%
-  autoplot()
+final_spec <- ugarchspec(
+  mean.model = list(
+    armaOrder=c(2, 0), 
+   	include.mean = FALSE),
+  variance.model=list(
+  	model = "sGARCH",
+  	garchOrder=c(1,1)),
+  distribution.model = "std")
+
+final_fit <- ugarchfit(final_spec, EU_SMI)
+final_coefs <- final_fit@fit$matcoef
+
 ```
