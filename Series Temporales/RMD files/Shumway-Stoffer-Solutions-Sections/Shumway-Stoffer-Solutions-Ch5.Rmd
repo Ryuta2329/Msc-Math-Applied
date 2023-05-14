@@ -192,7 +192,7 @@ garch_fitting %>%
   mutate(criteria=rep(c("AIC", "BIC", "Shibata", "Hannan-Quinn"), 7), .after=2) %>%
   select(1:4) %>%
   spread(key="criteria", value=4) %>%
-  arrange(AIC) 
+  arrange(AIC) %>%
   slice(1:5) %>%
   kbl(digits = 3,
     caption="Criterios de información para 5 de los modelos GARCH ajustados.")
@@ -214,9 +214,11 @@ garch_fitting %>%
   mutate(
   	criteria=c("$\\phi_1$", "$\\phi_2$", "$\\alpha_0$", "$\\alpha_1$", "$\\beta$"),
   	.after=2) %>%
-  select(ARMA_mod:`Pr(>|t|)`)
-  kbl(digits = c(NA, NA, NA, 6, 7, 2, 4),
-    caption="Criterios de información para 5 de los modelos GARCH ajustados.")
+  select(criteria:`Pr(>|t|)`) %>%
+  kbl(digits = c(NA, 6, 7, 2, 4),
+  	escape=FALSE,
+  	col.names=c("Coef.", "Estimado", "Desv. Estand.", "$t$", "$p$"),
+    caption="Coeficientes estimados para el modelo ARMA(2,0) con GARCH(1,1).")
 ```
 
 El modelo final escogido se escribe entonces:
@@ -258,6 +260,9 @@ cowplot::plot_grid(
 )
 ```
 
+Al realizar un ultimo ajuste del modelo $GARCH(1,1)$ con modelo para la media $ARMA(2,0)$, y usando como modelo de distribución una $t$-Student, se obtienen criterios de información menores que los encontrados para los modelos anteriores, indicando una preferencia por el nuevo modelo. 
+Los coeficientes estimados se muestran en la siguiente tabla:
+
 ```{r}
 final_spec <- ugarchspec(
   mean.model = list(
@@ -271,4 +276,50 @@ final_spec <- ugarchspec(
 final_fit <- ugarchfit(final_spec, EU_SMI)
 final_coefs <- final_fit@fit$matcoef
 
+final_coefs %>%
+  as_tibble() %>%
+  mutate(Coef=c("$\\phi_1$", "$\\phi_2$", "$\\alpha_0$", "$\\alpha_1$", "$\\beta$", "shape"), .before=1) %>%
+  kbl(digits = c(NA, 5, 6, 2, 4),
+  	escape=FALSE,
+  	col.names=c("Coef.", "Estimado", "Desv. Estand.", "$t$", "$p$"),
+    caption="Coeficientes estimados para el modelo ARMA(2,0) con GARCH(1,1)."
+  )
+```
+
+De los valores de probabilidad se tiene que en este caso, el modelo no necesita de términos retrasados de la volatilidad, dado que $\\beta$ no es significativamente distinto de cero, por lo que el modelo se puede escribir como uno con solo componente $Arch(1)$:
+
+$$
+\begin{aligned}
+  r_t &= `r round(final_coefs[1,1], 3)`{}_{(`r round(final_coefs[1,2], 3)`)} r_{t-1} + `r round(final_coefs[2,1], 3)`{}_{(`r round(final_coefs[2,2], 3)`)} r_{t-2} + \sigma_t\epsilon_t \\
+  \sigma_t &= {`r round(final_coefs[3,1], 5)`}_{(`r round(final_coefs[3,2], 6)`)} + {`r round(final_coefs[4,1], 3)`}_{(`r round(final_coefs[4,2], 3)`)} r_{t-1}
+\end{aligned}
+$$
+
+con $\epsilon \sim t(\sim 5)$. 
+El gráfico de los retornos versus la volatilidad muestra que el modelo es capaz de toma en cuenta las desviaciones en la serie; y el gráfico _QQ_ muestra que al usar como modelo teórico la distribución $t(5)$, las observaciones se ajustan muy bien a la recta.
+
+```{r volatility-plot}
+residuals_garch <- residuals(final_fit) %>%
+  zoo::fortify.zoo() %>%
+  as_tsibble()
+
+cowplot::plot_grid(
+  EU_SMI %>%
+    mutate(abs_returns = abs(smi_difflog)) %>%
+    autoplot(abs_returns, colour="200", alpha = .6) +
+    autolayer(sigma(final_fit) %>%
+      zoo::fortify.zoo() %>%
+      as_tsibble(), ., colour="dodgerblue", linewidth = .5) +
+    theme_light() +
+    ylab("Volatilidad") + xlab(""),
+  residuals_garch %>% 
+    ggplot(aes(sample = .)) + 
+    stat_qq(distribution=stats::qt,
+    	dparams=list(df=4.97)) + 
+    stat_qq_line(distribution=stats::qt,
+    	dparams=list(df=4.97),
+    	color="dodgerblue") + 
+    theme_light(),
+    nrow=1
+)
 ```
