@@ -35,24 +35,24 @@ source(here::here(fs::path_abs(".."), "assets", "caption-hooks.R"))
 * Ejercicios del [capitulo 4](#capitulo-4). Análisis espectral y filtrado.
 * Ejercicios del [capitulo 5](#capitulo-5). Temas adicionales en el dominio temporal.
 
-# Capitulo 1.
+## Capitulo 1.
 
 ```{r child = "./Shumway-Stoffer-Solutions-Sections/Shumway-Stoffer-Solutions-Ch1.Rmd"}
 ```
 
-# Capitulo 2.
+## Capitulo 2.
 
 ```{r child = "./Shumway-Stoffer-Solutions-Sections/Shumway-Stoffer-Solutions-Ch2.Rmd"}
 ```
 
-# Capitulo 3.
+## Capitulo 3.
 
 ```{r child = "./Shumway-Stoffer-Solutions-Sections/Shumway-Stoffer-Solutions-Ch3.Rmd"}
 ```
 
-# Capitulo 4.
+## Capitulo 4.
 
-# Capitulo 5.
+## Capitulo 5.
 
 ```{r child = "./Shumway-Stoffer-Solutions-Sections/Shumway-Stoffer-Solutions-Ch5.Rmd"}
 ```

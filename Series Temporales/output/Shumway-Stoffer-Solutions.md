@@ -551,7 +551,7 @@ $$
     \gamma_y(h) &= E[(y_t - \mu_y)(y_{t+h} - \mu_y)] \\
         &= E\left[\left(e^{x_t} - e^{\mu + \frac{1}{2}\sigma^2}\right)\left(e^{x_{t+h}} - e^{\mu + \frac{1}{2}\sigma^2}\right)\right] \\
         &= E\left[e^{x_t + x_{t+h}} - e^{2(\mu + \frac{1}{2}\sigma^2)}\right] \\
-        &= E\left[e^{x_t + x_{t+h}}\right] - e^{2\mu + \sigma^2\right}
+        &= E\left[e^{x_t + x_{t+h}}\right] - e^{2\mu + \sigma^2}
 \end{aligned}
 $$
 
@@ -1581,7 +1581,8 @@ autoplot(globtemp, colour="dodgerblue") +
 * Se observa que el uso del suavizado _loess_ muestra la tendencia de crecimiento de la serie, donde se muestra un paso de nivel de aproximadamente $0{,}25$ a $0{,}00$, que se alcanza en el año 1950, y 10 años después, en 1960 hay una tendencia de crecimiento lineal hasta el 2015. 
 * En el suavizado por _kernel_, se sigue la misma tendencia anterior, pero se hace claro el patrón repetitivo de cada $\sim5$ años, donde se alcanzan los picos en la serie, y que parecen correlacionarse con los valores anteriores durante la segunda mitad de la serie. 
 
-## Capitulo 3.
+
+## Capitulo 3
 
 
 ```r
@@ -1613,7 +1614,7 @@ Por otro lado, el modelo no es invertible dado que $\theta(z) = 1-z = 0 \rightar
 <a name="problema-3-33"></a>
 **Problema 3.33** Ajuste un modelo $ARIMA(p, d, q)$ a los datos de temperatura global `globtemp` realizando todos los diagnósticos necesarios. Después de decidirse por un modelo apropiado, pronostique (con límites) los próximos $10$ años. Comente.
 
-Ya en el [ejemplo 2.6](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/colab-nb/global-temperature-example.ipynb) que la serie de temperatura global parece comportarse más como un paseo aleatorio que como una serie estacionaria de tendencia (ver el <a href="/Series%20Temporales/output/Shunway-Stoffer-Solutions.md#problema-5-3">problema 5.3</a>), y por lo tanto, en lugar de eliminar la tendencia de los datos, es más apropiado utilizar la diferenciación para forzarlos a la estacionaridad. 
+Ya en el [ejemplo 2.6](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/colab-nb/Global-Temperature-Example.ipynb) que la serie de temperatura global parece comportarse más como un paseo aleatorio que como una serie estacionaria de tendencia (ver el <a href="/Series%20Temporales/output/Shunway-Stoffer-Solutions.md#problema-5-3">problema 5.3</a>), y por lo tanto, en lugar de eliminar la tendencia de los datos, es más apropiado utilizar la diferenciación para forzarlos a la estacionaridad. 
 
 Al realizar esto, se encontró una autocorrelación mínima, lo que puede implicar que la serie de temperatura global es casi un paseo aleatorio con deriva. La ACF y PACF de la serie diferenciada se muestra en la <a href="#p03-33-01-example-2-6">figura 17</a>. 
 LA PACF muestra correlaciones significativas hasta el _lag_ 3, otra autocorrelación importante en $h=36$, y una autocorrelación pequeña (pero significativa) en $h=5$. La ACF muestra correlaciones importantes en $h=4$, $9$ y $27$.
@@ -1632,8 +1633,7 @@ cowplot::plot_grid(
 ```
 
 <div class="figure" style="text-align: center">
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p03-33-01-example-2-6-1.png" alt="ACF y PACF de la serie diferenciada de Temperatura Global."  />
-<p class="caption">(\#fig:p03-33-01-example-2-6)ACF y PACF de la serie diferenciada de Temperatura Global.</p>
+<img src="/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p03-33-01-example-2-6-1.png" alt="ACF y PACF de la serie diferenciada de Temperatura Global."  />
 </div><table><caption>Figura 17. ACF y PACF de la serie diferenciada de Temperatura Global.</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
 
 Dada la información de las ACF y PACF, se considera un proceso ARMA con componente autoregresivo de orden 1 y componente de media móvil de orden 3, como modelo inicial de trabajo. Escrito en forma resumida como:
@@ -1669,7 +1669,7 @@ glance(first_model) %>%
 ```
 
 <table>
-<caption>(\#tab:p03-33-02-models-criteria)Criterios de información para los modelos ARIMA(1,1,3) con y sin deriva.</caption>
+<caption>Tabla 5. Criterios de información para los modelos ARIMA(1,1,3) con y sin deriva.</caption>
  <thead>
   <tr>
    <th style="text-align:left;"> Modelo </th>
@@ -1718,7 +1718,7 @@ tidy(chosen_mod) %>%
 ```
 
 <table>
-<caption>(\#tab:p03-33-02-first-model)Resultados del auste ARIMA.</caption>
+<caption>Tabla 6. Resultados del ajuste ARIMA.</caption>
  <thead>
   <tr>
    <th style="text-align:left;"> Coeficiente </th>
@@ -1767,7 +1767,6 @@ tidy(chosen_mod) %>%
 </tbody>
 </table>
 
-<table><caption>Tabla 4. </caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
 
 Los gráficos diagnósticos se muestran a continuación, donde se puede observar que la ACF y PACF se asemejan a los esperados para ruido blanco, a excepción de las correlaciones significativas. 
 En la ACF se observa una correlación significativa en $h=27$, y en la PACF se observa una correlación significativa en $h=36$. 
@@ -1816,9 +1815,8 @@ cowplot::plot_grid(acf, pacf, res_series, res_qq_plot,
 ```
 
 <div class="figure" style="text-align: center">
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p03-33-03-diagnostics-1.png" alt="Gráficos diagnósticos de residuales: _a)_ ACF, _b)_ PACF, _c)_ gráficos de residuales, y _d)_ gráfico _QQ_"  />
-<p class="caption">(\#fig:p03-33-03-diagnostics)Gráficos diagnósticos de residuales: _a)_ ACF, _b)_ PACF, _c)_ gráficos de residuales, y _d)_ gráfico _QQ_</p>
-</div><table><caption>Figura 18. Gráficos diagnósticos de residuales: _a)_ ACF, _b)_ PACF, _c)_ gráficos de residuales, y _d)_ gráfico _QQ_</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
+<img src="/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p03-33-03-diagnostics-1.png" alt="Gráficos diagnósticos de residuales: _a)_ ACF, _b)_ PACF, _c)_ gráficos de residuales, y _d)_ gráfico _QQ_"  />
+</div><table><caption>Figura 18. Gráficos diagnósticos de residuales: <em>a)</em> ACF, <em>b)</em> PACF, <em>c)</em> gráficos de residuales, y <em>d)</em> gráfico <em>QQ</em></caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
 
 El modelo ajustado se escribe:
 
@@ -1840,8 +1838,7 @@ autoplot(df_globtemp, colour="dodgerblue3") +
 ```
 
 <div class="figure" style="text-align: center">
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p03-33-07-forecast-1.png" alt="Pronósticos para los próximos 10 años"  />
-<p class="caption">(\#fig:p03-33-07-forecast)Pronósticos para los próximos 10 años</p>
+<img src="/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p03-33-07-forecast-1.png" alt="Pronósticos para los próximos 10 años"  />
 </div><table><caption>Figura 19. Pronósticos para los próximos 10 años</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
 
 donde se observa una pequeña tendencia lineal creciente y fluctuante en los próximos 10 años.
@@ -1849,7 +1846,6 @@ donde se observa una pequeña tendencia lineal creciente y fluctuante en los pr�
 ## Capitulo 4.
 
 ## Capitulo 5.
-
 
 
 ```r
@@ -1893,8 +1889,7 @@ arf %>%
 ```
 
 <div class="figure" style="text-align: center">
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-01-01-tsplot-1.png" alt="Serie arf."  />
-<p class="caption">(\#fig:p05-01-01-tsplot)Serie arf.</p>
+<img src="/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-01-01-tsplot-1.png" alt="Serie arf."  />
 </div><table><caption>Figura 20. Serie arf.</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
 
 La ACF muestra que el proceso es de memoria larga, con autocorrelaciones importantes (con magnitudes moderadas a moderadamente pequeñas) que se extienden a valores de $h>100$, y que decrecen y crecen nuevamente una y otra vez. 
@@ -1912,8 +1907,7 @@ cowplot::plot_grid(
 ```
 
 <div class="figure" style="text-align: center">
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-01-02-acf-1.png" alt="ACF y PACF de la serie."  />
-<p class="caption">(\#fig:p05-01-02-acf)ACF y PACF de la serie.</p>
+<img src="/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-01-02-acf-1.png" alt="ACF y PACF de la serie."  />
 </div><table><caption>Figura 21. ACF y PACF de la serie.</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
 
 El modelo ARFIMA estimado por selección automática basada en criterios de información tiene por parámetros los mostrados en la <a href="#p05-01-03-autoarfima">tabla 6</a>. Se puede observar que los componentes de promedio móvil no son importantes. 
@@ -1937,7 +1931,7 @@ arfima_estimation$fit@fit$matcoef %>%
 ```
 
 <table>
-<caption>(\#tab:p05-01-03-autoarfima)Coeficientes estimados por selección automática de modelo.</caption>
+<caption>Tabla 7. Coeficientes estimados por selección automática de modelo.</caption>
  <thead>
   <tr>
    <th style="text-align:left;"> Coef. </th>
@@ -2009,8 +2003,7 @@ cowplot::plot_grid(
 ```
 
 <div class="figure" style="text-align: center">
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-01-04-acf-1.png" alt="ACF y PACF de la serie diferenciada."  />
-<p class="caption">(\#fig:p05-01-04-acf)ACF y PACF de la serie diferenciada.</p>
+<img src="/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-01-04-acf-1.png" alt="ACF y PACF de la serie diferenciada."  />
 </div><table><caption>Figura 22. ACF y PACF de la serie diferenciada.</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
 
 Se observa de la ACF que el componente autoregresivo de primer orden resalta, con varias correlaciones pequeñas significativas. 
@@ -2042,7 +2035,7 @@ glance(mod) %>%
 ```
 
 <table>
-<caption>(\#tab:p05-01-04-model)Criterios de información para los mdoelos ARMA ajustados.</caption>
+<caption>Tabla 8. Criterios de información para los modelos ARMA ajustados.</caption>
  <thead>
   <tr>
    <th style="text-align:left;"> Modelo </th>
@@ -2148,7 +2141,7 @@ cowplot::plot_grid(acf, pacf, res_series, res_qq_plot,
   label_fontface="italic")
 ```
 
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-01-05-diagnostics-1.png" style="display: block; margin: auto;" />
+<img src="/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-01-05-diagnostics-1.png" style="display: block; margin: auto;" />
 
 **Problema 5.3** Grafique la serie de temperatura global, `globtemp`, y luego pruebe si hay una raíz unitaria versus la alternativa de que el proceso es estacionario usando las tres pruebas: DF, ADF y PP, discutidas en el Ejemplo 5.3. Comente.
 
@@ -2174,7 +2167,7 @@ list(
 ```
 
 <table>
-<caption>(\#tab:p05-03-01)Estadísticos de las pruebas de Raíz unitaria para estacionaridad.</caption>
+<caption>Tabla 9. Estadísticos de las pruebas de Raíz unitaria para estacionaridad.</caption>
  <thead>
   <tr>
    <th style="text-align:left;"> Prueba </th>
@@ -2211,7 +2204,7 @@ Por otro lado, la ADF resulta en aceptación de la hipótesis nula, indicando qu
 La discrepancia entre los resultados de la prueba DF y la prueba ADF resulta de que, al considerar los retrasos hasta $h=2$, se captura la dependencia de la serie con respecto a los retrasos en $t-1$ y $t-2$, haciendo innecesario el termino extra para $x_{t-1}$. 
 Al usar $k=1$ en la prueba ADF, el resultado sigue siendo mantener la hipótesis nula, (aunque el resultado es marginal), lo cual podría indicar que la serie diferenciada se trata de un proceso $AR(1)$ con una tendencia lineal y deriva ($DF_\gamma =$ -3,422, $p=$ 0,0539). 
 
-Es interesante que al realizar las pruebas sobre la serie `globtemp` luego de realizar una primera diferencia, todas las pruebas son significativas, indicadno que la serie diferenciada si es estacioanria. 
+Es interesante que al realizar las pruebas sobre la serie `globtemp` luego de realizar una primera diferencia, todas las pruebas son significativas, indicando que la serie diferenciada si es estacioanria. 
 Además, la  prueba ADF se hace usando $k=1$, lo cual toma en cuenta la autocorrelación con respecto al retraso $h=2$ en la serie sin diferenciar. 
 
 
@@ -2231,7 +2224,7 @@ list(
 ```
 
 <table>
-<caption>(\#tab:p05-03-02)Estadísticos de las pruebas de Raíz unitaria para estacionaridad.</caption>
+<caption>Tabla 10. Estadísticos de las pruebas de Raíz unitaria para estacionaridad.</caption>
  <thead>
   <tr>
    <th style="text-align:left;"> Prueba </th>
@@ -2302,8 +2295,7 @@ cowplot::plot_grid(
 ```
 
 <div class="figure" style="text-align: center">
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-07-02-data-1.png" alt="Indice bursátil de Suiza."  />
-<p class="caption">(\#fig:p05-07-02-data)Indice bursátil de Suiza.</p>
+<img src="/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-07-02-data-1.png" alt="Indice bursátil de Suiza."  />
 </div><table><caption>Figura 23. Indice bursátil de Suiza.</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
 
 El indice bursátil correspondiente a Suiza (SMI), el cual se muestra en la <a href="#p05-07-02-data">figura 24</a>, junto a los retornos calculados a partir de la misma. 
@@ -2345,29 +2337,18 @@ cowplot::plot_grid(
 ```
 
 <div class="figure" style="text-align: center">
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-07-03-acf-pacf-1.png" alt="Funciones de autocorrelación y autocorrelación parcial para los retornos (a la izquierda) y volatilidad mensual de los retornos."  />
-<p class="caption">(\#fig:p05-07-03-acf-pacf)Funciones de autocorrelación y autocorrelación parcial para los retornos (a la izquierda) y volatilidad mensual de los retornos.</p>
+<img src="/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-07-03-acf-pacf-1.png" alt="Funciones de autocorrelación y autocorrelación parcial para los retornos (a la izquierda) y volatilidad mensual de los retornos."  />
 </div><table><caption>Figura 24. Funciones de autocorrelación y autocorrelación parcial para los retornos (a la izquierda) y volatilidad mensual de los retornos.</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
 
 El siguiente fragmento de código muestra los resultados de la prueba Arch por multiplicadores de Lagrange, al descomponer la varianza de la serie e identificar si sus rezagos son significativos:
 
-<a name="p05-07-04-var-lags"></a>
 
 ```r
 arch_test <- EU_SMI %$%
   FinTS::ArchTest(smi_difflog, lags = 4, demean = FALSE)
-
-arch_test
 ```
 
-## 
-## 	ARCH LM-test; Null hypothesis: no ARCH effects
-## 
-## data:  smi_difflog
-## Chi-squared = 280,47, df = 4, p-value < 0,00000000000000022
-<table><caption>Figura 25. Gráficos de dispersión de la varianza mensual de las innovaciones con respecto a retrasos de la misma.</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
-
-de lo que se obtiene que la serie tiene efectos Arch significativos ($p < 0{,}05$), y que existe una correlación importante entre la varianza y los retornos cuadrados. 
+de lo que se obtiene que la serie tiene efectos Arch significativos ($\chi^2=$ 280,47, $p=$ 0 ), y que existe una correlación importante entre la varianza y los retornos cuadrados. 
 
 Se procede a ajustar modelos GARCH para la volatilidad, con componente $ARCH(1)$ y $ARCH(2)$ solamente, y con volatilidad independiente de sus retrasos, y regresada sobre retrasos $h=1$ y $2$. Además, se prueban estos modelos usando la posibilidad de un modelo ARMA para la media con componente autoregresivo de primer o segundo orden. 
 
@@ -2419,7 +2400,7 @@ garch_fitting %>%
 ```
 
 <table>
-<caption>(\#tab:p05-07-06-criteria-inf)Criterios de información para 5 de los modelos GARCH ajustados.</caption>
+<caption>Tabla 11. Criterios de información para 5 de los modelos GARCH ajustados.</caption>
  <thead>
   <tr>
    <th style="text-align:left;"> ARMA_mod </th>
@@ -2500,7 +2481,7 @@ garch_fitting %>%
 ```
 
 <table>
-<caption>(\#tab:p05-07-07-coef-est)Coeficientes estimados para el modelo ARMA(2,0) con GARCH(1,1).</caption>
+<caption>Tabla 12. Coeficientes estimados para el modelo ARMA(2,0) con GARCH(1,1).</caption>
  <thead>
   <tr>
    <th style="text-align:left;"> Coef. </th>
@@ -2559,7 +2540,7 @@ $$
 $$
 
 donde $\epsilon_t \sim N(0, 1)$. 
-Los residuales, tal como se observan en la <a href="#p05-07-08-residuals">figura 27</a>, donde se observa que ya no hay correlaciones importantes en las ACF y PACF, pero los residuales no se distribuyen normalmente, sino que parecen seguir una $t$-Student simétrica. 
+Los residuales, tal como se observan en la <a href="#p05-07-08-residuals">figura 26</a>, donde se observa que ya no hay correlaciones importantes en las ACF y PACF, pero los residuales no se distribuyen normalmente, sino que parecen seguir una $t$-Student simétrica. 
 
 <a name="p05-07-08-residuals"></a>
 
@@ -2591,9 +2572,8 @@ cowplot::plot_grid(
 ```
 
 <div class="figure" style="text-align: center">
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-07-08-residuals-1.png" alt="Gráficos diagnósticos de residuales."  />
-<p class="caption">(\#fig:p05-07-08-residuals)Gráficos diagnósticos de residuales.</p>
-</div><table><caption>Figura 26. Gráficos diagnósticos de residuales.</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
+<img src="/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-07-08-residuals-1.png" alt="Gráficos diagnósticos de residuales."  />
+</div><table><caption>Figura 25. Gráficos diagnósticos de residuales.</caption><colgroup><col width='100'></col></colgroup><thead><tr class='header'></tr></thead><tbody></tbody></table><p>
 
 Al realizar un ultimo ajuste del modelo $GARCH(1,1)$ con modelo para la media $ARMA(2,0)$, y usando como modelo de distribución una $t$-Student, se obtienen criterios de información menores que los encontrados para los modelos anteriores, indicando una preferencia por el nuevo modelo. 
 Los coeficientes estimados se muestran en la siguiente tabla:
@@ -2623,7 +2603,7 @@ final_coefs %>%
 ```
 
 <table>
-<caption>(\#tab:p05-07-09-final-fit)Coeficientes estimados para el modelo ARMA(2,0) con GARCH(1,1).</caption>
+<caption>Tabla 13. Coeficientes estimados para el modelo ARMA(2,0) con GARCH(1,1).</caption>
  <thead>
   <tr>
    <th style="text-align:left;"> Coef. </th>
@@ -2718,7 +2698,7 @@ cowplot::plot_grid(
 )
 ```
 
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-07-10-volatility-plot-1.png" style="display: block; margin: auto;" />
+<img src="/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-07-10-volatility-plot-1.png" style="display: block; margin: auto;" />
 
 <!---
 [19/4 7:15 p. m.] Marcano: https://rpubs.com/jrodriguezmam/series_temporales

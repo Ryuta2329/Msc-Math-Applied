@@ -266,14 +266,12 @@ cowplot::plot_grid(
 
 El siguiente fragmento de código muestra los resultados de la prueba Arch por multiplicadores de Lagrange, al descomponer la varianza de la serie e identificar si sus rezagos son significativos:
 
-```{r p05-07-04-var-lags, anchor="figura", fig.cap="Gráficos de dispersión de la varianza mensual de las innovaciones con respecto a retrasos de la misma."}
+```{r p05-07-04-var-lags}
 arch_test <- EU_SMI %$%
   FinTS::ArchTest(smi_difflog, lags = 4, demean = FALSE)
-
-arch_test
 ```
 
-de lo que se obtiene que la serie tiene efectos Arch significativos ($p < 0{,}05$), y que existe una correlación importante entre la varianza y los retornos cuadrados. 
+de lo que se obtiene que la serie tiene efectos Arch significativos ($\chi^2=$ `r round(arch_test$statistic, 2)`, $p=$ `r round(arch_test$p.value, 4)` ), y que existe una correlación importante entre la varianza y los retornos cuadrados. 
 
 Se procede a ajustar modelos GARCH para la volatilidad, con componente $ARCH(1)$ y $ARCH(2)$ solamente, y con volatilidad independiente de sus retrasos, y regresada sobre retrasos $h=1$ y $2$. Además, se prueban estos modelos usando la posibilidad de un modelo ARMA para la media con componente autoregresivo de primer o segundo orden. 
 
