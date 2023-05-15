@@ -26,8 +26,10 @@ _f)_ Ajuste un modelo $ARMA$ a $\nabla x_t$ y comente.
 La serie mostrada en la `r figr("p05-01-01-setup", TRUE, type="figura")` muestra los valores simulados del modelo $ARFIMA(1,1,0)$ con $\phi = .75$ y $d = .4$. 
 Se observa en la serie un patrón cíclico cuyo periodo parece variar de 50 a 150 años a lo largo de la serie, alargándose el ciclo y luego haciéndose mas corto. 
 
-```{r p05-01-01-setup, anchor="figura", fig.cap=""}
-autoplot(arf) +
+```{r p05-01-01-tsplot, anchor="figura", fig.cap="Serie arf."}
+arf %>%
+  as_tsibble() %>%
+  autoplot() +
   theme_light() +
   scale_x_continuous(name = "Tiempo",
     breaks = seq(0, 1000, by = 100),
@@ -35,9 +37,9 @@ autoplot(arf) +
 ```
 
 La ACF muestra que el proceso es de memoria larga, con autocorrelaciones importantes (con magnitudes moderadas a moderadamente pequeñas) que se extienden a valores de $h>100$, y que decrecen y crecen nuevamente una y otra vez. 
-El PACF muestra que el proceso puede ser autoregresivo de segundo orden, con correlacones significativas en $h=14$ y $h=69$.
+El PACF muestra que el proceso puede ser autoregresivo de segundo orden, con correlaciones significativas en $h=14$ y $h=69$.
 
-```{r p05-01-01-acf, anchor="figura", fig.cap=""}
+```{r p05-01-02-acf, anchor="figura", fig.cap="ACF y PACF de la serie."}
 cowplot::plot_grid(
 	ACF(as_tsibble(arf), value, lag_max=100) %>%
 	  autoplot() + theme_light(),
@@ -46,8 +48,102 @@ cowplot::plot_grid(
 	nrow=1)
 ```
 
-```{r}
-#library(fracdiff)
+El modelo ARFIMA estimado por selección automática basada en criterios de información tiene por parámetros los mostrados en la `r figr("p05-01-03-autoarfima", TRUE, type = "tabla")`. Se puede observar que los componentes de promedio móvil no son importantes. 
+El valor para $\phi_2$ no es significativo, pero $\phi_1$ y $d$ si lo son, indicando que se trata de un modelo ARFIMA de primer orden en el componente autoregresivo, con diferencia fraccional. 
+Los valores estimados para estos parámetros son muy similares a los usados para generar la serie, a partir de una distribución normal estándar.
+
+```{r p05-01-03-autoarfima, anchor="tabla"}
+arfima_estimation <- autoarfima(arf,
+	method="full", arfima=NULL)
+
+arfima_estimation$fit@fit$matcoef %>%
+  as_tibble() %>%
+  mutate(coef=c("$\\hat{\\phi_1}$", "$\\hat{\\phi_2}$", "$\\hat{\\theta_1}$", "$\\hat{\\theta_2}$", "$\\hat{d}$", "$\\hat{\\sigma}$"), .before = 1) %>%
+  kbl(digits = c(NA, 3, 4, 2, 4),
+  	escape = FALSE,
+  	col.names=c("Coef.", "Estimado", "Desv. Est.", "$t$", "$p$"),
+  	caption = "Coeficientes estimados por selección automática de modelo."
+  )
+```
+
+Para el inciso _d)_, se observa en el gráfico temporal (`r figr("p05-01-01-tsplot", TRUE, type="figura")`) que hay cierto componente con tendencia, que se puede eliminar por medio de una diferencia. Esto, además, diminuiría la autocorrelación serial observada en la ACF mostrada en la `r figr("p05-01-02-acf", TRUE, type="figura")`.
+
+El ACF y PACF de la primera diferencia de la serie `arf` se muestra abajo:
+
+```{r p05-01-04-acf, anchor="figura", fig.cap="ACF y PACF de la serie diferenciada."}
+cowplot::plot_grid(
+	ACF(as_tsibble(diff(arf)), value, lag_max=100) %>%
+	  autoplot() + theme_light(),
+	PACF(as_tsibble(diff(arf)), value, lag_max=100) %>%
+	  autoplot() + theme_light(),
+	nrow=1)
+```
+
+Se observa de la ACF que el componente autoregresivo de primer orden resalta, con varias correlaciones pequeñas significativas. 
+
+Se ajustan varios modelos ARMA en el siguiente fragmento de código, y se muestran los criterios de información ordenados en forma descendente de $AIC$. 
+El modelo ARMA preferible según los criterios de información es el autoregresivo de primer orden, sin componente de promedio móvil.
+
+```{r p05-01-04-model, anchor="tabla"}
+mod <- as_tsibble(diff(arf)) %>%
+  model(
+  	mod_1 = ARIMA(value ~ 0 + pdq(1, 0, 0), stepwise = FALSE),
+  	mod_2 = ARIMA(value ~ 0 + pdq(1, 0, 1), stepwise = FALSE),
+  	mod_3 = ARIMA(value ~ 0 + pdq(1, 0, 2), stepwise = FALSE),
+  	mod_4 = ARIMA(value ~ 0 + pdq(2, 0, 0), stepwise = FALSE),
+  	mod_5 = ARIMA(value ~ 0 + pdq(2, 0, 1), stepwise = FALSE),
+  	mod_6 = ARIMA(value ~ 0 + pdq(2, 0, 2), stepwise = FALSE)
+  )
+
+glance(mod) %>%
+  select(.model:BIC) %>%
+  mutate(.model = c("ARMA(1,0)", "ARMA(1,1)", "ARMA(1,2)", "ARMA(2,0)", "ARMA(2,1)", "ARMA(2,2)")) %>%
+  arrange(AIC) %>%
+  kbl(digits = c(NA, 2, 0, 2, 2, 2),
+  	escape = FALSE,
+  	col.names=c("Modelo", "$\\sigma^2$", "Func. Verosim.", "$AIC$", "$AICc$", "$BIC$"),
+  	caption = "Criterios de información para los mdoelos ARMA ajustados.")
+```
+
+El valor estimado para el coeficiente autoregresivo es $\phi =$ `r round(tidy(select(mod, mod_1))$estimate, 3)` $\pm$ `r round(tidy(select(mod, mod_1))$std.error, 4)`, el cual es muy significativo. 
+Los gráficos diagnósticos muestran que los residuales se comportan normalmente, pero se observan aun autocorrelaciones pequeñas significativas en el ACF y PACF.
+
+```{r p05-01-05-diagnostics, anchor="tabla"}
+augmented_df <- augment(select(mod, mod_1))
+
+augmented_df %>%
+  ACF(.innov, lag_max=100) %>%
+  autoplot() +
+    theme_light() +
+    xlab("lag") + 
+    ylab(latex2exp::TeX("$\\rho(s, t)$")) -> acf
+
+augmented_df %>%
+  PACF(.innov, lag_max=100) %>%
+  autoplot() +
+    theme_light() +
+    xlab("lag") + 
+    ylab(latex2exp::TeX("$\\rho(s, t)$")) -> pacf 
+
+res_series <- augmented_df %>%
+     autoplot(.resid, colour="orange") +
+     geom_point(aes(y=.resid), colour="orange") +
+     xlab("Tiempo") +
+     ylab("Residuales") +
+     theme_light() +
+     geom_hline(yintercept=c(0), 
+     	color=c("black"), linetype=c(1))
+
+res_qq_plot <- augmented_df %>% 
+  ggplot(aes(sample = .resid)) + 
+  stat_qq() + stat_qq_line(color="red") + 
+  theme_light()
+
+cowplot::plot_grid(acf, pacf, res_series, res_qq_plot, 
+  nrow=1, align="h",
+  labels=c("a)", "b)", "c)", "d)"), 
+  label_size=11, 
+  label_fontface="italic")
 ```
 
 **Problema 5.3** Grafique la serie de temperatura global, `globtemp`, y luego pruebe si hay una raíz unitaria versus la alternativa de que el proceso es estacionario usando las tres pruebas: DF, ADF y PP, discutidas en el Ejemplo 5.3. Comente.
