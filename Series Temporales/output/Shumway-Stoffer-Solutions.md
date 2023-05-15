@@ -1,7 +1,7 @@
 ---
 title: Soluciones a problemas de _Time Series Analysis and its Applications_ de Shumway y Stoffer
 author: Marcelo Molinatti
-date: "2023-05-14"
+date: "2023-05-15"
 output:
  bookdown::html_document2:
   number_sections: yes
@@ -386,7 +386,7 @@ $$
 	\gamma(t,s) &= E[(x_t - \mu_t)(x_s - \mu_s)] \\
 		&= E\left[\left(t\delta + \sum_{j=1}^t w_j - t\delta\right)\left(s\delta + \sum_{j=1}^s w_j - s\delta\right)\right] \\
 		&= E\left[\left(\sum_{j=1}^t w_j\right)\left(\sum_{j=1}^s w_j\right)\right] \\
-		&= \text{min}\left{s,t\right} \sigma_w^2
+		&= \text{min}(s,t) \sigma_w^2
 \end{aligned}
 $$
 
@@ -546,14 +546,14 @@ $$
 
 Como se ve arriba, la función de covarianza cruzada $\gamma_{xy}(h)$ depende solo del retraso $h$ y, por lo tanto, las series son conjuntamente estacionarias.
 
-**Problema 1.14** Sea $x_t$ un proceso normal estacionario con media $\mu_x$ y función de autocovarianza $\gamma(h)$. Definir la serie de tiempo no lineal $y_t = exp\left{x_t\right}$.  
+**Problema 1.14** Sea $x_t$ un proceso normal estacionario con media $\mu_x$ y función de autocovarianza $\gamma(h)$. Definir la serie de tiempo no lineal $y_t = e^{x_t}$.  
 _a)_ Exprese la función media $E(y_t)$ en términos de $\mu_x$ y $\gamma(0)$. La función generadora de momentos de una variable aleatoria normal $x$ con media $\mu$ y varianza $\sigma^2$ es:
 
-$$M_x(\lambda) = E[exp\left{\lambda x\right}] = exp\left{\mu\lambda + \frac{1}{2}\sigma^2\lambda^2\right}$$
+$$M_x(\lambda) = E[e^{\lambda x}] = e^{\mu\lambda + \frac{1}{2}\sigma^2\lambda^2}$$
 
 _b)_ Determine la función de autocovarianza de $y_t$. La suma de las dos variables aleatorias normales $x_{t+h} + x_t$ sigue siendo una variable aleatoria normal.
 
-Para el inciso _a)_, se nota que $E(y_t)=E[exp\left\{x_t\right\}]$, la cual es la función generadora de momentos $M_x(\lambda=1)$ para $\lambda=1$. De forma que:
+Para el inciso _a)_, se nota que $E(y_t)=E[e^{x_t}]$, la cual es la función generadora de momentos $M_x(\lambda=1)$ para $\lambda=1$. De forma que:
 
 $$E(y_t)= e^{\mu_x + \frac{1}{2}\sigma^2}$$
 
@@ -562,10 +562,10 @@ La función de autocovarianza es:
 $$
 \begin{aligned}
     \gamma_y(h) &= E[(y_t - \mu_y)(y_{t+h} - \mu_y)] \\
-        &= E\left[\left(exp\{x_t\} - \left\{\mu + \frac{1}{2}\sigma^2\right\}\right)\left(exp\{x_{t+h}\} - \left\{\mu + \frac{1}{2}\sigma^2\right\}\right)\right] \\
-        &= E\left[exp\{x_t + x_{t+h}\} - exp\left\{\mu + \frac{1}{2}\sigma^2\right\}^2\right] \\
-        &= E\left[exp\{x_t + x_{t+h}\}\right] - exp\left\{\mu + \frac{1}{2}\sigma^2\right\}^2 \\
-        &= E\left[exp\{x_t + x_{t+h}\}\right] - exp\left\{2\mu + \sigma^2\right\}
+        &= E\left[\left(e^{x_t} - \mu + \frac{1}{2}\sigma^2\right)\left(e^{x_{t+h}} - \mu + \frac{1}{2}\sigma^2\right)\right] \\
+        &= E\left[e^{x_t + x_{t+h}} - e^{\mu + \frac{1}{2}\sigma^2}^2\right] \\
+        &= E\left[e^{x_t + x_{t+h}}\right] - e^{\mu + \frac{1}{2}\sigma^2}^2 \\
+        &= E\left[e^{x_t + x_{t+h}}\right] - e^{2\mu + \sigma^2\right}
 \end{aligned}
 $$
 
@@ -573,8 +573,8 @@ Como $z_t = x_t + x_{t+h}$ es otra normal, entonces $E(z_t) = 2\mu_x$ y $var(z_t
 
 $$
 \begin{aligned}
-	\gamma_y(h) &= E\left[exp\{x_t + x_{t+h}\}\right] - exp\left\{2\mu + \sigma^2\right\} \\
-		&= exp\left\{2\mu + \sigma^2\right\} - exp\left\{2\mu + \sigma^2\right\} \\
+	\gamma_y(h) &= E\left[e^{x_t + x_{t+h}}\right] - e^{2\mu + \sigma^2\right} \\
+		&= e^{2\mu + \sigma^2} - e^{2\mu + \sigma^2} \\
 		&= 0
 \end{aligned}
 $$
@@ -1132,6 +1132,7 @@ donde $E_1$ denota expectativa con respecto a la densidad determinada por $\thet
 
 $$I(\theta_1;\theta_2) = \frac{1}{2}\left(\frac{\sigma^2_1}{\sigma^2_2} - log\frac{\sigma^2_1}{\sigma^2_2} - 1\right) + \frac{1}{2}\frac{(\beta_1 - \beta_2)^\prime Z^\prime Z(\beta_1 - \beta_2)}{n\sigma_2^2}$$
 
+<!---
 La función de densidad gaussiana es:
 
 $$f(x; \theta) = \frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{1}{2}\frac{\beta^\prime Z^\prime Z\beta}{\sigma^2}}$$
@@ -1146,7 +1147,7 @@ $$
 		&= n^{-1}
 \end{aligned}
 $$
-
+--->
 
 **Problema 2.5 Selección del modelo.** Ambos criterios de selección (2.15) y (2.16) se derivan de argumentos teóricos de la información, basados en los bien conocidos números de discriminación de información de Kullback-Leibler. Consideramos que la medida dada por la ecuación obtenida en el problema anterior mide la discrepancia entre las dos densidades, caracterizada por los valores de los parámetros $\theta_1^\prime = (\beta_1^\prime, \sigma_1^2)^\prime$ y $\theta_2^\prime = (\beta_2^\prime, \sigma_2^2)^\prime$. Ahora, si el verdadero valor del vector de parámetros es $\theta_1$, argumentamos que el mejor modelo sería uno que minimice la discrepancia entre el valor teórico y la muestra, digamos $I(\theta_1; \hat{\theta})$. Debido a que no se conocerá $\theta_1$, Hurvich y Tsai consideraron encontrar un estimador insesgado para $E_1[I(\beta_1, \sigma_1^2; \hat{β},\hat{σ}^2)]$, donde
 
@@ -1230,9 +1231,9 @@ $$
 $$
 
 donde la ultima igualdad se obtiene del resultado en el ejercicio anterior. Luego, la serie es débilmente estacionaria.  
-La serie es también estrictamente estacionaria, dado que $Pr\{x_t - x_{t-1} \le c\} = Pr\{y_t - y_{t-1} + w_t \le c - \delta\}$, y si $y_t$ y $w_t$ son estacionarios, entonces $Pr\{y_t - y_{t-1} + w_t \le c - \delta\} = Pr\{y_{t+h} - y_{t+h-1} + w_{t+h} \le c - \delta\}$. Luego, 
+La serie es también estrictamente estacionaria, dado que $Pr\left[x_t - x_{t-1} \le c\right] = Pr\left[y_t - y_{t-1} + w_t \le c - \delta\right]$, y si $y_t$ y $w_t$ son estacionarios, entonces $Pr\left[y_t - y_{t-1} + w_t \le c - \delta\right] = Pr\left[y_{t+h} - y_{t+h-1} + w_{t+h} \le c - \delta\right]$. Luego, 
 
-$$Pr\{x_t - x_{t-1} \le c\} = Pr\{y_{t+h} - y_{t+h-1} + w_{t+h} \le c - \delta\}$$ 
+$$Pr\left[x_t - x_{t-1} \le c\right] = Pr\left[y_{t+h} - y_{t+h-1} + w_{t+h} \le c - \delta\right]$$ 
 
 y $x_t-x_{t-1}$ es estrictamente estacionaria.
 
@@ -1390,7 +1391,7 @@ tidy(mod) %>%
 
 El modelo ajustado es:
 
-$$SOI = 13,7036654{}_{3,1887278}  -0,0069196{}_{0,0016196} t$$
+$$SOI = 13,7036654_{3,1887278}  -0,0069196_{0,0016196} t$$
 
 Los valores encontrado para los coeficientes de regresión son significativos según os resultados obtenidos, indicando que hay una caída del $SOI$ con respecto al tiempo. Al eliminar el componente con tendencia y realizar el análisis espectral de los residuales (que representan a la serie $SOI$ sin el componente con tendencia), se obtiene el peridiograma mostrado en la <a href="#p02-09-02-peridiogram">figura 10</a> (que solo muestra una sección del peridiograma donde se encuentran las frecuencias relevantes).
 
@@ -1521,8 +1522,8 @@ coefs <- broom::tidy(reg_f)
 ```
 
 $$G_t = \begin{cases}
-	0,0059 {}_{0,009} + 0,6831 {}_{0,0584}O_t + 0,1119 {}_{0,0386}O_{t-1} & O_t \ge 0 \\
-	-0,0064 {}_{0,0035} + 0,6831 {}_{0,0584}O_t + 0,1119 {}_{0,0386}O_{t-1} & O_t < 0 
+	0,0059_{0,009} + 0,6831_{0,0584}O_t + 0,1119_{0,0386}O_{t-1} & O_t \ge 0 \\
+	-0,0064_{0,0035} + 0,6831_{0,0584}O_t + 0,1119_{0,0386}O_{t-1} & O_t < 0 
 \end{cases}$$
 
 Esto implica, que el cambio en el precio de la gasolina como consecuencia del cambio en el precio del petroleo y el precio del mismo registrado justamente anterior, tienen un valor promedio mayor cuando el cambio en el precio del petroleo es mayor o igual a cero, lo cual respalda la _asimetría_ de la serie. Dicho de otro modo, el precio de la gasolina aumenta en $t$ a una tasa proporcional mayor cuando el precio del petroleo es mayor o igual cero, dado que el cambio proporcional base es positivo y no negativo.
@@ -1633,18 +1634,20 @@ Por otro lado, el modelo no es invertible dado que $\theta(z) = 1-z = 0 \rightar
 <a name="problema-3-33"></a>
 **Problema 3.33** Ajuste un modelo $ARIMA(p, d, q)$ a los datos de temperatura global `globtemp` realizando todos los diagnósticos necesarios. Después de decidirse por un modelo apropiado, pronostique (con límites) los próximos $10$ años. Comente.
 
-Ya en el [ejemplo 2.6](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/colab-nb/global-temperature-example.ipynb) que la serie de temperatura global parece comportarse más como un paseo aleatorio que como una serie estacionaria de tendencia, y por lo tanto, en lugar de eliminar la tendencia de los datos, es más apropiado utilizar la diferenciación para forzarlos a la estacionaridad. Al realizar esto, se encontró una autocorrelación mínima, lo que puede implicar que la serie de temperatura global es casi un paseo aleatorio con deriva. La ACF y PACF de la serie diferenciada se muestra en la <a href="#p03-33-01-example-2-6">figura 17</a>. 
-LA PACF muestra correlaciones significativas hasta el _lag_ 3, otra autocorrelación importante en $h=36$, y una autocorrelación pequeña, pero significativa) en $h=5$. La ACF muestra correlaciones importantes en $h=4$, $9$ y $27$.
+Ya en el [ejemplo 2.6](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/colab-nb/global-temperature-example.ipynb) que la serie de temperatura global parece comportarse más como un paseo aleatorio que como una serie estacionaria de tendencia (ver el <a href="/Series%20Temporales/output/Shunway-Stoffer-Solutions.md#problema-5-3">problema 5.3</a>), y por lo tanto, en lugar de eliminar la tendencia de los datos, es más apropiado utilizar la diferenciación para forzarlos a la estacionaridad. 
+
+Al realizar esto, se encontró una autocorrelación mínima, lo que puede implicar que la serie de temperatura global es casi un paseo aleatorio con deriva. La ACF y PACF de la serie diferenciada se muestra en la <a href="#p03-33-01-example-2-6">figura 17</a>. 
+LA PACF muestra correlaciones significativas hasta el _lag_ 3, otra autocorrelación importante en $h=36$, y una autocorrelación pequeña (pero significativa) en $h=5$. La ACF muestra correlaciones importantes en $h=4$, $9$ y $27$.
 
 <a name="p03-33-01-example-2-6"></a>
 
 ```r
-df_globtemp <- as_tsibble(diff(gtemp))
+df_globtemp <- as_tsibble(gtemp)
 
 cowplot::plot_grid(
-    ACF(df_globtemp, value, lag_max = 48) %>%
+    ACF(df_globtemp, diff(value), lag_max = 48) %>%
       autoplot() + theme_light(),
-    PACF(df_globtemp, value, lag_max = 48) %>%
+    PACF(df_globtemp, diff(value), lag_max = 48) %>%
       autoplot() + theme_light(),
   nrow = 1)
 ```
@@ -1662,25 +1665,74 @@ que se expande como:
 
 $$x_t = (1 + \phi) x_{t-1} - \phi x_{t-2} + w_t + \theta_1 w_{t-1} + \theta_2 w_{t-2} + \theta_3 w_{t-3}$$
 
+Además, se considera un modelo similar pero con una constante $c = \mu(1 - \phi)$, para verificar si el componente con deriva es significativo o no. 
+
 
 ```r
 first_model <- df_globtemp %>%
-  model(first_arima = ARIMA(value ~ pdq(1, 1, 3), stepwise = FALSE))
+  model(
+    first_arima_c = ARIMA(value ~ pdq(1, 1, 3), stepwise = FALSE),
+    first_arima = ARIMA(value ~ 0 + pdq(1, 1, 3), stepwise = FALSE)
+  )
 ```
 
-Los resultados del ajuste se muestran en la <a href="#p03-33-02-first-model">tabla 4</a>, donde se observa que los coeficientes $\theta_2$ y $\theta_3$ no son significativos. 
-La varianza residual del modelo ajustado es $\sigma^2 = 0,00959$. 
+Los resultados del ajuste se muestran en la <a href="#p03-33-02-models-criteria">tabla 4</a>, donde se observa que el modelo con la deriva es preferible al modelo sin termino constante, de acuerdo a los criterios de información. 
+
+<a name="p03-33-02-models-criteria"></a>
+
+```r
+glance(first_model) %>%
+  select(sigma2:BIC) %>%
+  mutate(Model=c("ARIMA(1,1,3) con deriva", "ARIMA(1,1,3)"), .before=1) %>%
+  kbl(digits = c(NA, 4, 2, 2, 2, 2), escape=FALSE,
+    col.names=c("Modelo", "$\\sigma^2$", "Func. Verosim.", "AIC", "AICc", "BIC"),
+    caption="Criterios de información para los modelos ARIMA(1,1,3) con y sin deriva.")
+```
+
+<table>
+<caption>(\#tab:p03-33-02-models-criteria)Criterios de información para los modelos ARIMA(1,1,3) con y sin deriva.</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Modelo </th>
+   <th style="text-align:right;"> $\sigma^2$ </th>
+   <th style="text-align:right;"> Func. Verosim. </th>
+   <th style="text-align:right;"> AIC </th>
+   <th style="text-align:right;"> AICc </th>
+   <th style="text-align:right;"> BIC </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> ARIMA(1,1,3) con deriva </td>
+   <td style="text-align:right;"> 0,0091 </td>
+   <td style="text-align:right;"> 122,17 </td>
+   <td style="text-align:right;"> -232,34 </td>
+   <td style="text-align:right;"> -231,66 </td>
+   <td style="text-align:right;"> -215,19 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ARIMA(1,1,3) </td>
+   <td style="text-align:right;"> 0,0094 </td>
+   <td style="text-align:right;"> 119,56 </td>
+   <td style="text-align:right;"> -229,11 </td>
+   <td style="text-align:right;"> -228,63 </td>
+   <td style="text-align:right;"> -214,82 </td>
+  </tr>
+</tbody>
+</table>
+
+Los coeficientes estimados para el modelo con deriva se muestran adelante, observándose que todos son significativos. 
+La varianza residual del modelo ajustado es $\sigma^2 =$ 0,00911. 
 
 <a name="p03-33-02-first-model"></a>
 
 ```r
-inf_crit <- glance(first_model) %>%
-  select(sigma2:BIC) %>%
-  tidyr::gather(key="Inf. Crit.", value="value")  
+chosen_mod <- first_model %>%
+  select(first_arima_c)
 
-tidy(first_model) %>%
+tidy(chosen_mod) %>%
   select(-.model) %>%
-  mutate(term = c("$\\phi$", "$\\theta_1$", "$\\theta_2$", "$\\theta_3$")) %>%
+  mutate(term = c("$\\phi$", "$\\theta_1$", "$\\theta_2$", "$\\theta_3$", "$c$")) %>%
   kbl(digits=c(NA, 3, 3, 3, 4), escape=FALSE, booktabs=TRUE,
   	caption="Resultados del auste ARIMA.",
     col.names=c("Coeficiente", "Estimado", "Desv. Est.", "Estadistico", "p"))
@@ -1700,57 +1752,68 @@ tidy(first_model) %>%
 <tbody>
   <tr>
    <td style="text-align:left;"> $\phi$ </td>
-   <td style="text-align:right;"> 0,044 </td>
-   <td style="text-align:right;"> 0,274 </td>
-   <td style="text-align:right;"> 0,161 </td>
-   <td style="text-align:right;"> 0,8727 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> $\theta_1$ </td>
-   <td style="text-align:right;"> -1,534 </td>
-   <td style="text-align:right;"> 0,260 </td>
-   <td style="text-align:right;"> -5,894 </td>
+   <td style="text-align:right;"> -0,938 </td>
+   <td style="text-align:right;"> 0,095 </td>
+   <td style="text-align:right;"> -9,909 </td>
    <td style="text-align:right;"> 0,0000 </td>
   </tr>
   <tr>
+   <td style="text-align:left;"> $\theta_1$ </td>
+   <td style="text-align:right;"> 0,485 </td>
+   <td style="text-align:right;"> 0,116 </td>
+   <td style="text-align:right;"> 4,161 </td>
+   <td style="text-align:right;"> 0,0001 </td>
+  </tr>
+  <tr>
    <td style="text-align:left;"> $\theta_2$ </td>
-   <td style="text-align:right;"> 0,371 </td>
-   <td style="text-align:right;"> 0,423 </td>
-   <td style="text-align:right;"> 0,878 </td>
-   <td style="text-align:right;"> 0,3816 </td>
+   <td style="text-align:right;"> -0,634 </td>
+   <td style="text-align:right;"> 0,096 </td>
+   <td style="text-align:right;"> -6,637 </td>
+   <td style="text-align:right;"> 0,0000 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> $\theta_3$ </td>
-   <td style="text-align:right;"> 0,173 </td>
-   <td style="text-align:right;"> 0,171 </td>
-   <td style="text-align:right;"> 1,011 </td>
-   <td style="text-align:right;"> 0,3140 </td>
+   <td style="text-align:right;"> -0,286 </td>
+   <td style="text-align:right;"> 0,087 </td>
+   <td style="text-align:right;"> -3,299 </td>
+   <td style="text-align:right;"> 0,0013 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> $c$ </td>
+   <td style="text-align:right;"> 0,013 </td>
+   <td style="text-align:right;"> 0,005 </td>
+   <td style="text-align:right;"> 2,617 </td>
+   <td style="text-align:right;"> 0,0099 </td>
   </tr>
 </tbody>
 </table>
 
 Los gráficos diagnósticos se muestran a continuación, donde se puede observar que la ACF y PACF se asemejan a los esperados para ruido blanco, a excepción de las correlaciones significativas. 
 En la ACF se observa una correlación significativa en $h=27$, y en la PACF se observa una correlación significativa en $h=36$. 
-El gráfico _QQ_, así como el gráfico temporal de residuales, muestran que la distribución es bastante normal, pero que existen 4 datos atípicos.
+El gráfico _QQ_, así como el gráfico temporal de residuales, muestran que la distribución es bastante normal, pero que existen 2 datos atípicos que se desvían de la recta teórica normal, y corresponden a las observaciones de 1991 y 1999.
 
 <a name="p03-33-03-diagnostics"></a>
 
 ```r
-augment(first_model) %>%
+augmented_df <- first_model %>%
+  select(first_arima_c) %>%
+  augment()
+
+augmented_df %>%
   ACF(.innov, lag_max=50) %>%
   autoplot() +
     theme_light() +
     xlab("lag") + 
     ylab(latex2exp::TeX("$\\rho(s, t)$")) -> acf
 
-augment(first_model) %>%
+augmented_df %>%
   PACF(.innov, lag_max=50) %>%
   autoplot() +
     theme_light() +
     xlab("lag") + 
     ylab(latex2exp::TeX("$\\rho(s, t)$")) -> pacf 
 
-res_series <- augment(first_model) %>%
+res_series <- augmented_df %>%
      autoplot(.resid, colour="orange") +
      geom_point(aes(y=.resid), colour="orange") +
      xlab("Tiempo") +
@@ -1759,7 +1822,7 @@ res_series <- augment(first_model) %>%
      geom_hline(yintercept=c(0), 
      	color=c("black"), linetype=c(1))
 
-res_qq_plot <- augment(first_model) %>% 
+res_qq_plot <- augmented_df %>% 
   ggplot(aes(sample = .resid)) + 
   stat_qq() + stat_qq_line(color="red") + 
   theme_light()
@@ -1776,144 +1839,31 @@ cowplot::plot_grid(acf, pacf, res_series, res_qq_plot,
 <p class="caption">(\#fig:p03-33-03-diagnostics)Gráficos diagnósticos de residuales: _a)_ ACF, _b)_ PACF, _c)_ gráficos de residuales, y _d)_ gráfico _QQ_</p>
 </div>
 
-<!---
-Al revisar gráficos de dispersión de la serie `globtemp` versus las series retrasadas con correlaciones significativas mencionadas antes, $h=27$ y $h=36$, se pude observar que hay una relación no lineal entre las series. 
-La relación parece ser no lineal, de acuerdo a la curva suaviada por _loess_ superpuesta en los gráficos de dispersión. Sin embargo, en el grafico de la derecha se observa comop varios puntos se desvian de este comportamiento.
-
-<a name="p03-33-scatter"></a>
-
-```r
-#corr_series <- ts.intersect(globtemp, 
-#  globTL27=stats::lag(globtemp, 27), 
-#  globTL36=stats::lag(globtemp, 36), 
-#  dframe=TRUE) %>%
-#  ts(start=1880) %>%
-#  as_tsibble() %>%
-#  tidyr::spread("key", "value")
-
-#third_model <- corr_series %>%
-#  model(third_model = ARIMA(globtemp  ~ pdq(1, 1, 2) + xreg(globTL36), stepwise = FALSE))
-
-#cowplot::plot_grid(
-#	corr_series %>%
-#	  ggplot(aes(x=globTL27, y=globtemp)) +
-#	    geom_point() + theme_light() +
-#	    geom_smooth(method=loess, se=FALSE, colour="orange"),
-#	corr_series %>%
-#	  ggplot(aes(x=globTL36, y=globtemp)) +
-#	    geom_point() + theme_light() +
-#	    geom_smooth(method=loess, se=FALSE, colour="orange"),
-#	nrow=1)
-```
---->
-
-
-```r
-second_model <- df_globtemp %>%
-  model(second_model = ARIMA(value  ~ pdq(1, 1, 2), stepwise = FALSE))
-```
-
-Dado los resultados obtenidos, se decide optar por un modelo más simple, $ARIMA(1,1,2)$. El nuevo modelo tiene una varianza residual menor, $\sigma^2 = 0,00957$. 
-Además, todos los criterios de información son menores en el nuevo modelo ajustado, por lo que se prefiere el nuevo modelo en contraste con el anterior. 
-
-<a name="p03-33-05-second-model"></a>
-
-```r
-bind_cols(first_model, second_model) %>%
-  glance() %>%
-  mutate(.model=c("$ARIMA(1,1,3)$", "$ARIMA(1,1,2)$")) %>%
-  select(.model:BIC) %>%
-  kbl(digits=c(NA, 4, 2, 2, 2, 2), escape=FALSE, booktabs=TRUE,
-  	caption="Comparación de modelos ARIMA ajustados.",
-    col.names=c("Modelo", "$\\sigma^2$", "Func. Verosim.", "AIC", "AICc", "BIC"))
-```
-
-<table>
-<caption>(\#tab:p03-33-05-second-model)Comparación de modelos ARIMA ajustados.</caption>
- <thead>
-  <tr>
-   <th style="text-align:left;"> Modelo </th>
-   <th style="text-align:right;"> $\sigma^2$ </th>
-   <th style="text-align:right;"> Func. Verosim. </th>
-   <th style="text-align:right;"> AIC </th>
-   <th style="text-align:right;"> AICc </th>
-   <th style="text-align:right;"> BIC </th>
-  </tr>
- </thead>
-<tbody>
-  <tr>
-   <td style="text-align:left;"> $ARIMA(1,1,3)$ </td>
-   <td style="text-align:right;"> 0,0096 </td>
-   <td style="text-align:right;"> 115,04 </td>
-   <td style="text-align:right;"> -220,08 </td>
-   <td style="text-align:right;"> -219,58 </td>
-   <td style="text-align:right;"> -205,81 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> $ARIMA(1,1,2)$ </td>
-   <td style="text-align:right;"> 0,0096 </td>
-   <td style="text-align:right;"> 114,66 </td>
-   <td style="text-align:right;"> -221,33 </td>
-   <td style="text-align:right;"> -221,00 </td>
-   <td style="text-align:right;"> -209,92 </td>
-  </tr>
-</tbody>
-</table>
-
-Los coeficientes estimados junto con su desviación estándar se muestran en la <a href="#p03-33-05-coef-second">tabla 6</a>, donde se observan que ahora todos son signficativos. 
-
-<a name="p03-33-06-coef-second"></a>
-
-```r
-tidy(second_model) %>%
-  select(-.model) %>%
-  mutate(term = c("$\\phi$", "$\\theta_1$", "$\\theta_2$")) %>%
-  kbl(digits=c(NA, 3, 3, 3, 4), escape=FALSE, booktabs=TRUE,
-  	caption="Resultados del auste ARIMA.",
-    col.names=c("Coeficiente", "Estimado", "Desv. Est.", "Estadistico", "p"))
-```
-
-<table>
-<caption>(\#tab:p03-33-06-coef-second)Resultados del auste ARIMA.</caption>
- <thead>
-  <tr>
-   <th style="text-align:left;"> Coeficiente </th>
-   <th style="text-align:right;"> Estimado </th>
-   <th style="text-align:right;"> Desv. Est. </th>
-   <th style="text-align:right;"> Estadistico </th>
-   <th style="text-align:right;"> p </th>
-  </tr>
- </thead>
-<tbody>
-  <tr>
-   <td style="text-align:left;"> $\phi$ </td>
-   <td style="text-align:right;"> 0,269 </td>
-   <td style="text-align:right;"> 0,118 </td>
-   <td style="text-align:right;"> 2,286 </td>
-   <td style="text-align:right;"> 0,0239 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> $\theta_1$ </td>
-   <td style="text-align:right;"> -1,777 </td>
-   <td style="text-align:right;"> 0,070 </td>
-   <td style="text-align:right;"> -25,306 </td>
-   <td style="text-align:right;"> 0,0000 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> $\theta_2$ </td>
-   <td style="text-align:right;"> 0,786 </td>
-   <td style="text-align:right;"> 0,071 </td>
-   <td style="text-align:right;"> 11,061 </td>
-   <td style="text-align:right;"> 0,0000 </td>
-  </tr>
-</tbody>
-</table>
-
 El modelo ajustado se escribe:
 
-$$x_t = 1,27{}_{(0,118)} x_{t-1} - 0,27{}_{(0,118)} x_{t-2} + w_t + -1,78{}_{(0,07)} w_{t-1} + 0,79{}_{(0,071)} w_{t-2}$$
+$$x_t = 0,0125_{(0,0048)} 0,06_{(0,095)} x_{t-1}  -0,94_{(0,095)} x_{t-2} + w_t + 0,48_{(0,116)} w_{t-1}  -0,63_{(0,096)} w_{t-2}  -0,29_{(0,087)} w_{t-3}$$
 
-y los diagnósticos (no mostrados) muestran un comportamiento similar al anterior.
+Lo pronósticos para los próximos 10 años se muestran a continuación:
+
+<a name="p03-33-07-forecast"></a>
+
+```r
+mod_forecast <- chosen_mod %>%
+  forecast(h=10)
+
+autoplot(df_globtemp, colour="dodgerblue3") +
+  autolayer(mod_forecast, colour="orange") +
+    theme_light() + 
+    xlab('Tiempo') + ylab('Dif. de Temperatura') +
+    theme(legend.position="none")
+```
+
+<div class="figure" style="text-align: center">
+<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p03-33-07-forecast-1.png" alt="Pronósticos para los próximos 10 años"  />
+<p class="caption">(\#fig:p03-33-07-forecast)Pronósticos para los próximos 10 años</p>
+</div>
+
+donde se observa una pequeña tendencia lineal creciente y fluctuante en los próximos 10 años.
 
 # Capitulo 4.
 
@@ -1949,22 +1899,27 @@ _f)_ Ajuste un modelo $ARMA$ a $\nabla x_t$ y comente.
 La serie mostrada en la <a href="#p05-01-01-setup">figura 20</a> muestra los valores simulados del modelo $ARFIMA(1,1,0)$ con $\phi = .75$ y $d = .4$. 
 Se observa en la serie un patrón cíclico cuyo periodo parece variar de 50 a 150 años a lo largo de la serie, alargándose el ciclo y luego haciéndose mas corto. 
 
-<a name="p05-01-01-setup"></a>
+<a name="p05-01-01-tsplot"></a>
 
 ```r
-autoplot(arf) +
+arf %>%
+  as_tsibble() %>%
+  autoplot() +
   theme_light() +
   scale_x_continuous(name = "Tiempo",
     breaks = seq(0, 1000, by = 100),
     labels = seq(0, 1000, by = 100))
 ```
 
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-01-01-setup-1.png" style="display: block; margin: auto;" />
+<div class="figure" style="text-align: center">
+<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-01-01-tsplot-1.png" alt="Serie arf."  />
+<p class="caption">(\#fig:p05-01-01-tsplot)Serie arf.</p>
+</div>
 
 La ACF muestra que el proceso es de memoria larga, con autocorrelaciones importantes (con magnitudes moderadas a moderadamente pequeñas) que se extienden a valores de $h>100$, y que decrecen y crecen nuevamente una y otra vez. 
-El PACF muestra que el proceso puede ser autoregresivo de segundo orden, con correlacones significativas en $h=14$ y $h=69$.
+El PACF muestra que el proceso puede ser autoregresivo de segundo orden, con correlaciones significativas en $h=14$ y $h=69$.
 
-<a name="p05-01-01-acf"></a>
+<a name="p05-01-02-acf"></a>
 
 ```r
 cowplot::plot_grid(
@@ -1975,36 +1930,273 @@ cowplot::plot_grid(
 	nrow=1)
 ```
 
-<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-01-01-acf-1.png" style="display: block; margin: auto;" />
+<div class="figure" style="text-align: center">
+<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-01-02-acf-1.png" alt="ACF y PACF de la serie."  />
+<p class="caption">(\#fig:p05-01-02-acf)ACF y PACF de la serie.</p>
+</div>
 
+El modelo ARFIMA estimado por selección automática basada en criterios de información tiene por parámetros los mostrados en la <a href="#p05-01-03-autoarfima">tabla 6</a>. Se puede observar que los componentes de promedio móvil no son importantes. 
+El valor para $\phi_2$ no es significativo, pero $\phi_1$ y $d$ si lo son, indicando que se trata de un modelo ARFIMA de primer orden en el componente autoregresivo, con diferencia fraccional. 
+Los valores estimados para estos parámetros son muy similares a los usados para generar la serie, a partir de una distribución normal estándar.
+
+<a name="p05-01-03-autoarfima"></a>
 
 ```r
-#library(fracdiff)
+arfima_estimation <- autoarfima(arf,
+	method="full", arfima=NULL)
+
+arfima_estimation$fit@fit$matcoef %>%
+  as_tibble() %>%
+  mutate(coef=c("$\\hat{\\phi_1}$", "$\\hat{\\phi_2}$", "$\\hat{\\theta_1}$", "$\\hat{\\theta_2}$", "$\\hat{d}$", "$\\hat{\\sigma}$"), .before = 1) %>%
+  kbl(digits = c(NA, 3, 4, 2, 4),
+  	escape = FALSE,
+  	col.names=c("Coef.", "Estimado", "Desv. Est.", "$t$", "$p$"),
+  	caption = "Coeficientes estimados por selección automática de modelo."
+  )
 ```
 
+<table>
+<caption>(\#tab:p05-01-03-autoarfima)Coeficientes estimados por selección automática de modelo.</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Coef. </th>
+   <th style="text-align:right;"> Estimado </th>
+   <th style="text-align:right;"> Desv. Est. </th>
+   <th style="text-align:right;"> $t$ </th>
+   <th style="text-align:right;"> $p$ </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> $\hat{\phi_1}$ </td>
+   <td style="text-align:right;"> 0,725 </td>
+   <td style="text-align:right;"> 0,0967 </td>
+   <td style="text-align:right;"> 7,49 </td>
+   <td style="text-align:right;"> 0,0000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> $\hat{\phi_2}$ </td>
+   <td style="text-align:right;"> 0,077 </td>
+   <td style="text-align:right;"> 0,0516 </td>
+   <td style="text-align:right;"> 1,49 </td>
+   <td style="text-align:right;"> 0,1364 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> $\hat{\theta_1}$ </td>
+   <td style="text-align:right;"> 0,000 </td>
+   <td style="text-align:right;">  </td>
+   <td style="text-align:right;">  </td>
+   <td style="text-align:right;">  </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> $\hat{\theta_2}$ </td>
+   <td style="text-align:right;"> -0,086 </td>
+   <td style="text-align:right;"> 0,0444 </td>
+   <td style="text-align:right;"> -1,95 </td>
+   <td style="text-align:right;"> 0,0516 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> $\hat{d}$ </td>
+   <td style="text-align:right;"> 0,425 </td>
+   <td style="text-align:right;"> 0,0916 </td>
+   <td style="text-align:right;"> 4,64 </td>
+   <td style="text-align:right;"> 0,0000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> $\hat{\sigma}$ </td>
+   <td style="text-align:right;"> 0,986 </td>
+   <td style="text-align:right;"> 0,0220 </td>
+   <td style="text-align:right;"> 44,72 </td>
+   <td style="text-align:right;"> 0,0000 </td>
+  </tr>
+</tbody>
+</table>
+
+Para el inciso _d)_, se observa en el gráfico temporal (<a href="#p05-01-01-tsplot">figura 21</a>) que hay cierto componente con tendencia, que se puede eliminar por medio de una diferencia. Esto, además, diminuiría la autocorrelación serial observada en la ACF mostrada en la <a href="#p05-01-02-acf">figura 22</a>.
+
+El ACF y PACF de la primera diferencia de la serie `arf` se muestra abajo:
+
+<a name="p05-01-04-acf"></a>
+
+```r
+cowplot::plot_grid(
+	ACF(as_tsibble(diff(arf)), value, lag_max=100) %>%
+	  autoplot() + theme_light(),
+	PACF(as_tsibble(diff(arf)), value, lag_max=100) %>%
+	  autoplot() + theme_light(),
+	nrow=1)
+```
+
+<div class="figure" style="text-align: center">
+<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-01-04-acf-1.png" alt="ACF y PACF de la serie diferenciada."  />
+<p class="caption">(\#fig:p05-01-04-acf)ACF y PACF de la serie diferenciada.</p>
+</div>
+
+Se observa de la ACF que el componente autoregresivo de primer orden resalta, con varias correlaciones pequeñas significativas. 
+
+Se ajustan varios modelos ARMA en el siguiente fragmento de código, y se muestran los criterios de información ordenados en forma descendente de $AIC$. 
+El modelo ARMA preferible según los criterios de información es el autoregresivo de primer orden, sin componente de promedio móvil.
+
+<a name="p05-01-04-model"></a>
+
+```r
+mod <- as_tsibble(diff(arf)) %>%
+  model(
+  	mod_1 = ARIMA(value ~ 0 + pdq(1, 0, 0), stepwise = FALSE),
+  	mod_2 = ARIMA(value ~ 0 + pdq(1, 0, 1), stepwise = FALSE),
+  	mod_3 = ARIMA(value ~ 0 + pdq(1, 0, 2), stepwise = FALSE),
+  	mod_4 = ARIMA(value ~ 0 + pdq(2, 0, 0), stepwise = FALSE),
+  	mod_5 = ARIMA(value ~ 0 + pdq(2, 0, 1), stepwise = FALSE),
+  	mod_6 = ARIMA(value ~ 0 + pdq(2, 0, 2), stepwise = FALSE)
+  )
+
+glance(mod) %>%
+  select(.model:BIC) %>%
+  mutate(.model = c("ARMA(1,0)", "ARMA(1,1)", "ARMA(1,2)", "ARMA(2,0)", "ARMA(2,1)", "ARMA(2,2)")) %>%
+  arrange(AIC) %>%
+  kbl(digits = c(NA, 2, 0, 2, 2, 2),
+  	escape = FALSE,
+  	col.names=c("Modelo", "$\\sigma^2$", "Func. Verosim.", "$AIC$", "$AICc$", "$BIC$"),
+  	caption = "Criterios de información para los mdoelos ARMA ajustados.")
+```
+
+<table>
+<caption>(\#tab:p05-01-04-model)Criterios de información para los mdoelos ARMA ajustados.</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Modelo </th>
+   <th style="text-align:right;"> $\sigma^2$ </th>
+   <th style="text-align:right;"> Func. Verosim. </th>
+   <th style="text-align:right;"> $AIC$ </th>
+   <th style="text-align:right;"> $AICc$ </th>
+   <th style="text-align:right;"> $BIC$ </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> ARMA(1,0) </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> -1417 </td>
+   <td style="text-align:right;"> 2838,49 </td>
+   <td style="text-align:right;"> 2838,50 </td>
+   <td style="text-align:right;"> 2848,30 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ARMA(1,1) </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> -1417 </td>
+   <td style="text-align:right;"> 2839,90 </td>
+   <td style="text-align:right;"> 2839,92 </td>
+   <td style="text-align:right;"> 2854,62 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ARMA(2,0) </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> -1417 </td>
+   <td style="text-align:right;"> 2840,08 </td>
+   <td style="text-align:right;"> 2840,11 </td>
+   <td style="text-align:right;"> 2854,80 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ARMA(2,1) </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> -1417 </td>
+   <td style="text-align:right;"> 2841,46 </td>
+   <td style="text-align:right;"> 2841,50 </td>
+   <td style="text-align:right;"> 2861,09 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ARMA(1,2) </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> -1417 </td>
+   <td style="text-align:right;"> 2841,78 </td>
+   <td style="text-align:right;"> 2841,82 </td>
+   <td style="text-align:right;"> 2861,41 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> ARMA(2,2) </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> -1417 </td>
+   <td style="text-align:right;"> 2843,29 </td>
+   <td style="text-align:right;"> 2843,35 </td>
+   <td style="text-align:right;"> 2867,82 </td>
+  </tr>
+</tbody>
+</table>
+
+El valor estimado para el coeficiente autoregresivo es $\phi =$ 0,17 $\pm$ 0,0312, el cual es muy significativo. 
+Los gráficos diagnósticos muestran que los residuales se comportan normalmente, pero se observan aun autocorrelaciones pequeñas significativas en el ACF y PACF.
+
+<a name="p05-01-05-diagnostics"></a>
+
+```r
+augmented_df <- augment(select(mod, mod_1))
+
+augmented_df %>%
+  ACF(.innov, lag_max=100) %>%
+  autoplot() +
+    theme_light() +
+    xlab("lag") + 
+    ylab(latex2exp::TeX("$\\rho(s, t)$")) -> acf
+
+augmented_df %>%
+  PACF(.innov, lag_max=100) %>%
+  autoplot() +
+    theme_light() +
+    xlab("lag") + 
+    ylab(latex2exp::TeX("$\\rho(s, t)$")) -> pacf 
+
+res_series <- augmented_df %>%
+     autoplot(.resid, colour="orange") +
+     geom_point(aes(y=.resid), colour="orange") +
+     xlab("Tiempo") +
+     ylab("Residuales") +
+     theme_light() +
+     geom_hline(yintercept=c(0), 
+     	color=c("black"), linetype=c(1))
+
+res_qq_plot <- augmented_df %>% 
+  ggplot(aes(sample = .resid)) + 
+  stat_qq() + stat_qq_line(color="red") + 
+  theme_light()
+
+cowplot::plot_grid(acf, pacf, res_series, res_qq_plot, 
+  nrow=1, align="h",
+  labels=c("a)", "b)", "c)", "d)"), 
+  label_size=11, 
+  label_fontface="italic")
+```
+
+<img src="/home/marcelo/MEGAsync/Msc-Math-Applied/Series Temporales/output/Shumway-Stoffer-Solutions_files/figure-html/p05-01-05-diagnostics-1.png" style="display: block; margin: auto;" />
+
 **Problema 5.3** Grafique la serie de temperatura global, `globtemp`, y luego pruebe si hay una raíz unitaria versus la alternativa de que el proceso es estacionario usando las tres pruebas: DF, ADF y PP, discutidas en el Ejemplo 5.3. Comente.
+
+Los detalles de la prueba DF y ADF en el paquete `tseries` indican que la regresión general que se hace sobre la serie incluye un termino constante y uno con tendencia lineal, además de los $k$ retrasos usados para considerar el proceso autoregresivo. 
+Esto implica, que la hipótesis nula prueba si el proceso es uno con tendencia lineal y deriva (prueba Df), y la alternativa estipula que se trata de un paseo aleatorio con componentes de tendencia lineal y deriva.
+
+En el <a href="/Series%20Temporales/output/Shunway-Stoffer-Solutions.md#problema-3-33">Problema 3.33</a> vimos que el modelo autoregresivo mas adecuado para la serie involucra uno de orden $p=2$, por lo que se usa $k=2$ para la prueba ADF. 
 
 
 ```r
 list(
 	  df=tseries::adf.test(globtemp, k=0),
-	  adf=tseries::adf.test(globtemp),
+	  adf=tseries::adf.test(globtemp, k=2),
 	  pp=tseries::pp.test(globtemp)) |>
   map(broom::tidy) |>
   list_rbind() |>
   select(method, statistic:parameter) |>
   kbl(
-    col.names=c("Prieba", "Estadístico", "$p$", "df"),
+    col.names=c("Prueba", "Estadístico", "$p$", "df"),
     escape=FALSE, 
     caption="Estadísticos de las pruebas de Raíz unitaria para estacionaridad."
   )
 ```
 
 <table>
-<caption>(\#tab:unnamed-chunk-6)Estadísticos de las pruebas de Raíz unitaria para estacionaridad.</caption>
+<caption>(\#tab:p05-03-01)Estadísticos de las pruebas de Raíz unitaria para estacionaridad.</caption>
  <thead>
   <tr>
-   <th style="text-align:left;"> Prieba </th>
+   <th style="text-align:left;"> Prueba </th>
    <th style="text-align:right;"> Estadístico </th>
    <th style="text-align:right;"> $p$ </th>
    <th style="text-align:right;"> df </th>
@@ -2019,9 +2211,9 @@ list(
   </tr>
   <tr>
    <td style="text-align:left;"> Augmented Dickey-Fuller Test </td>
-   <td style="text-align:right;"> -1,621884 </td>
-   <td style="text-align:right;"> 0,7337801 </td>
-   <td style="text-align:right;"> 5 </td>
+   <td style="text-align:right;"> -2,757126 </td>
+   <td style="text-align:right;"> 0,2615008 </td>
+   <td style="text-align:right;"> 2 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Phillips-Perron Unit Root Test </td>
@@ -2032,7 +2224,62 @@ list(
 </tbody>
 </table>
 
+Los resultados de aplicar las pruebas de raíz unitaria de DF y PP muestran que la serie de temperatura global es estacionaria ($p<0{,}05$), dado que se rechaza la hipótesis nula de raíz unitaria. Esto es de esperar, dado que ambas pruebas analizan el mismo esquema de dependencia. 
+Por otro lado, la ADF resulta en aceptación de la hipótesis nula, indicando que la serie sigue un paseo aleatorio con deriva.
 
+La discrepancia entre los resultados de la prueba DF y la prueba ADF resulta de que, al considerar los retrasos hasta $h=2$, se captura la dependencia de la serie con respecto a los retrasos en $t-1$ y $t-2$, haciendo innecesario el termino extra para $x_{t-1}$. 
+Al usar $k=1$ en la prueba ADF, el resultado sigue siendo mantener la hipótesis nula, (aunque el resultado es marginal), lo cual podría indicar que la serie diferenciada se trata de un proceso $AR(1)$ con una tendencia lineal y deriva ($DF_\gamma =$ -3,422, $p=$ 0,0539). 
+
+Es interesante que al realizar las pruebas sobre la serie `globtemp` luego de realizar una primera diferencia, todas las pruebas son significativas, indicadno que la serie diferenciada si es estacioanria. 
+Además, la  prueba ADF se hace usando $k=1$, lo cual toma en cuenta la autocorrelación con respecto al retraso $h=2$ en la serie sin diferenciar. 
+
+
+```r
+list(
+	  df=tseries::adf.test(diff(globtemp), k=0),
+	  adf=tseries::adf.test(diff(globtemp), k=1),
+	  pp=tseries::pp.test(diff(globtemp))) |>
+  map(broom::tidy) |>
+  list_rbind() |>
+  select(method, statistic:parameter) |>
+  kbl(
+    col.names=c("Prueba", "Estadístico", "$p$", "df"),
+    escape=FALSE, 
+    caption="Estadísticos de las pruebas de Raíz unitaria para estacionaridad."
+  )
+```
+
+<table>
+<caption>(\#tab:p05-03-02)Estadísticos de las pruebas de Raíz unitaria para estacionaridad.</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Prueba </th>
+   <th style="text-align:right;"> Estadístico </th>
+   <th style="text-align:right;"> $p$ </th>
+   <th style="text-align:right;"> df </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Augmented Dickey-Fuller Test </td>
+   <td style="text-align:right;"> -14,67630 </td>
+   <td style="text-align:right;"> 0,01 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Augmented Dickey-Fuller Test </td>
+   <td style="text-align:right;"> -11,90951 </td>
+   <td style="text-align:right;"> 0,01 </td>
+   <td style="text-align:right;"> 1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Phillips-Perron Unit Root Test </td>
+   <td style="text-align:right;"> -135,88521 </td>
+   <td style="text-align:right;"> 0,01 </td>
+   <td style="text-align:right;"> 4 </td>
+  </tr>
+</tbody>
+</table>
 
 <a name="problema-5-7"></a>
 **Problema 5.7** El paquete `stats` de R contiene los precios de cierre diarios de los cuatro principales índices bursátiles europeos; escriba `help(EuStockMarkets)` para obtener más detalles. Ajuste un modelo $GARCH$ a los rendimientos de una de estas series y discuta sus hallazgos. (Nota: el conjunto de datos contiene valores reales y no retornos. Por lo tanto, los datos deben transformarse antes del ajuste del modelo).
@@ -2078,7 +2325,7 @@ cowplot::plot_grid(
 <p class="caption">(\#fig:p05-07-02-data)Indice bursátil de Suiza.</p>
 </div>
 
-El indice bursátil correspondiente a Suiza (SMI), el cual se muestra en la <a href="#p05-07-02-data">figura 22</a>, junto a los retornos calculados a partir de la misma. 
+El indice bursátil correspondiente a Suiza (SMI), el cual se muestra en la <a href="#p05-07-02-data">figura 24</a>, junto a los retornos calculados a partir de la misma. 
 La serie tiene una tendencia creciente clara que se elimina al calcular los retornos, con caídas importantes durante todo el año 1994, y a la mitad del año 1997. Es en estos momentos es que se observan los _clusters_ de volatilidad más importantes de la serie de retornos. 
 
 La ACF y PACF muestran que los retornos parecen ser generados por un proceso autoregresivo de primer o segundo orden en el componente ARMA, y se observan múltiples correlaciones pequeñas, pero significativas, que pueden resultar de la volatilidad cambiante.  
@@ -2173,7 +2420,7 @@ garch_fitting <- tibble(
 ```
 
 En total, se ajustan 8 modelos, de los cuales solo el modelo $GARCH(1,0)$ con componente $ARMA(1,0)$ para la media, fallo en converger. 
-En la tabla <a href="#p05-07-06-criteria-inf">tabla 8</a> se muestran los resultados de los criterios de información para el resto de los modelos ajustados, donde se observa que los mejores modelos, de acuerdo al AIC, son los $GARCH(2,2)$, tanto para el componente $ARMA(1,0)$ como para $ARMA(2,0)$; seguido de los modelos con componente $ARMA(2,0)$ y componente $GARCH(1, 1)$ y $GARCH(2, 1)$. 
+En la tabla <a href="#p05-07-06-criteria-inf">tabla 9</a> se muestran los resultados de los criterios de información para el resto de los modelos ajustados, donde se observa que los mejores modelos, de acuerdo al AIC, son los $GARCH(2,2)$, tanto para el componente $ARMA(1,0)$ como para $ARMA(2,0)$; seguido de los modelos con componente $ARMA(2,0)$ y componente $GARCH(1, 1)$ y $GARCH(2, 1)$. 
 La misma tendencia se sigue del resto de los criterios de información mostrados en la tabla. 
 
 <a name="p05-07-06-criteria-inf"></a>
@@ -2332,7 +2579,7 @@ $$
 $$
 
 donde $\epsilon_t \sim N(0, 1)$. 
-Los residuales, tal como se observan en la <a href="#p05-07-08-residuals">figura 25</a>, donde se observa que ya no hay correlaciones importantes en las ACF y PACF, pero los residuales no se distribuyen normalmente, sino que parecen seguir una $t$-Student simétrica. 
+Los residuales, tal como se observan en la <a href="#p05-07-08-residuals">figura 27</a>, donde se observa que ya no hay correlaciones importantes en las ACF y PACF, pero los residuales no se distribuyen normalmente, sino que parecen seguir una $t$-Student simétrica. 
 
 <a name="p05-07-08-residuals"></a>
 
