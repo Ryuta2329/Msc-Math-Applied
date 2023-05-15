@@ -549,9 +549,8 @@ La función de autocovarianza es:
 $$
 \begin{aligned}
     \gamma_y(h) &= E[(y_t - \mu_y)(y_{t+h} - \mu_y)] \\
-        &= E\left[\left(e^{x_t} - \mu + \frac{1}{2}\sigma^2\right)\left(e^{x_{t+h}} - \mu + \frac{1}{2}\sigma^2\right)\right] \\
-        &= E\left[e^{x_t + x_{t+h}} - e^{{\mu + \frac{1}{2}\sigma^2}}^2\right] \\
-        &= E\left[e^{x_t + x_{t+h}}\right] - e^{{\mu + \frac{1}{2}\sigma^2}}^2 \\
+        &= E\left[\left(e^{x_t} - e^{\mu + \frac{1}{2}\sigma^2}\right)\left(e^{x_{t+h}} - e^{\mu + \frac{1}{2}\sigma^2}\right)\right] \\
+        &= E\left[e^{x_t + x_{t+h}} - e^{2(\mu + \frac{1}{2}\sigma^2)}\right] \\
         &= E\left[e^{x_t + x_{t+h}}\right] - e^{2\mu + \sigma^2\right}
 \end{aligned}
 $$
@@ -560,7 +559,7 @@ Como $z_t = x_t + x_{t+h}$ es otra normal, entonces $E(z_t) = 2\mu_x$ y $var(z_t
 
 $$
 \begin{aligned}
-	\gamma_y(h) &= E\left[e^{x_t + x_{t+h}}\right] - e^{2\mu + \sigma^2\right} \\
+	\gamma_y(h) &= E\left[e^{x_t + x_{t+h}}\right] - e^{2\mu + \sigma^2} \\
 		&= e^{2\mu + \sigma^2} - e^{2\mu + \sigma^2} \\
 		&= 0
 \end{aligned}
