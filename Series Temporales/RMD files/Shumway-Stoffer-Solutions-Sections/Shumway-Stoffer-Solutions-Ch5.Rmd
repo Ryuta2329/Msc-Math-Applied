@@ -108,7 +108,7 @@ glance(mod) %>%
 El valor estimado para el coeficiente autoregresivo es $\phi =$ `r round(tidy(select(mod, mod_1))$estimate, 3)` $\pm$ `r round(tidy(select(mod, mod_1))$std.error, 4)`, el cual es muy significativo. 
 Los gráficos diagnósticos muestran que los residuales se comportan normalmente, pero se observan aun autocorrelaciones pequeñas significativas en el ACF y PACF.
 
-```{r p05-01-05-diagnostics, anchor="tabla"}
+```{r p05-01-05-diagnostics, anchor="figura", fig.height=5, fig.width=12}
 augmented_df <- augment(select(mod, mod_1))
 
 augmented_df %>%
