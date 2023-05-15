@@ -77,7 +77,7 @@ _b)_ Repite _a)_ pero con $x_t = cos(2πt/4)$.
 _c)_ Repite _b)_ pero con ruido $N(0, 1)$, $x_t = cos(2πt/4) + w_t$.  
 _d)_ Compare y contraste _a)_–_c)_; i.e., como cambia el promedio móvil cada serie. 
 
-```{r p1-3, label="fig:p1-3", fig.caption="", warning=FALSE, out.width="100%"}
+```{r p1-3, label="fig:p1-3", fig.caption="", warning=FALSE, out.width="100%", fig.height=5, fig.width=10}
 sims <- data.frame(
   # Iniciso a)
   a=stats::filter(rnorm(200, 0, 1), filter=c(0, -.9), method="recursive")[-(1:100)],
@@ -112,15 +112,15 @@ cowplot::plot_grid(
 
 Para el inciso _a)_, la serie antes del filtro muestra un cambio violento en el comportamiento de $x_t$, mientras que luego del filtro, la serie se suaviza y la variación de $v_t$ se ve menos pronunciada en amplitud (no se observan picos tan grandes).  
 Para el inciso _b)_, la serie consiste de una función coseno regular, que luego de la suavización, se comporta como una constante, dado que el promediar elimina la variación dado que el periodo es de 4 unidades, y el promedio se hace con los 4 elementos inmediatamente en el pasado.  
-Para el inciso _c)_, el ruido gaussiano agrega cierta variacion que quia la regularidad de la función coseno, por lo tanto la señal suavizada no se cancela en su totalidad, y esta muestra una variacion tambien, aunque su comportamiento es menos violeto. Sea como sea, aun se aprecia un póco el comportamiento de la onda coseno, tanto en $x_t$ como en $v_t$.  
+Para el inciso _c)_, el ruido gaussiano agrega cierta variación que quia la regularidad de la función coseno, por lo tanto la señal suavizada no se cancela en su totalidad, y esta muestra una variación también, aunque su comportamiento es menos violeto. Sea como sea, aun se aprecia un poco el comportamiento de la onda coseno, tanto en $x_t$ como en $v_t$.  
 
-Al comparar las tres series, podemos observar que el proceso de suavizar la serie cambia dependiendo de la forma de la señal subyacente. Cuando la señal varia entorno aun valor medio constante (como en el caso de la señal en A), el suavizado parece reducir la variabilidad en mayor medida que cuadno la media es variable (como en el caso de la señal en C).
+Al comparar las tres series, podemos observar que el proceso de suavizar la serie cambia dependiendo de la forma de la señal subyacente. Cuando la señal varia entorno aun valor medio constante (como en el caso de la señal en A), el suavizado parece reducir la variabilidad en mayor medida que cuando la media es variable (como en el caso de la señal en C).
 
 **Problema 1.4** Demuestre que la función de autocovarianza se puede escribir como:
 
 $$\gamma(s, t) = E[(x_s − \mu_s)(x_t − \mu_t)] = E(x_sx_t) − \mu_s\mu_t$$
 
-Partiendo de la definición $E[(x_s − \mu_s)(x_t − \mu_t)]$, se distribuyen los terminos:
+Partiendo de la definición $E[(x_s − \mu_s)(x_t − \mu_t)]$, se distribuyen los términos:
 
 $$
 \begin{aligned}
