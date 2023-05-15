@@ -6,6 +6,7 @@ output:
  bookdown::html_document2:
   number_sections: yes
   keep_md: yes
+  pandoc_args: [--lua-filter, !expr "fs::path('..', 'assets', 'relative_path.lua')"]
 header-includes:
  - \usepackage{amsmath}
  - \usepackage{amsfonts}
@@ -23,6 +24,9 @@ knitr::opts_chunk$set(
   fig.pos = "!h", fig.align = "center")
 
 library(kfigr)
+
+here::i_am("Series Temporales/RMD files/Shumway-Stoffer-Solutions.Rmd")
+source(here::here(fs::path_abs(".."), "assets", "caption-hooks.R"))
 ```
 
 * Ejercicios del [capitulo 1](#capitulo-1). Características de series temporales.

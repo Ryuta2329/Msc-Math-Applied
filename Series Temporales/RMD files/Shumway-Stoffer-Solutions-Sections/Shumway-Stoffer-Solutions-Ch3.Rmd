@@ -133,7 +133,7 @@ cowplot::plot_grid(acf, pacf, res_series, res_qq_plot,
 
 El modelo ajustado se escribe:
 
-$$x_t = `r round(tidy(chosen_mod)$estimate[5], 4)`_{(`r round(tidy(chosen_mod)$std.error[5], 4)`)} `r round(1 + tidy(chosen_mod)$estimate[1], 2)`_{(`r round(tidy(chosen_mod)$std.error[1], 3)`)} x_{t-1}  `r round(tidy(chosen_mod)$estimate[1], 2)`_{(`r round(tidy(chosen_mod)$std.error[1], 3)`)} x_{t-2} + w_t + `r round(tidy(chosen_mod)$estimate[2], 2)`_{(`r round(tidy(chosen_mod)$std.error[2], 3)`)} w_{t-1}  `r round(tidy(chosen_mod)$estimate[3], 2)`_{(`r round(tidy(chosen_mod)$std.error[3], 3)`)} w_{t-2}  `r round(tidy(chosen_mod)$estimate[4], 2)`_{(`r round(tidy(chosen_mod)$std.error[4], 3)`)} w_{t-3}$$
+$$x_t = `r round(tidy(chosen_mod)$estimate[5], 4)`_{(`r round(tidy(chosen_mod)$std.error[5], 4)`)} + `r round(1 + tidy(chosen_mod)$estimate[1], 2)`_{(`r round(tidy(chosen_mod)$std.error[1], 3)`)} x_{t-1}  `r round(tidy(chosen_mod)$estimate[1], 2)`_{(`r round(tidy(chosen_mod)$std.error[1], 3)`)} x_{t-2} + w_t + `r round(tidy(chosen_mod)$estimate[2], 2)`_{(`r round(tidy(chosen_mod)$std.error[2], 3)`)} w_{t-1}  `r round(tidy(chosen_mod)$estimate[3], 2)`_{(`r round(tidy(chosen_mod)$std.error[3], 3)`)} w_{t-2}  `r round(tidy(chosen_mod)$estimate[4], 2)`_{(`r round(tidy(chosen_mod)$std.error[4], 3)`)} w_{t-3}$$
 
 Lo pronósticos para los próximos 10 años se muestran a continuación:
 
