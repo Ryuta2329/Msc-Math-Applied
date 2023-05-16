@@ -957,7 +957,7 @@ _a)_ Agregue otro componente a la regresión que represente el conteo de partíc
 _b)_ Dibuje una matriz de diagrama de dispersión de $M_t$, $T_t$, $P_t$ y $P_{t−4}$ y luego calcule las correlaciones por pares entre las series. Compare la relación entre $M_t$ y $P_t$ versus $M_t$ y $P_{t−4}$.
 
 
-La primera parte del análisis se encuentra en el archivo de ejemplo para [la mortalidad cardiovascular y partículas contaminantes](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/colab-nb/Pollution-Mortality-example.ipynb). Allí, se muestra que el mejor modelo encontrado para mortalidad fue:
+La primera parte del análisis se encuentra en el archivo de ejemplo para [la mortalidad cardiovascular y partículas contaminantes](https://github.com/Ryuta2329/Msc-Math-Applied/blob/main/Series%20Temporales/colab-nb/Pollution_Mortality_example.ipynb). Allí, se muestra que el mejor modelo encontrado para mortalidad fue:
 
 $$Mt = 2831,5 -1,396t  -0,472(T_t − T_{.}) + 0,023(T_t − T_{.})^2 + 0,255P_t + w_t$$
 
