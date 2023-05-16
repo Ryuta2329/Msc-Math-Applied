@@ -2663,7 +2663,7 @@ De los valores de probabilidad se tiene que en este caso, el modelo no necesita 
 
 $$
 \begin{aligned}
-  r_t &= 0,533_{(0,022)} r_{t-1} + -0,116_{(0,017)} r_{t-2} + \sigma_t\epsilon_t \\
+  r_t &= 0,533_{(0,022)} r_{t-1} -0,116_{(0,017)} r_{t-2} + \sigma_t\epsilon_t \\
   \sigma_t &= 0,00003_{(0,000002)} + 0,676_{(0,08)} r_{t-1}
 \end{aligned}
 $$
