@@ -46,12 +46,14 @@ Elija una de las siguientes series temporales estacionales: ```condmilk```, ```h
 ## Descripción de la serie.
 
 ```{r sourcing-r-code}
-library(tsibble)
-library(dplyr)
-library(fable)
-library(feasts)
-library(ggplot2)
-library(kfigr)
+suppressPackageStartupMessages({
+  library(tsibble)
+  library(dplyr)
+  library(fable)
+  library(feasts)
+  library(ggplot2)
+  library(kfigr)
+})
 
 # Manufacturer's Stocks of evaporated and sweetened condensed milk.
 data(condmilk, package="fma")
