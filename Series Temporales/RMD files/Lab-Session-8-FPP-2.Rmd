@@ -48,9 +48,10 @@ Elija una de las siguientes series temporales estacionales: ```condmilk```, ```h
 ```{r sourcing-r-code}
 suppressPackageStartupMessages({
   library(tsibble)
-  library(dplyr)
   library(fable)
   library(feasts)
+  library(dplyr)
+  library(tidyr)
   library(ggplot2)
   library(kfigr)
 })
@@ -94,7 +95,7 @@ donde $r_t$ es el incremento o decremento proporcional de la unidad en el año $
 # Transformando: se usa el log en base 10
 cm_transf <- condmilk %>%
   mutate(prop_change=difference(log10(value)), .keep = "unused") %>%
-  tidyr::drop_na()
+  drop_na()
 
 # This one is for functions outside tidy packages
 univariate_ts <- cm_transf %>%
@@ -138,13 +139,11 @@ cowplot::plot_grid(acf, pacf, nrow=1)
 ```
 
 * `r chart` La ACF indica que seria apropiada una diferencia de orden $D=1$ para el componente estacional, y un parámetro autoregresivo de orden $P=1$. También se observa que el periodo debería ser $s=6$, dado que los picos de mayor magnitud se registran en $6k$ para $k=1,2,\ldots$. Sin embargo, como el patrón es anual, se elige un periodo de $s=12$ dado que en un intervalo de 12 meses se completa un ciclo en la ACF.
-* `r chart` La PACF confirma que se debería elegir $P=1$, dada la correlación significativa en el $h=6$, pero en más ningún múltiplo de 6.
-* `r chart` Dado que la ACF es decayente en los _lags_ mostrados, y que la PACF se corta en el $h=1$, se usa un orden $p=1$ para la parte $ARMA$.
+* `r chart` La PACF confirma que se debería elegir $P=1$, dada la correlación significativa en el $h=6$, pero en más ningún múltiplo de 6. Además, se observa que se deberia de considerar un proceso de orden $q=1$ en el componente ARMA, dada la primera correlacion significativa. 
+* `r chart` Dado que la ACF es decreciente en los _lags_ mostrados, y que la PACF se corta en el $h=1$, se usa un orden $p=1$ y $p=2$ para la parte $ARMA$.
 * `r chart` Se observan un par de correlaciones significativas en la PACF, donde la correlación en $h=4$ es la mas importante. La otra se encuentra en $h=22$. Estas correlaciones aparecen significativas probablemente debido al patrón anual oscilante combinado con los cambios abruptos durante los picos y valles de la serie: en estos _lags_ se encuentran espaciados casi 2 años, y coinciden con la entrada a los picos y valles de la serie original.
 
 Los resultados de la prueba de Dickey-Fuller aumentada para comprobar estacionaridad de la serie muestran que el incremento proporcional de unidades es estacionaria ($DF_T =$ `r round(adf_test$statistic, 3)`, $p =$ `r round(adf_test$p.value, 4)`), por lo que no es necesario una diferencia en el componente $ARMA$. 
-
-Se ajusta entonces un modelo $ARIMA(1, 0, 0)(0, 1, 1)_{12}$, y se compara con un modelo $ARIMA(2, 0, 2)(0, 1, 1)_{12}$ estimado minimizando la sumatoria de cuadrados condicional, encontrado por medio de una búsqueda del mejor modelo en el espacio de parámetros (mejor en el sentido de sumatoria de cuadrados mínima).
 
 ```{r full-model}
 full <- cm_transf %>%
@@ -153,66 +152,79 @@ full <- cm_transf %>%
       method="CSS-ML", optim.method="BFGS"))
 ```
 
-Se escribe el modelo inferido de los descriptivos:
+Se ajusta entonces un modelo $ARIMA(1, 0, 0)(0, 1, 1)_{12}$, $ARIMA(1, 0, 1)(0, 1, 1)_{12}$, y $ARIMA(2, 0, 1)(0, 1, 1)_{12}$, y se comparan con un modelo $ARIMA(2, 0, 2)(0, 1, 1)_{12}$ estimado minimizando la sumatoria de cuadrados condicional, encontrado por medio de una búsqueda del mejor modelo en el espacio de parámetros (mejor en el sentido de sumatoria de cuadrados mínima).
+
+```{r fitting-sarima, anchor="tabla"}
+selected_mod <- cm_transf %>%
+  model(
+    `ARMA(1,0,0)(0,1,1)_{12}`=ARIMA(prop_change ~ 0 + pdq(1, 0, 0) + PDQ(0, 1, 1, 12), 
+      stepwise=FALSE, method="CSS-ML", optim.method="BFGS"),
+    `ARMA(1,0,1)(0,1,1)_{12}`=ARIMA(prop_change ~ 0 + pdq(1, 0, 1) + PDQ(0, 1, 1, 12), 
+      stepwise=FALSE, method="CSS-ML", optim.method="BFGS"),
+    `ARMA(2,0,1)(0,1,1)_{12}`=ARIMA(prop_change ~ 0 + pdq(2, 0, 1) + PDQ(0, 1, 1, 12), 
+      stepwise=FALSE, method="CSS-ML", optim.method="BFGS"),
+  ) %>%
+  bind_cols(select(full, non_stationaty))
+
+.model <- c("$ARIMA(1,0,0)(0,1,1)_{12}$", "$ARIMA(1,0,1)(0,1,1)_{12}$", "$ARIMA(2,0,1)(0,1,1)_{12}$", "$ARIMA(2,0,2)(0,1,1)_{12}$")
+
+glance(all_models) %>%
+  select(-ar_roots, -ma_roots) %>%
+  select(sigma2:BIC) %>%
+  tibble::add_column(.model=.model, .before=1) %>%
+  kbl(digits=c(NA, 4, 2, 1, 1, 1, 4, 4, 4), 
+    align='lcccccccccc', escape=FALSE,
+    col.names=c("Modelo", "$\\sigma^2$", "Func. Verosim.", "AIC", "AICc", "BIC"),
+    caption="Estadísticos de bondad de ajuste de los modelos SARIMA ajustados.")
+```
+
+Los resultados de los ajustes se muestran en la `r figr("fitting-sarima", TRUE, type = 'tabla')`, donde se observa que en base al AIC, lo modelos que mejor se ajustan son el modelo completo con parámetros estimados vía MLE, seguido del modelo $SARIMA(2, 0, 1)(0, 1, 1)_{12}$; y este ultimo es preferible al modelo completo de acuerdo a las medidas de BIC, aunque con respecto al BIC, el mejor modelo es el modelo mas sencillo (con el menor numero de parámetros).
+
+Sin embargo, las pruebas de Ljung-Box llevadas a cabo sobre los residuales de los modelos ajustados muestran que solo los modelos SARIMA con componente $AR$ de segundo orden tienen errores independientes. Es por ello, que en base a la simplicidad del modelo $SARIMA(2,0,1)(0,1,1)_{12}$ (tiene menor cantidad de parámetros), este es preferible al modelo completo.
+
+```{r ljung-box, anchor="tabla"}
+box_test <- selected_mod %>%
+  gather(key = "Modelo", value = "Fit") %>%
+  mutate(ljung_box = purrr::map(Fit, 
+    ~features(augment(.), 
+      .innov, ljung_box, dof = 4, lag = 12))) %>%
+  unnest(ljung_box) %>%
+  mutate(Modelo = c("$ARIMA(1,0,0)(0,1,1)_{12}$", "$ARIMA(1,0,1)(0,1,1)_{12}$", "$ARIMA(2,0,1)(0,1,1)_{12}$", "$ARIMA(2,0,2)(0,1,1)_{12}$")) %>%
+  select(-Fit) %>% 
+  kbl(digits=c(NA, 2, 4), 
+    align='lcc', escape=FALSE,
+    col.names=c("Modelo", "$LJ$", "$p$"),
+    caption="Resultados de la prueba de Ljung-Box sobre los modelos SARIMA ajustados.")
+```
+
+Se escribe el modelo inferido como:
 
 $$
 \begin{aligned}
   \Delta_{12}\phi(B)r_t = \Theta(B) w_t  & \Rightarrow \\
-    & \Rightarrow (1 - B^12)(1 - \phi B) r_t = (1 - \Theta B) w_t \\
+    & \Rightarrow (1 - B^12)(1 - \phi_1 B - \phi_2 B^2) r_t = (1 + \Theta B)(1 + \theta B) w_t \\
 \end{aligned}
 $$
 
 el cual se expande como:
 
 $$
-r_t = \phi r_{t-1} + r_{t-12} + \phi r_{t-13} + w_t + \Theta w_{t-1}(\#eq:model)
+r_t = \phi_1 r_{t-1} + \phi_2 r_{t-2} - r_{t-12} - \phi_1 r_{t-13} - \phi_2 r_{t-14} + w_t + (\theta + \Theta) w_{t-1} + \theta\Theta w_{t-2}(\#eq:model)
 $$
-
-### Estadísticos de Bondad de Ajuste.
-
-Los resultados de los ajustes se muestran en la `r figr("fitting-sarima", TRUE, type = 'tabla')`, los cuales indican que el modelo dado en la ecuación <a href="#eq:model">1</a> no difiere demasiado del modelo encontrado al tantear el espacio de parámetros, en términos de robustez y precisión, dada la varianza residual, $RMSE$ y $MAE$ similares. 
-
-Además, el modelo $ARIMA(2, 0, 2)(0, 1, 1)_{12}$ parece ser preferible según los valores obtenidos en términos de la información proveída por el modelo ($AIC$, $AICc$ y $BIC$). Esto se debe (dada la similitud de varianzas residuales), solo al aumento en la penalización consecuencia de la mayor cantidad de parámetros estimados en el modelo $ARIMA(2, 0, 2)(0, 1, 1)_{12}$.
-
-```{r fitting-sarima, anchor="tabla"}
-selected_mod <- cm_transf %>%
-  model(`ARMA(1,0,0)(0,1,1)_{12}`=ARIMA(prop_change ~ 0 + pdq(1, 0, 0) + PDQ(0, 1, 1, 12), 
-    stepwise=FALSE, method="CSS-ML", optim.method="BFGS")) 
-
-all_models <- selected_mod %>%
-  bind_cols(select(full, non_stationaty))
-
-box_test <- augment(selected_mod) %>%
-  features(.innov, ljung_box, dof = 4, lag = 12)
-
-information_based <- glance(all_models) %>%
-  select(-ar_roots, -ma_roots)
-
-error_based <- accuracy(all_models)
-
-.model <- c("$ARIMA(1,0,0)(0,1,1)_{12}$", "$ARIMA(2,0,2)(0,1,1)_{12}$")
-
-information_based %>%
-  left_join(error_based) %>%
-  select(sigma2:BIC, ME:MAE) %>%
-  tibble::add_column(.model=.model, .before=1) %>%
-  knitr::kable(digits=c(NA, 4, 2, 1, 1, 1, 4, 4, 4), 
-    align='lcccccccccc', escape=FALSE,
-    col.names=c("Modelo", "$\\sigma^2$", "Func. Verosim.", "AIC", "AICc", "BIC", "ME", "RMSE", "MAE"),
-    caption="Estadísticos de bondad de ajuste de los modelos SARIMA ajustados.")
-```
 
 ### Gráficos diagnósticos de residuales.
 
-Al verificar el comportamiento de los residuales para el modelo candidato, $ARIMA(1,0,0)(0,1,1)_{12}$, se obtiene que los residuales no parecen estar correlacionados entre si, evaluando con respecto al retraso 12, aunque el valor de probabilidad obtenido es apenas marginal ($Q=`r round(box_test$lb_stat, 3)`$, $p=`r box_test$lb_pvalue`$). 
-En el gráfico para ACF y PACF se muestra un pico de correlación significativa con respeto al _lag_ 5, lo cual indica la falta de un retraso en el modelo considerado. 
+Al verificar el comportamiento de los residuales para el modelo candidato, $ARIMA(2,0,1)(0,1,1)_{12}$, se obtiene que los residuales presentan una ACF y PACF sin correlaciones importantes, pero que de alguna forma no se observan muy aleatorios en cuanto a su dirección (especialmente durante los primeros $2/3$ del gráfico).
 
 ```{r diagnostics-plots, fig.width=20, fig.height=5, fig.cap="Gráficos diagnósticos de residuales: _a)_ ACF, _b)_ PACF, _c)_ gráficos de residuales, y _d)_ gráfico _QQ_", anchor="figura"}
-res_sd <- information_based %>% 
-  filter(.model != "non_stationaty") %>% 
+res_sd <- all_models %>% 
+  select(`ARMA(2,0,1)(0,1,1)_{12}`) %>%
+  glance() %>%
   pull(sigma2) %>%
   sqrt()
-augmented_data <- augment(selected_mod) %>%
+augmented_data <- all_models %>% 
+  select(`ARMA(2,0,1)(0,1,1)_{12}`) %>%
+  augment() %>%
   mutate(.std.resid=.resid / res_sd)
 
 augmented_data %>%
@@ -252,7 +264,8 @@ cowplot::plot_grid(acf, pacf, res_series, res_qq_plot,
 ```
 
 Más aun, el gráfico de residuales estandarizados y el gráfico _QQ_ muestran claramente que los residuales no son normales. 
-Se observa un patrón no aleatorio de distribución de los residuales alrededor de la media (secciones donde las observaciones caen mucho por encima de la media, y secciones donde caen por debajo). Además, se pueden notar observaciones atípicas, 8 de ellas específicamente, como se muestra en la `r figr("outliers", TRUE, type = "tabla")`. 
+En el gráfico _QQ_ se observa que la serie de residuales presenta cierto sesgo hacia la izquierda, con una acumulación de valores positivos, y varios atípicos a ambos lados de la distribución. 
+Se observa un patrón no aleatorio de distribución de los residuales alrededor de la media (secciones donde las observaciones caen mucho por encima de la media, y secciones donde caen por debajo). Además, se pueden notar observaciones atípicas, como se muestra en la `r figr("outliers", TRUE, type = "tabla")`. 
 Se puede notar claramente que 3 de ellas caen en 1973, donde el comportamiento de la serie es anormal comparado con los otros años, y el resto corresponden a puntos de entrada a los picos y a los picos observados luego de 1973.
 
 ```{r outliers, anchor="tabla"}
@@ -268,7 +281,54 @@ augmented_data %>%
     caption="Observaciones atípicas registradas para los cambios proporcionales en el número de unidades en inventario de leche condensada.")
 ```
 
-Todo lo mencionado, parece indicar que aun existe una estructura de dependencia dentro de la serie que no se ha especificado, y que se debe optar por un modelo distinto. Los resultados parecen indicar que se debe considerar un modelo con el quinto _lag_ como regresor.
+Todo lo mencionado, parece indicar que aun existe una estructura de dependencia dentro de la serie que no se ha especificado, y que se debe optar por un modelo distinto. 
+En el gráfico temporal de residuales, es aun visible como va ocurriendo el amortiguado de las desviaciones conforme se va entrando a 1980. 
+
+Es interesante notar varias características del gráfico de residuales:
+
+* `r watch` Durante el año 1973, donde la series es anormal en su comportamiento anual, y al inicio del cual ocurre el primer valle, de mayor magnitud, el comportamiento de la serie esta algo desviado de la aleatoriedad general de la serie, y es donde ocurren dos de los atípicos observado (uno en el valle, y uno justo en la anormalidad a mediados de año, donde hay una caída inesperada de las unidades en inventario).
+* `r watch` A inicios de 1974, existe un atípico al entrar al pico de este año, y el valor en el pico, aunque no es atípico, tiene una magnitud cercana al limite de $2\sigma$. 
+* `r watch` El siguiente atípico corresponde al segundo valle de 1976, el cual sigue en magnitud al del año 1973.
+* `r watch` El ultimo atípico que se registra en la serie se da a mediados del año 1977, en el ultimo pico registrado en la serie, y al cual corresponde al pico de menor magnitud.
+
+
+
+### Parámetros estimados para el modelo escogido.
+
+Los parámetros estimados para el modelo escogido (de la <a href="#eq:model">ecuacion 1</a>) se muestran en la `r figr("parametters-table", TRUE, type="tabla")`, donde se observa que todos los coeficientes son significativos.
+
+```{r parametters-table, anchor="tabla"}
+all_models %>% 
+  select(`ARMA(2,0,1)(0,1,1)_{12}`) %>%
+  tidy() %>%
+  select(-.model) %>%
+  mutate(term=c("$\\phi_1$", "$\\phi_2$", "$\\theta$", "$\\Theta$")) %>%
+  kbl(digits=c(3, 3, 2, 4), align='lcccc', escape=FALSE,
+    col.names=c("Coef.", "Estimado", "Desv. Est.", "Estadístico", "$p$"),
+    caption="Parámetros estimados para el modelo de regresión con errores ARMA.")
+```
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+cm_transf %>%
+  as_tibble() %>%
+  mutate(
+    month=lubridate::month(index),
+    firs_half=ifelse(month <=6, "First Half", "Second Half"),
+    quarter=lubridate::quarter(index)
+  ) %>%
+  group_by(firs_half) %>%
+  summarise(month_mean=mean(prop_change))
+```
 
 ### Análisis de correlaciones de $r_t$ y $r_{t-h}$.
 
@@ -282,7 +342,7 @@ tscleaned <- augmented_data %>%
   )
 
 tscleaned %>%
-  gg_lag(prop_change, period=12, lags=1:12, geom="point") +
+  gg_lag(.innov, period=12, lags=1:12, geom="point") +
   theme_light() +
   theme(legend.position="none") +
   facet_wrap(~.lag, 
@@ -296,154 +356,9 @@ La correlación con $h=3$ no es significativa, y en $h=2$ y $h=4$ las correlacio
 
 Para estas variables retrasadas, la correlación negativa puede modelarse de dos formas: _i)_ considerando un solo modelo con regresores $r_{t-5}$ y $r_{t-5}^2$, dada la curvatura y forma no lineal de la serie; o _ii)_ generando un modelo a trozos con un regresor lineal $r_{t-6}$, cuyo coeficiente asociado cambia dependiendo de si $r_t$ es mayor a $0{,}05$. 
 
-## Regresión con variables retrasadas.
 
-Se busca modelar, en el primer caso, un modelo de la forma:
 
-$$r_t = \phi r_{t-1} + \phi r_{t-12} + \phi r_{t-13} + \beta_1 r_{t-5} + \beta_2 r_{t-5}^2 + w_t + \Theta w_{t-1}(\#eq:model-reg)$$
 
-donde $\beta_1$ y $\beta_2$ son los coeficientes de regresión. En el segundo caso, se necesita de una variable _dummy_ $D_{t-5}$ la cual es 0 si $r_{t-6} < 0{,}05$ y 1 de otra forma, generando el modelo a trozos:
-
-$$r_t = \begin{cases}
-  \omega + \beta_1 r_{t-5} & r_{t-5} < 0{,}05 \\
-  \omega + \beta_2 + (\beta_1 + \beta_3) r_{t-5} & r_{t-5} \ge 0{,}05
-\end{cases}(\#eq:model-reg-trozos)$$
-
-donde $\omega = \phi r_{t-1} + \phi r_{t-12} + \phi r_{t-13} + w_t + \Theta w_{t-1}$ es el componente ARIMA y, de nuevo, $\beta_1$ y $\beta_2$ son los coeficientes de regresión para $r_{t-5}$ y $D_{t-5}$, y $\beta_3$ es el coeficiente de la interacción $D_{t-5}r_{t-5}$.
-
-### Estadísticos de Bondad de Ajuste.
-
-```{r lagged-regression, anchor="tabla"}
-ts_w_lagged_reg <- cm_transf[-(1:5),] %>%
-  bind_cols(
-    ts.intersect(as.ts(cm_transf), 
-    pcL5=as.ts(cm_transf) %>% stats::lag(-5),
-    dL5=ifelse(as.ts(cm_transf) < .05, 0, 1) %>% stats::lag(-5), dframe=TRUE) %>%
-    select(pcL5, dL5)
-  ) %>%
-  mutate(pcL5sq=pcL5 ** 2)
-
-new_models <- ts_w_lagged_reg %>%
-  model(
-    `Lagged with sq`=ARIMA(prop_change ~ 0 + pdq(1, 0, 0) + PDQ(0, 1, 1, 12) + pcL5 + pcL5sq, 
-      stepwise=FALSE, method="CSS-ML", optim.method="BFGS"),
-  `Lagged by pieces`=ARIMA(prop_change ~ 0 + pdq(1, 0, 0) + PDQ(0, 1, 1, 12) + pcL5 * dL5, 
-    stepwise=FALSE, method="CSS-ML", optim.method="BFGS")) %>%
-  bind_cols(all_models)
-
-information_based_2 <- new_models %>%
-  glance() %>%
-  arrange(AIC) %>%
-  select(-ar_roots, -ma_roots)
-
-error_based_2 <- accuracy(new_models)
-
-models_xreg <- c(.model, 
-  "$ARIMA(1,0,0)(0,1,1)_{12} \\text{ (no lineal con }r_{t-5}^2\\text{)}$", 
-  "$ARIMA(1,0,0)(0,1,1)_6 \\text{ (a trozos)}$")
-
-information_based_2 %>%
-  left_join(error_based_2) %>%
-  select(sigma2:BIC, ME:MAE) %>%
-  tibble::add_column(model=models_xreg, .before=1) %>%
-  knitr::kable(digits=c(NA, 4, 2, 1, 1, 1, 4, 4, 4), 
-    align='lcccccccccc', escape=FALSE,
-    col.names=c("Modelo", "$\\sigma^2$", "Func. Verosim.", "AIC", "AICc", "BIC", "ME", "RMSE", "MAE"),
-    caption="Estadísticos de bondad de ajuste de los modelos SARIMA ajustados.")
-```
-
-Los estadístico de bondad de ajuste muestran que las varianzas residuales de los modelos mostrados en las ecuaciones <a href="#eq:model-reg">2</a> y <a href="#eq:model-reg-trozos">3</a> son menores a la varianza residual del modelo $ARIMA(1,0,0)(0,1,1)_6$ sin regresores. 
-De igual forma, las demás medidas basadas en residuales RMSE, MAE y ME, no varían demasiado con respecto a los encontrados para el primer modelo ajustado, pero son, claro, menores. 
-Por otro lado, los valores de AIC y BIC para el modelo de regresión a trozos y el que usa una dependencia cuadrática son menores que los del primer modelo ajustado anteriormente (sin regresores). 
-
-### Gráficos diagnósticos de residuales.
-
-Los gráficos de residuales se muestran en la `r figr("diagnostics-plots-2", TRUE, type = "figura")` para el modelo de la ecuación <a href="#eq:model-reg">2</a>, con la dependencia cuadrática (el cual se selecciona al revisar los residuales). 
-Se puede observar que ya no existen correlaciones significativas, aunque se observa, principalmente en el PACF, que hay una cantidad inusualmente grande de correlaciones negativas en una sección en la primera mitad del gráfico. 
-
-```{r diagnostics-plots-2, fig.width=20, fig.height=5, fig.cap="Gráficos diagnósticos de residuales para el modelo regresivo con la dependencia cuadratica con $r_{t-5}$: _a)_ ACF, _b)_ PACF, _c)_ gráficos de residuales, y _d)_ gráfico _QQ_", anchor="figura"}
-res_sd <- information_based_2 %>% 
-  filter(.model == "Lagged with sq") %>%
-  pull(sigma2) %>%
-  sqrt()
-augmented_data_2 <- new_models %>%
-  select(`Lagged with sq`) %>%
-  augment() %>%
-  mutate(.std.resid=.resid / res_sd)
-
-augmented_data_2 %>%
-  ACF(.innov, lag_max=50) %>%
-  autoplot() +
-    theme_light() +
-    xlab("lag") + 
-    ylab(latex2exp::TeX("$\\rho(s, t)$")) -> acf
-
-augmented_data_2 %>%
-  PACF(.innov, lag_max=50) %>%
-  autoplot() +
-    theme_light() +
-    xlab("lag") + 
-    ylab(latex2exp::TeX("$\\rho(s, t)$"))-> pacf 
-
-res_series <- augmented_data_2 %>%
-  autoplot(.std.resid, colour="orange") +
-  geom_point(aes(y=.std.resid), colour="orange") +
-  scale_x_yearmonth(date_labels = "%Y") +
-  xlab("Tiempo") +
-  ylab("Residuales Estandarizados") + 
-  geom_hline(yintercept=c(0, 1.96, -1.96), 
-    color=c("black", 200, 200), linetype=c(1, 2, 2)) +
-  theme_light() 
-
-res_qq_plot <- augmented_data_2 %>% 
-  ggplot(aes(sample = .resid)) + 
-  stat_qq() + stat_qq_line(color="red") + 
-  theme_light()
-
-cowplot::plot_grid(acf, pacf, res_series, res_qq_plot, 
-  nrow=1, align="h",
-  labels=c("a)", "b)", "c)", "d)"), 
-  label_size=11, 
-  label_fontface="italic")
-```
-
-Por otro lado, el gráfico _QQ_ muestra una mejora significativa en el comportamiento de los residuales, comparado con el modelo anterior. La distribución de estos alrededor de la media se percibe mas aleatoria, y a excepción de los atípicos, se ajustan bien a la recta teórica en el gráfico _QQ_. 
-Aun es posible observar quiebres estructurales consecuencia de las observaciones atípicas: en total se observan 5 atípicos, con más de dos desviaciones estándar, y al menos 9-10 observaciones con desviaciones importantes dentro del intervalo de una desviación estándar. 
-
-```{r outliers-two, anchor="tabla"}
-augmented_data_2 %>%
-  filter(
-    .resid < quantile(.resid, 0.25) - 1.5 * IQR(.resid) |
-    .resid > quantile(.resid, 0.75) + 1.5 * IQR(.resid)
-  ) %>%
-  select(-.resid, -.model) %>%
-  kbl(digits=c(0, 4, 4, 3, 2),
-    escape=FALSE, align='lcccccc',
-    col.names=c("Año", "$r_t$", "Predicho", "Residuo", "Res. Estand."),
-    caption="Observaciones atípicas registradas para los cambios proporcionales en el número de unidades en inventario de leche condensada.")
-```
-
-Es interesante notar varias características del gráfico de residuales:
-
-* `r watch` Durante el año 1973, donde la series es anormal en su comportamiento anual, y al inicio del cual ocurre el primer valle, de mayor magnitud, el comportamiento de la serie esta algo desviado de la aleatoriedad general de la serie, y es donde ocurren dos de los atípicos observado (uno en el valle, y uno justo en la anormalidad a mediados de año, donde hay una caída inesperada de las unidades en inventario).
-* `r watch` A inicios de 1974, existe un atípico al entrar al pico de este año, y el valor en el pico, aunque no es atípico, tiene una magnitud cercana al limite de $2\sigma$. 
-* `r watch` El siguiente atípico corresponde al segundo valle de 1976, el cual sigue en magnitud al del año 1973.
-* `r watch` El ultimo atípico que se registra en la serie se da a mediados del año 1977, en el ultimo pico registrado en la serie, y al cual corresponde al pico de menor magnitud.
-
-### Parámetros estimados para el modelo escogido.
-
-Los parametros estimados para el modelo escogido (de la ecuacion <a href="#eq:model-reg">2</a>) se muestran en la `r figr("parametters-table", TRUE, type="tabla")`. 
-
-```{r parametters-table, anchor="tabla"}
-new_models %>% 
-  select(`Lagged with sq`) %>%
-  tidy() %>%
-  select(-.model) %>%
-  mutate(term=c("$\\phi$", "$\\Theta$", "$\\beta_1$", "$\\beta_2$")) %>%
-  kbl(digits=c(3, 3, 2, 4), align='lcccc', escape=FALSE,
-    col.names=c("Coef.", "Estimado", "Desv. Est.", "Estadístico", "$p$"),
-    caption="Parámetros estimados para el modelo de regresión con errores ARMA.")
-```
 
 ## Predicción de los próximos 24 meses.
 
