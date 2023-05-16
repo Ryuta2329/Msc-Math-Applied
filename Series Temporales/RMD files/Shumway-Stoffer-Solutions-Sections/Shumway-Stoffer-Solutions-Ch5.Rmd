@@ -354,7 +354,7 @@ $$
 donde $\epsilon_t \sim N(0, 1)$. 
 Los residuales, tal como se observan en la `r figr("p05-07-08-residuals", TRUE, type = "figura")`, donde se observa que ya no hay correlaciones importantes en las ACF y PACF, pero los residuales no se distribuyen normalmente, sino que parecen seguir una $t$-Student simétrica. 
 
-```{r p05-07-08-residuals, anchor="figura", fig.cap="Gráficos diagnósticos de residuales."}
+```{r p05-07-08-residuals, anchor="figura", fig.cap="Gráficos diagnósticos de residuales.", fig.height=5, fig.width=12}
 residuals_garch <- garch_fitting %>%
   filter(ARMA_mod == "ARMA(2, 0)" & GARCH_mod == "GARCH(1,1)") %$%
   residuals(garch_mods_fit[[1]]) %>%
