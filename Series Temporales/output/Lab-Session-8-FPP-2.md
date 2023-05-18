@@ -143,10 +143,11 @@ full <- cm_transf %>%
 ```
 
 
-Se ajusta entonces un modelo $SARIMA(1,0,0)(0,1,1)_{12}$, 
-$SARIMA(1,0,1)(0,1,1)_{12}$, y 
-$SARIMA(2,0,1)(0,1,1)_{12}$, y se comparan con un modelo 
-$SARIMA(2,0,2)(0,1,1)_{12}$ estimado minimizando la sumatoria de cuadrados condicional, encontrado por medio de una búsqueda del mejor modelo en el espacio de parámetros (mejor en el sentido de sumatoria de cuadrados mínima).
+Se ajusta entonces los modelos:
+
+$$SARIMA(1,0,0)(0,1,1)_{12},\quad SARIMA(1,0,1)(0,1,1)_{12},\quad \text{y }SARIMA(2,0,1)(0,1,1)_{12}$$
+
+y se comparan con un modelo $SARIMA(2,0,2)(0,1,1)_{12}$ estimado minimizando la sumatoria de cuadrados condicional, encontrado por medio de una búsqueda del mejor modelo en el espacio de parámetros (mejor en el sentido de sumatoria de cuadrados mínima).
 
 <a name="fitting-sarima"></a>
 
