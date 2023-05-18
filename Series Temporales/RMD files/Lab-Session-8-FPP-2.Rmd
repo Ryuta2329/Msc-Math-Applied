@@ -210,7 +210,8 @@ $$
 el cual se expande como:
 
 $$
-r_t = \phi_1 r_{t-1} + \phi_2 r_{t-2} - r_{t-12} - \phi_1 r_{t-13} - \phi_2 r_{t-14} + w_t + (\theta + \Theta) w_{t-1} + \theta\Theta w_{t-2}(\#eq:model)
+r_t = \phi_1 r_{t-1} + \phi_2 r_{t-2} - r_{t-12} - \phi_1 r_{t-13} - \phi_2 r_{t-14} + w_t + (\theta + \Theta) w_{t-1} + \theta\Theta w_{t-2}
+(\#eq:model)
 $$
 
 ### Parámetros estimados para el modelo escogido.
