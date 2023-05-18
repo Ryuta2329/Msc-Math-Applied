@@ -142,6 +142,7 @@ full <- cm_transf %>%
       method="CSS-ML", optim.method="BFGS"))
 ```
 
+
 Se ajusta entonces un modelo $SARIMA(1,0,0)(0,1,1)_{12}$, 
 $SARIMA(1,0,1)(0,1,1)_{12}$, y 
 $SARIMA(2,0,1)(0,1,1)_{12}$, y se comparan con un modelo 
