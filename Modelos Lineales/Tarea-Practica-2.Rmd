@@ -1,0 +1,65 @@
+---
+title: Regresión logı́stica
+author: Marcelo Molinatti
+output:
+ bookdown::html_document2:
+  keep_md: yes
+  pandoc_args: [--lua-filter, !expr "fs::path('..', 'assets', 'relative_path.lua')"]
+ pdf_document:
+  keep_tex: no
+  fig_caption: yes
+  toc: yes
+header-includes:
+ - \usepackage{amsmath}
+---
+
+# Regresión logı́stica
+
+Los métodos de regresión que hemos introducido en los capı́tulos anterios, no alcanzan cuando la variable de respuesta es discreta. En estos casos el método de regresión logı́stica es una alternativa.
+
+Consideremos para ilustrar el caso en el que la variable de respuesta $Y \in \{0, 1\}$, podemos pensar en dos categorı́as, por ejemplo presencia de eventos de hipertensión o no. Consideramos en un primer caso la dependencia de $Y$ con una única variable explicativa o covariable $X$. En el caso de hipertensión podrı́amos considerar el consumo de sal.
+
+Consideramos las probabilidades $P(Y = 1\vert X = x) = p(x)$ y $P(Y = 0\vert X = x) = 1 − p(x)$, queremos realizar inferencia sobre la probabilidad $p$. Como $Y$ es una variable aleatoria con distribución Bernoulli. Utilizaremos el método de máxima verosimilitud. Sea $y_1 \ldots y_n$ , $x_1 \ldots x_n$ una muestra de la variable $Y$ y $X$ respectativamente. La función de verosimilitud está dada por:
+
+$$V = \prod_{i=1}^n p(x_i)^{y_i} (1 − p(x_i))^{1−y_i}$$
+
+al tomar logaritmo y agrupar términos tenemos
+
+$$
+\begin{aligned}
+  L &= log V \\
+    &=\sum_{i=1}^n y_i \text{log }p(x_i) + (1 − y_i)\text{log }(1 − p(x_i)) \\
+    &=\sum_{i=1}^n y_i \text{log }\left(\frac{p(x_i)}{1 - p(x_i)}\right) + \text{log }(1-p(x_i))
+\end{aligned}
+$$
+
+el término $g(x) = \text{log }(p(x)/(1−p(x)))$ es llamado transformación logit, si despejamos y escribimos $p(x)$ en terminos de $g(x)$ obtenemos
+
+$$p(x) = \frac{e^{g(x)}}{1 + e^{g(x)}} = \frac{1}{1 + e^{-g(x)}}$$
+
+Si suponemos la relación lı́neal $g(x) = \beta_0 + \beta_1 x$ expresamos $L$ como 
+
+$$
+\begin{aligned}
+  L &= \sum_{i=1}^n y_i (\beta_0 + \beta_1 x_i) − \text{log }(1 + e^{\beta_0 + \beta_1 x_i}) \\
+    &= n\beta_0 \overline{y} + n\beta_1 \overline{yx} − \sum_{i=1}^n\text{log }(1 + e^{\beta_0 + \beta_1 x_i})
+\end{aligned}
+$$
+
+La función $L$ puede ser máximizada numéricamente para hallar los estimados $\hat{\beta_0}$, $\hat{\beta_1}$.
+
+Estos cálculos pueden ser extendidos al caso cuando tenemos un vector de covariables $X = (X_1, \ldots, X_k)$. En este caso tomamos $g(x) = \langle \beta, x \rangle$ para realizaciones del vector aleatorio $X_i = x_i$, $i = 1, \ldots, m$ y vector de parámetros $\beta$. En efecto, la función de
+verosimilitud queda escrita como
+
+$$L = \sum_{i=1}^n y_i (\beta_0 + \langle\beta, x_i\rangle) − \text{log }(1 + e^{\beta_0 + \langle\beta, x_i \rangle})$$
+
+del mismo modo los estimados de $\beta_0$ y $\beta$ pueden ser obtenidos numéricamente.
+
+## Ejercicios
+
+1. Desarrolle las ecuaciones del método de Newton para la función de log-verosimilitud en ambos casos.
+2. Implemente estas ecuaciones en Octave o R. 
+3. Utilice por lo menos dos conjuntos de datos del capı́tulo 1 del libro _Applied Logistic Regression_, de Hosmer _et al_. para probar su algoritmo y compare con los estimados obtenidos con las rutinas implementadas de Octave o R.
+
+## Soluciones
+
