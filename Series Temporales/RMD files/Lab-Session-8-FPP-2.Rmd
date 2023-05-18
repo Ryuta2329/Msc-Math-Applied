@@ -12,7 +12,7 @@ header-includes:
 
 ```{r number_figures, echo=FALSE}
 here::i_am("Series Temporales/RMD files/Lab-Session-8-FPP-2.Rmd")
-source(here::here("..", "assets", "caption-hooks.R"))
+source(here::here(fs::path_abs(".."), "assets", "caption-hooks.R"))
 ```
 
 # Sesión de Laboratorio: Modelos SARIMA.
@@ -54,6 +54,7 @@ suppressPackageStartupMessages({
   library(tidyr)
   library(ggplot2)
   library(kfigr)
+  library(kableExtra)
 })
 
 # Manufacturer's Stocks of evaporated and sweetened condensed milk.
@@ -168,12 +169,12 @@ selected_mod <- cm_transf %>%
 
 .model <- c("$ARIMA(1,0,0)(0,1,1)_{12}$", "$ARIMA(1,0,1)(0,1,1)_{12}$", "$ARIMA(2,0,1)(0,1,1)_{12}$", "$ARIMA(2,0,2)(0,1,1)_{12}$")
 
-glance(all_models) %>%
+glance(selected_mod) %>%
   select(-ar_roots, -ma_roots) %>%
   select(sigma2:BIC) %>%
   tibble::add_column(.model=.model, .before=1) %>%
-  kbl(digits=c(NA, 4, 2, 1, 1, 1, 4, 4, 4), 
-    align='lcccccccccc', escape=FALSE,
+  kbl(digits=c(NA, 4, 2, 1, 1, 1), 
+    align='lccccc', escape=FALSE,
     col.names=c("Modelo", "$\\sigma^2$", "Func. Verosim.", "AIC", "AICc", "BIC"),
     caption="Estadísticos de bondad de ajuste de los modelos SARIMA ajustados.")
 ```
@@ -183,7 +184,7 @@ Los resultados de los ajustes se muestran en la `r figr("fitting-sarima", TRUE, 
 Sin embargo, las pruebas de Ljung-Box llevadas a cabo sobre los residuales de los modelos ajustados muestran que solo los modelos SARIMA con componente $AR$ de segundo orden tienen errores independientes. Es por ello, que en base a la simplicidad del modelo $SARIMA(2,0,1)(0,1,1)_{12}$ (tiene menor cantidad de parámetros), este es preferible al modelo completo.
 
 ```{r ljung-box, anchor="tabla"}
-box_test <- selected_mod %>%
+selected_mod %>%
   gather(key = "Modelo", value = "Fit") %>%
   mutate(ljung_box = purrr::map(Fit, 
     ~features(augment(.), 
@@ -212,17 +213,40 @@ $$
 r_t = \phi_1 r_{t-1} + \phi_2 r_{t-2} - r_{t-12} - \phi_1 r_{t-13} - \phi_2 r_{t-14} + w_t + (\theta + \Theta) w_{t-1} + \theta\Theta w_{t-2}(\#eq:model)
 $$
 
+### Parámetros estimados para el modelo escogido.
+
+Los parámetros estimados para el modelo escogido (de la <a href="#eq:model">ecuacion 1</a>) se muestran en la `r figr("parametters-table", TRUE, type="tabla")`, donde se observa que todos los coeficientes son significativos.
+
+```{r parametters-table, anchor="tabla"}
+tidied_mod <- selected_mod %>% 
+  select(`ARMA(2,0,1)(0,1,1)_{12}`) %>%
+  tidy() 
+
+tidied_mod %>%
+  select(-.model) %>%
+  mutate(term=c("$\\phi_1$", "$\\phi_2$", "$\\theta$", "$\\Theta$")) %>%
+  kbl(digits=c(3, 3, 2, 4), align='lcccc', escape=FALSE,
+    col.names=c("Coef.", "Estimado", "Desv. Est.", "Estadístico", "$p$"),
+    caption="Parámetros estimados para el modelo de regresión con errores ARMA.")
+```
+
+Usando los estimados, el modelo de la <a href="#eq:model">ecuación 1</a> se escribe como:
+
+$$
+r_t = `r tidied_mod$estimate[1]`_{(`r tidied_mod$std.error[1]`)} r_{t-1} `r tidied_mod$estimate[2]`_{(`r tidied_mod$std.error[2]`)} r_{t-2} - r_{t-12} + `r -1 * tidied_mod$estimate[1]`_{(`r tidied_mod$std.error[1]`)} r_{t-13} + `r -1 * tidied_mod$estimate[2]`_{(`r tidied_mod$std.error[2]`)} r_{t-14} + w_t + `r tidied_mod$estimate[3] + tidied_mod$estimate[4]`_{(`r tidied_mod$std.error[3] + tidied_mod$std.error[4]`)} w_{t-1} `r tidied_mod$estimate[3] * tidied_mod$estimate[4]`_{`r abs(tidied_mod$estimate[3] * tidied_mod$estimate[4]) * ((tidied_mod$std.error[3] / abs(tidied_mod$estimate[3])) + (tidied_mod$std.error[4] / abs(tidied_mod$estimate[4])))`} w_{t-2}
+$$
+
 ### Gráficos diagnósticos de residuales.
 
 Al verificar el comportamiento de los residuales para el modelo candidato, $ARIMA(2,0,1)(0,1,1)_{12}$, se obtiene que los residuales presentan una ACF y PACF sin correlaciones importantes, pero que de alguna forma no se observan muy aleatorios en cuanto a su dirección (especialmente durante los primeros $2/3$ del gráfico).
 
 ```{r diagnostics-plots, fig.width=20, fig.height=5, fig.cap="Gráficos diagnósticos de residuales: _a)_ ACF, _b)_ PACF, _c)_ gráficos de residuales, y _d)_ gráfico _QQ_", anchor="figura"}
-res_sd <- all_models %>% 
+res_sd <- selected_mod %>% 
   select(`ARMA(2,0,1)(0,1,1)_{12}`) %>%
   glance() %>%
   pull(sigma2) %>%
   sqrt()
-augmented_data <- all_models %>% 
+augmented_data <- selected_mod %>% 
   select(`ARMA(2,0,1)(0,1,1)_{12}`) %>%
   augment() %>%
   mutate(.std.resid=.resid / res_sd)
@@ -291,49 +315,7 @@ Es interesante notar varias características del gráfico de residuales:
 * `r watch` El siguiente atípico corresponde al segundo valle de 1976, el cual sigue en magnitud al del año 1973.
 * `r watch` El ultimo atípico que se registra en la serie se da a mediados del año 1977, en el ultimo pico registrado en la serie, y al cual corresponde al pico de menor magnitud.
 
-
-
-### Parámetros estimados para el modelo escogido.
-
-Los parámetros estimados para el modelo escogido (de la <a href="#eq:model">ecuacion 1</a>) se muestran en la `r figr("parametters-table", TRUE, type="tabla")`, donde se observa que todos los coeficientes son significativos.
-
-```{r parametters-table, anchor="tabla"}
-all_models %>% 
-  select(`ARMA(2,0,1)(0,1,1)_{12}`) %>%
-  tidy() %>%
-  select(-.model) %>%
-  mutate(term=c("$\\phi_1$", "$\\phi_2$", "$\\theta$", "$\\Theta$")) %>%
-  kbl(digits=c(3, 3, 2, 4), align='lcccc', escape=FALSE,
-    col.names=c("Coef.", "Estimado", "Desv. Est.", "Estadístico", "$p$"),
-    caption="Parámetros estimados para el modelo de regresión con errores ARMA.")
-```
-
-
-
-
-
-
-
-
-
-
-
-```{r}
-cm_transf %>%
-  as_tibble() %>%
-  mutate(
-    month=lubridate::month(index),
-    firs_half=ifelse(month <=6, "First Half", "Second Half"),
-    quarter=lubridate::quarter(index)
-  ) %>%
-  group_by(firs_half) %>%
-  summarise(month_mean=mean(prop_change))
-```
-
-### Análisis de correlaciones de $r_t$ y $r_{t-h}$.
-
-Dado los resultados encontrados para el primer modelo ajustado, se decide hacer un análisis de correlación entre la serie temporal con respecto a las series temporales retrasadas (`r figr("bivariate-lag", TRUE, type = "figura")`).
-
+<!---
 ```{r bivariate-lag, fig.width=12, fig.height=10, fig.cap='Gráficos bivariados que relacionan la serie en $t$ con su valor retrasado en $t-h$, para $h=1$ a $12$.', anchor="figura"}
 tscleaned <- augmented_data %>%
   filter(
@@ -350,37 +332,35 @@ tscleaned %>%
   xlab('lag(Cambio proporcional, h)') + 
   ylab('Cambio proporcional')
 ```
+--->
 
-La dependencia de la serie en $t$ con respecto a los valores en $t-1$ se toma en cuenta dentro del modelo ajustado antes, al considerar un modelo autoregresivo de orden $p=1$, al igual que la correlación positiva con respecto al 12vo retraso. 
-La correlación con $h=3$ no es significativa, y en $h=2$ y $h=4$ las correlaciones son pequeñas, comparadas con las correlaciones observadas en $h=5$ y $h=6$ (las cuales son negativas y más importantes), y que parecen ser no lineales para valores mayores a $0{,}05$. 
+Un análisis mas detallado del gráfico de residuales se muestra en la `r figr("residuals-kernel", TRUE, type = "figura")`, donde se superpone una curva suavizada por _kernel_ normal (`bandwidth=8`), donde se observa un patrón senoidal bianual, en el que la amplitud de las funciones senos y cosenos involucradas parece variar con el tiempo. 
 
-Para estas variables retrasadas, la correlación negativa puede modelarse de dos formas: _i)_ considerando un solo modelo con regresores $r_{t-5}$ y $r_{t-5}^2$, dada la curvatura y forma no lineal de la serie; o _ii)_ generando un modelo a trozos con un regresor lineal $r_{t-6}$, cuyo coeficiente asociado cambia dependiendo de si $r_t$ es mayor a $0{,}05$. 
+```{r residuals-kernel, anchor="figura", fig.cap="Residuales con curva suavizada por _kernel_ superpuesta.", fig.height=5, fig.width=7}
+augmented_data %>%
+  autoplot(.std.resid, colour="orange") +
+  geom_point(aes(y=.std.resid), colour="orange") +
+  scale_x_yearmonth(date_labels = "%Y") +
+  xlab("Tiempo") +
+  ylab("Residuales Estandarizados") + 
+  geom_hline(yintercept=c(0, 1.96, -1.96), 
+    color=c("black", 200, 200), linetype=c(1, 2, 2)) +
+  theme_light() + 
+  geom_line(
+    aes(y=ksmooth(time(augmented_data$.std.resid %>% as.ts()), augmented_data$.std.resid %>% as.ts(), "normal", bandwidth=8)$y), 
+    colour="200", lwd=1)
+```
 
-
-
-
+En este momento no se como hacer de este comportamiento parte del modelo así que decidí no incluirlo y realizar el análisis con el modelo SARIMA ajustado, aunque no sea muy normal.
 
 ## Predicción de los próximos 24 meses.
 
 Las predicciones para los próximos 24 meses obtenidas a partir del modelo se muestran a continuación:
 
 ```{r forecast-plot, fig.width=7, fig.height=5, fig.cap='Predicción de los próximos 24 meses de la serie para los cambios proporcionales en las unidades de inventario, utilizando el modelo seleccionado.', anchor="figura"}
-first_forecast <- selected_mod %>%
+forecast_24_month <- selected_mod %>%
+  select(`ARMA(2,0,1)(0,1,1)_{12}`) %>%
   forecast(h=24)
-to_forecast <- first_forecast %>%
-  bind_cols(
-    bind_rows(setNames(cm_transf[115:119, "prop_change"], "pcL5"),
-    ts.intersect(as.ts(first_forecast[c("index", ".mean")]), 
-    pcL5=as.ts(first_forecast[c("index", ".mean")]) %>% 
-      stats::lag(-5), dframe=TRUE) %>%
-    select(pcL5))
-  ) %>%
-  mutate(pcL5sq=pcL5 ** 2) %>%
-  select(-.model) 
-
-forecast_24_month <- new_models %>%
-  select(`Lagged with sq`) %>%
-  forecast(new_data=to_forecast)
 
 autoplot(cm_transf, colour="dodgerblue3") +
     autolayer(forecast_24_month, colour="orange") +
@@ -394,7 +374,10 @@ autoplot(cm_transf, colour="dodgerblue3") +
 
 ```{r ets-estimation}
 ets_models <- cm_transf %>%
-  model(`ETS model`=ETS(prop_change ~ error("A") + trend("A") + season("A", period=12), opt_crit="mse")) 
+  model(
+    `ETS model`=ETS(prop_change ~ error("A") + trend("A") + season("A", period=12), 
+    opt_crit="mse")
+  ) 
 ```
 
 Ahora se ajusta un modelo usando suavizado exponencial, minimizando la sumatoria de cuadrados, usando solo componentes aditivos para la estacionalidad y la tendencia, obteniéndose un modelo con un RMSE de `r RMSE(augment(ets_models)$.resid)` y MAE de `r MAE(augment(ets_models)$.resid)`, comparables a los obtenidos para el modelo ajustado inicialmente, sin regresores, mostrado en la ecuación <a href="#eq:model">1</a>. 
