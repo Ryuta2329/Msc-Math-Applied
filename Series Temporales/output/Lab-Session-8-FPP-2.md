@@ -277,14 +277,15 @@ Se escribe el modelo inferido como:
 $$
 \begin{aligned}
   \Delta_{12}\phi(B)r_t = \Theta(B) w_t  & \Rightarrow \\
-    & \Rightarrow (1 - B^12)(1 - \phi_1 B - \phi_2 B^2) r_t = (1 + \Theta B)(1 + \theta B) w_t \\
+    & \Rightarrow (1 - B^{12})(1 - \phi_1 B - \phi_2 B^2) r_t = (1 + \Theta B)(1 + \theta B) w_t \\
 \end{aligned}
 $$
 
 el cual se expande como:
 
+<a name="eq:model"></a>
 $$
-r_t = \phi_1 r_{t-1} + \phi_2 r_{t-2} - r_{t-12} - \phi_1 r_{t-13} - \phi_2 r_{t-14} + w_t + (\theta + \Theta) w_{t-1} + \theta\Theta w_{t-2}(\#eq:model)
+r_t = \phi_1 r_{t-1} + \phi_2 r_{t-2} - r_{t-12} - \phi_1 r_{t-13} - \phi_2 r_{t-14} + w_t + (\theta + \Theta) w_{t-1} + \theta\Theta w_{t-2}
 $$
 
 ### Parámetros estimados para el modelo escogido.
@@ -351,7 +352,6 @@ tidied_mod %>%
 
 Usando los estimados, el modelo de la <a href="#eq:model">ecuación 1</a> se escribe como:
 
-<a name="eq:model"></a>
 $$
 r_t = -1,0881_{(0,1051)} r_{t-1} -0,3501_{(0,0962)} r_{t-2} - r_{t-12} + 1,0881_{(0,1051)} r_{t-13} + 0,3501_{(0,0962)} r_{t-14} + w_t + 0,0725_{(0,1944)} w_{t-1} -0,7274_{0,1682} w_{t-2}
 $$
