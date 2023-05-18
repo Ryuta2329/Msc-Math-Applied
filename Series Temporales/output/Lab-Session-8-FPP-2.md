@@ -283,12 +283,12 @@ $$
 
 el cual se expande como:
 
-<a name="eq:model"></a>
+<a name="eq-model"></a>
 $$r_t = \phi_1r_{t-1} + \phi_2r_{t-2} - r_{t-12} - \phi_1r_{t-13} - \phi_2r_{t-14} + w_t + (\theta + \Theta)w_{t-1} + \theta\Theta w_{t-2}$$
 
 ### Parámetros estimados para el modelo escogido.
 
-Los parámetros estimados para el modelo escogido (de la <a href="#eq:model">ecuacion 1</a>) se muestran en la <a href="#parametters-table">tabla 3</a>, donde se observa que todos los coeficientes son significativos.
+Los parámetros estimados para el modelo escogido (de la <a href="#eq-model">ecuacion 1</a>) se muestran en la <a href="#parametters-table">tabla 3</a>, donde se observa que todos los coeficientes son significativos.
 
 <a name="parametters-table"></a>
 
