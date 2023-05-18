@@ -284,7 +284,6 @@ $$
 el cual se expande como:
 
 <a name="eq:model"></a>
-
 $$r_t = \phi_1r_{t-1} + \phi_2r_{t-2} - r_{t-12} - \phi_1r_{t-13} - \phi_2r_{t-14} + w_t + (\theta + \Theta)w_{t-1} + \theta\Theta w_{t-2}$$
 
 ### Parámetros estimados para el modelo escogido.
