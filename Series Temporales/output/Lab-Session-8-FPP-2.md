@@ -143,7 +143,7 @@ full <- cm_transf %>%
 ```
 
 Se ajusta entonces un modelo 
-$SARIMA(1,0,0)(0,1,1)_{12}$
+$SARIMA\left(1{,}0{,}0\right)\left(0{,}1{,}1\right)_{12}$
 , 
 $SARIMA(1,0,1)(0,1,1)_{12}$
 , y 
