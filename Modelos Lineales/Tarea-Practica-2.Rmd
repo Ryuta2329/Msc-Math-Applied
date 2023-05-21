@@ -1,65 +1,112 @@
 ---
-title: Regresión logı́stica
+title: Regresión logística
 author: Marcelo Molinatti
 output:
  bookdown::html_document2:
   keep_md: yes
-  pandoc_args: [--lua-filter, !expr "fs::path('..', 'assets', 'relative_path.lua')"]
- pdf_document:
+ bookdown::pdf_document2:
   keep_tex: no
   fig_caption: yes
   toc: yes
+  toc_depth: 3
 header-includes:
  - \usepackage{amsmath}
 ---
 
-# Regresión logı́stica
+# Regresión logística
 
-Los métodos de regresión que hemos introducido en los capı́tulos anterios, no alcanzan cuando la variable de respuesta es discreta. En estos casos el método de regresión logı́stica es una alternativa.
+Los métodos de regresión que hemos introducido en los capítulos anteriores, no alcanzan cuando la variable de respuesta es discreta. En estos casos el método de regresión logística es una alternativa.
 
-Consideremos para ilustrar el caso en el que la variable de respuesta $Y \in \{0, 1\}$, podemos pensar en dos categorı́as, por ejemplo presencia de eventos de hipertensión o no. Consideramos en un primer caso la dependencia de $Y$ con una única variable explicativa o covariable $X$. En el caso de hipertensión podrı́amos considerar el consumo de sal.
+Consideremos para ilustrar el caso en el que la variable de respuesta $Y \in \{0, 1\}$, podemos pensar en dos categorías, por ejemplo presencia de eventos de hipertensión o no. Consideramos en un primer caso la dependencia de $Y$ con una única variable explicativa o covariable $X$. En el caso de hipertensión podríamos considerar el consumo de sal.
 
-Consideramos las probabilidades $P(Y = 1\vert X = x) = p(x)$ y $P(Y = 0\vert X = x) = 1 − p(x)$, queremos realizar inferencia sobre la probabilidad $p$. Como $Y$ es una variable aleatoria con distribución Bernoulli. Utilizaremos el método de máxima verosimilitud. Sea $y_1 \ldots y_n$ , $x_1 \ldots x_n$ una muestra de la variable $Y$ y $X$ respectativamente. La función de verosimilitud está dada por:
+Consideramos las probabilidades $P(Y = 1\vert X = x) = p(x)$ y $P(Y = 0\vert X = x) = 1 - p(x)$, queremos realizar inferencia sobre la probabilidad $p$. Como $Y$ es una variable aleatoria con distribución Bernoulli. Utilizaremos el método de máxima verosimilitud. Sea $y_1 \ldots y_n$ , $x_1 \ldots x_n$ una muestra de la variable $Y$ y $X$ respectivamente. La función de verosimilitud está dada por:
 
-$$V = \prod_{i=1}^n p(x_i)^{y_i} (1 − p(x_i))^{1−y_i}$$
+$$V = \prod_{i=1}^n p(x_i)^{y_i} (1 - p(x_i))^{1-y_i}$$
 
 al tomar logaritmo y agrupar términos tenemos
 
 $$
 \begin{aligned}
   L &= log V \\
-    &=\sum_{i=1}^n y_i \text{log }p(x_i) + (1 − y_i)\text{log }(1 − p(x_i)) \\
+    &=\sum_{i=1}^n y_i \text{log }p(x_i) + (1 - y_i)\text{log }(1 - p(x_i)) \\
     &=\sum_{i=1}^n y_i \text{log }\left(\frac{p(x_i)}{1 - p(x_i)}\right) + \text{log }(1-p(x_i))
 \end{aligned}
 $$
 
-el término $g(x) = \text{log }(p(x)/(1−p(x)))$ es llamado transformación logit, si despejamos y escribimos $p(x)$ en terminos de $g(x)$ obtenemos
+el término $g(x) = \text{log }(p(x)/(1-p(x)))$ es llamado transformación logit, si despejamos y escribimos $p(x)$ en términos de $g(x)$ obtenemos
 
 $$p(x) = \frac{e^{g(x)}}{1 + e^{g(x)}} = \frac{1}{1 + e^{-g(x)}}$$
 
-Si suponemos la relación lı́neal $g(x) = \beta_0 + \beta_1 x$ expresamos $L$ como 
+Si suponemos la relación lineal $g(x) = \beta_0 + \beta_1 x$ expresamos $L$ como 
 
-$$
+$$\label{eq:scalar-likelihood}
 \begin{aligned}
-  L &= \sum_{i=1}^n y_i (\beta_0 + \beta_1 x_i) − \text{log }(1 + e^{\beta_0 + \beta_1 x_i}) \\
-    &= n\beta_0 \overline{y} + n\beta_1 \overline{yx} − \sum_{i=1}^n\text{log }(1 + e^{\beta_0 + \beta_1 x_i})
+  L &= \sum_{i=1}^n y_i (\beta_0 + \beta_1 x_i) - \text{log }(1 + e^{\beta_0 + \beta_1 x_i}) \\
+    &= n\beta_0 \overline{y} + n\beta_1 \overline{yx} - \sum_{i=1}^n\text{log }(1 + e^{\beta_0 + \beta_1 x_i})
 \end{aligned}
 $$
 
-La función $L$ puede ser máximizada numéricamente para hallar los estimados $\hat{\beta_0}$, $\hat{\beta_1}$.
+La función $L$ puede ser maximizada numéricamente para hallar los estimados $\hat{\beta_0}$, $\hat{\beta_1}$.
 
-Estos cálculos pueden ser extendidos al caso cuando tenemos un vector de covariables $X = (X_1, \ldots, X_k)$. En este caso tomamos $g(x) = \langle \beta, x \rangle$ para realizaciones del vector aleatorio $X_i = x_i$, $i = 1, \ldots, m$ y vector de parámetros $\beta$. En efecto, la función de
-verosimilitud queda escrita como
+Estos cálculos pueden ser extendidos al caso cuando tenemos un vector de covariables $X = (X_1, \ldots, X_k)$. En este caso tomamos $g(x) = \langle \beta, x \rangle$ para realizaciones del vector aleatorio $X_{j} = x_{j}$, $j = 1, \ldots, m$ y vector de parámetros $\beta_j$. En efecto, la función de verosimilitud queda escrita como
 
-$$L = \sum_{i=1}^n y_i (\beta_0 + \langle\beta, x_i\rangle) − \text{log }(1 + e^{\beta_0 + \langle\beta, x_i \rangle})$$
+$$
+L = \sum_{i=1}^n y_i (\langle\beta, x_{ij}\rangle) - \text{log }(1 + e^{\langle\beta, x_{i} \rangle})
+(\#eq:veclikelihood)
+$$
 
-del mismo modo los estimados de $\beta_0$ y $\beta$ pueden ser obtenidos numéricamente.
+donde se usa $x_{i0}=1$ para todo $i=1, \ldots, n$. Del mismo modo, los estimados de $\beta_j$ pueden ser obtenidos numéricamente.
 
 ## Ejercicios
 
 1. Desarrolle las ecuaciones del método de Newton para la función de log-verosimilitud en ambos casos.
 2. Implemente estas ecuaciones en Octave o R. 
-3. Utilice por lo menos dos conjuntos de datos del capı́tulo 1 del libro _Applied Logistic Regression_, de Hosmer _et al_. para probar su algoritmo y compare con los estimados obtenidos con las rutinas implementadas de Octave o R.
+3. Utilice por lo menos dos conjuntos de datos del capitulo 1 del libro _Applied Logistic Regression_, de Hosmer _et al_. para probar su algoritmo y compare con los estimados obtenidos con las rutinas implementadas de Octave o R.
 
 ## Soluciones
 
+### Ecuaciones de Newton-Raphson sobre $L(\beta)$.
+
+Para encontrar los estimados $\hat{\beta}$ se debe resolver $\partial L(\beta)/\partial\beta_j = 0$ para cada uno de los $k$ parámetros. 
+Si se supone que comenzamos con un estimador inicial _suficientemente bueno_ de $\beta$, digamos $\beta_{(0)}$, y se expande el vector de derivadas $L^\prime(\hat{\beta})$ alrededor de la solución $\hat{\beta}$, por expansión de Taylor:
+
+$$L^\prime(\hat{\beta}) \approx L^\prime(\beta_{(0)}) - L^{(2)}(\beta_{(0)})\left[\hat{\beta} - \beta_{(0)}\right]$$
+
+Como la función $L^\prime(\hat{\beta})$ es igual a cero en $\hat{\beta}$, entonces se resuelve la ultima ecuación para $\hat{\beta}$, llamando a la solución $\beta_{(1)}$:
+
+$$\beta_{(1)} = \beta_{(0)} + \left[L^{(2)}(\beta_{(0)})\right]^{-1} L^\prime(\beta_{(0)})$$
+
+Cuando solo se tiene un regresor, la ecuación anterior se reduce a:
+
+$$\beta_{(1)} = \beta_{(0)} + \frac{L^\prime(\beta_{(0)})}{L^{(2)}(\beta_{(0)})}$$
+
+En el caso de la ecuación \@ref(eq:veclikelihood), la primera derivada con respecto al coeficiente $\beta_j$ viene dada por:
+
+$$\frac{\partial L}{\partial\beta_j} = \sum_{i=1}^n y_i x_{ij} - \frac{x_{ij}}{1 + e^{-\langle\beta, x_{i} \rangle}}$$
+
+y la segunda derivada queda:
+
+$$\frac{\partial^2 L}{\partial\beta_j^2} = -\sum_{i=1}^n \frac{x_{ij}^2e^{-\langle\beta, x_{i} \rangle}}{(1 + e^{-\langle\beta, x_{i} \rangle})^2}$$
+
+### Implementación del método de Newton-Raphson en R.
+
+Para encontrar la solución final $\hat{\beta}$, se procede de forma iterativa, reemplazando en cada iteración el valor de $\beta_{(0)}$ por el de $\beta_{(1)}$, para encontrar una nueva actualización, y así sucesivamente hasta que el algoritmo converge: se alcanza una actualización que no difiere de la actualización anterior (dentro de una tolerancia dada lo suficientemente pequeña). 
+
+<!---
+
+```r
+library(rlang)
+
+function(formula, data, initial_pars) {
+  
+  L_prime <- new_function(
+    pairlist2(),
+    quote(
+      a
+    ))
+
+  if ()
+}
+```
+
+--->
