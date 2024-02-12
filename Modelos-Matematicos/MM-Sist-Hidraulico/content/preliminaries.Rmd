@@ -1,0 +1,20 @@
+# Definiciones básicas.
+
+En sistemas hidráulicos, la _resistencia_ se define en términos de la presión diferencial o la altura diferencial, que son las cantidades que sirven como potenciales. De forma general, se trata del cambio de potencial requerido para producir un cambio unitario en la corriente, razón de flujo o velocidad.  
+Cuando hablamos del flujo de líquidos en tuberías, orificios o valvulas, usamos la razón de flujo (unidades de m${}^3$ s${}^{-1}$), y podemos escribir:
+
+$$RQ = h$$
+
+donde se escribe $Q = dV/dt$, con $V$ el volumen. 
+
+La _capacitancia_ se define como el cambio en la cantidad de material o distancia requerido para producir un cambio unitario de potencial. En este caso, podemos entender el cambio de material como el mismo volumen, de tal forma que podemos definir:
+
+$$C\frac{dh}{dt} = V$$
+
+Para establecer las ecuaciones en terminos de el flujo a través del sistema, se puede derivar la ecuación anterior con respecto al tiempo, y se obtiene:
+
+$$C\frac{d^2h}{dt^2} = Q$$
+
+La _inertancia_ se refiere al cambio de potencial necesario para producir una razón de cambio unitaria en la razón de flujo, la velocidad o la corriente. En este caso, se establece el cambio en al razon de flujo como la aceleración del flujo líquido volumétrico, de forma que: 
+
+$$I\frac{dQ}{dt} = \frac{dh}{dt}$$

@@ -1,0 +1,117 @@
+---
+author: Marcelo J. Molinatti S.
+date: febrero 11, 2024
+title: Sistema Hidráulico equivalente al circuito RLC.
+subtitle: Modelo matemático y solución por transformada de Laplace
+output:
+  bookdown::pdf_document2:
+    number_sections: true
+    toc: false
+    keep_tex: true
+    dev: png
+    includes:
+      in_header: ./tex/preamble.tex
+      before_body: null
+      after_body: null
+geometry:
+- left=4cm
+- right=3cm
+- top=2.5cm
+- bottom=2.5cm
+linestretch: 1.5
+secnumdepth: 2.0
+colorlinks: true
+bibliography: C:/Users/Molinatti/Documents/MM-Sist-Hidraulico/tex/references.bib
+lang: es-ES
+---
+```{r include = FALSE, message = FALSE, warning = FALSE}
+library(RefManageR)
+```
+# Definición del Modelo.
+
+Supongamos que se tiene un sistema hidráulico que consiste de un tanque que recibe una entrada de agua a una tasa $q_{in}$, que por simplicidad supondremos constante. 
+El tanque tiene una salida en el fondo hacia una tubería, que conecta a una bomba, que acelera el flujo de líquido hasta llegar a una válvula, parcialmente abierta, de tal forma que hay una salida neta del sistema $q_{out}$. 
+
+Podemos comenzar el análisis, considerando al tanque como un capacitor que almacena cierta cantidad del material de volumen $V$. Si suponemos que el tanque tiene inicialmente una columna de agua de altura $H$, entonces el cambio diferencial en la altura debido a la entrada de fluido se debe a la inclusión del volumen $V$ en el tanque, por lo que se puede escribir:
+
+\begin{equation}
+  C\frac{dh}{dt} = q_{in} - q_{pump} (\#eq:capacitance)
+\end{equation}
+
+donde $C$ es la capacitancia con dimensiones de m${}^2$. La función de salida $q_{pump}$, se puede obtener de la relación entre el cambio en el flujo y la altura diferencial:
+
+\begin{equation}
+  \frac{dQ}{dt} = \frac{h}{I} (\#eq:inertance)
+\end{equation}
+
+dónde $I$ es la inertancia. Integrando a ambos lados con respecto al tiempo se obtiene:
+
+\begin{equation}
+   q_{out} - q_{pump} = \frac{1}{I} \int_{0}^{t} h(\tau) d\tau (\#eq:pump-out)
+\end{equation}
+
+donde $q_{out}$ es el flujo de salida luego del paso por la válvula, que se relaciona con la altura diferencial como $q_{out} = h/R$, donde $R$ es la resistencia. Sustituyendo esta ecuación y el resultado en \@ref(eq:pump-out) en la ecuación \@ref(eq:capacitance) se obtiene:
+
+\begin{equation}
+  C\frac{dh}{dt} = q_{in} + \frac{1}{I} \int_{0}^{t} h(\tau) d\tau - \frac{h}{R} (\#eq:model)
+\end{equation}
+
+que reordenando queda:
+
+\begin{equation}
+  RIC\frac{dh}{dt} + Ih - R\int_{0}^{t} h(\tau) d\tau = RIq_{in} (\#eq:model-two)
+\end{equation}
+
+la cual es una ecuación integrodiferencial con condiciones iniciales $h(0) = H$ y $h'(0) = 0$. 
+
+# Solución de la ecuación para el modelo.
+
+Aplicando transformada de Laplace y la propiedad de linealidad de la misma, se obtiene:
+\begin{align}
+             &\mathcal{L}\left\{RIC\frac{dh}{dt} + Ih - R\int_{0}^{t} h(\tau) d\tau\right\} = \mathcal{L}\left\{RIq_{in}\right\} \notag\\
+  \Rightarrow& RIC\mathcal{L}\left\{\frac{dh}{dt}\right\} + I\mathcal{L}\left\{h\right\} - R\mathcal{L}\left\{\int_{0}^{t} h(\tau) d\tau\right\} = RIq_{in}\mathcal{L}\{1\}
+\end{align}
+
+Aplicando el teorema de transformada de derivadas y el de transformada de integrales se obtiene:
+\begin{align}
+             & RIC\left(sH(s) - H\right) + IH(s) - R\frac{H(s)}{s} = RIq_{in}\frac{1}{s} \notag\\
+  \Rightarrow& \left(RIC s + I - R\frac{1}{s}\right)H(s) - RICH = RIq_{in}\frac{1}{s} \notag\\
+  \Rightarrow& \left(RIC s + I - R\frac{1}{s}\right)H(s) = RIq_{in}\frac{1}{s} + RICH \notag\\
+  \Rightarrow& \left(RIC s^2 + I s - R\right)H(s) = RIq_{in} + RICH s \notag\\
+  \Rightarrow& H(s) = \frac{RIq_{in} + RICH s}{RIC s^2 + I s - R} \notag\\ 
+  \Rightarrow& H(s) = \frac{(1/C)q_{in} + H s}{s^2 + (1 / RC)s - (1 / IC)}(\#eq:transformed-h)
+\end{align}
+
+Completando cuadrado, la ecuación anterior queda:
+\begin{align}
+  &H(s) = \frac{(1/C)q_{in} + H s}{s^2 + (1 / RC)s - (1 / IC)} \notag\\ 
+  \Rightarrow& H(s) = \frac{(1/C)q_{in} + H s}{(s - \frac{1}{2RC})^2 - \frac{1}{IC} - \frac{1}{4(RC)^2}} \notag\\
+  \Rightarrow& H(s) = \frac{(1/C)q_{in} + H s}{(s - \frac{1}{2RC})^2 - \frac{(2RC)^2 + IC}{IC(2RC)^2}} \notag\\
+  \Rightarrow& H(s) = \frac{(1/C)q_{in}}{(s - \frac{1}{2RC})^2 - \frac{(2RC)^2 + IC}{IC(2RC)^2}} + \frac{H s}{(s - \frac{1}{2RC})^2 - \frac{(2RC)^2 + IC}{IC(2RC)^2}} (\#eq:transformed-h-two)
+\end{align}
+
+Aplicando la transformada inversa de Laplace se tiene:
+\begin{equation}
+  \mathcal{L}^{-1}\left\{H(s)\right\} = q_{in}\sqrt{\frac{IC(2R)^2}{(2RC)^2 + IC}}\mathcal{L}^{-1}\left\{\frac{\sqrt{\frac{(2RC)^2 + IC}{IC(2RC)^2}}}{(s - \frac{1}{2RC})^2 - \frac{(2RC)^2 + IC}{IC(2RC)^2}}\right\} + H\mathcal{L}^{-1}\left\{\frac{s}{(s - \frac{1}{2RC})^2 - \frac{(2RC)^2 + IC}{IC(2RC)^2}}\right\} 
+\end{equation}
+
+la cual se puede resolver directamente al usar el teorema de traslación:
+\begin{equation}
+  \Rightarrow \mathcal{L}^{-1}\{H(s)\} = q_{in}\sqrt{\frac{IC(2R)^2}{(2RC)^2 + IC}}e^{\frac{t}{2RC}}\text{Senh}\left(\sqrt{\frac{IC(2R)^2}{(2RC)^2 + IC}} t\right) + He^{\frac{t}{2RC}}\text{Cosh}\left(\sqrt{\frac{IC(2R)^2}{(2RC)^2 + IC}} t\right) 
+\end{equation}
+
+por lo que la solución al modelo se puede escribir como:
+\begin{equation}
+  h(t) = e^{\frac{t}{2RC}}\left[q_{in}\sqrt{\frac{IC(2R)^2}{(2RC)^2 + IC}}\text{Senh}\left(\sqrt{\frac{IC(2R)^2}{(2RC)^2 + IC}} t\right) + H\text{Cosh}\left(\sqrt{\frac{IC(2R)^2}{(2RC)^2 + IC}} t\right)\right] (\#eq:solution)
+\end{equation}
+
+# Referencias {-}
+
+```{r , results='asis', echo=FALSE, warning=FALSE, message=FALSE}
+bib <- ReadBib(path(tex_dir, "references", ext="bib"), check = FALSE)
+
+print(bib, 
+  .opts = list(check.entries = FALSE, 
+               style = "html", 
+               bib.style = "authoryear"))
+```

@@ -1,0 +1,10 @@
+# Referencias {-}
+
+```{r , results='asis', echo=FALSE, warning=FALSE, message=FALSE}
+bib <- ReadBib(path(tex_dir, "references", ext="bib"), check = FALSE)
+
+print(bib, 
+  .opts = list(check.entries = FALSE, 
+               style = "html", 
+               bib.style = "authoryear"))
+```

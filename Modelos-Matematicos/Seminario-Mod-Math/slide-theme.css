@@ -1,0 +1,50 @@
+h1, h2 {
+  font-weight: 700;
+  font-size: 20px;
+}
+.circle-image{
+    display: inline-block;
+    overflow: hidden;
+    width: 10%;
+    padding-bottom: 20%;
+    height: 0;
+    position: relative;
+}
+.circle-image img{
+  width:110%;
+  height:60%;
+  position: absolute;
+  object-fit: cover;
+}
+.title {
+  font-weight: 700;
+  font-size: 40px;
+  text-align: left;
+  color: #CACACA;
+}
+.sub-title {
+  font-size: 25px;
+  font-weight: 700;
+  text-align: left;
+  color: #CACACA;
+}
+.date {
+  font-size: 15px;
+  text-align: left;
+}
+.author {
+  font-size: 25px;
+  text-align: left;
+}
+a:link {
+  color: #CACACA;
+}
+a:visited {
+  color: #CACACA;
+}
+a:hover {
+  color: #CACACA;
+}
+a:active {
+  color: #CACACA;
+}

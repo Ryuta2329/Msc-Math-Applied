@@ -1,0 +1,352 @@
+---
+author: Marcelo J. Molinatti S.
+date: febrero 05, 2024
+title: Método de Extracción de Masas de Agua basado en datos satelitales del Landsat-8
+subtitle: Aplicado al lago de Valencia, Carabobo.
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css:
+    - xaringan-themer.css
+    - slide-theme.css
+    seal: false
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+lang: es-ES
+---
+```{r include = FALSE, message = FALSE, warning = FALSE}
+library(kableExtra)
+options(knitr.table.format = "latex", kableExtra.latex.load_packages = TRUE, 
+    knitr.kable.NA = "")
+library(xaringanthemer)
+library(xaringanExtra)
+style_duo(primary_color = "#FCFAF1", secondary_color = "#343434")
+use_animate_css()
+```
+class: left, inverse
+
+<span class="circle-image">
+ <img src="`r path('fig', 'UC_logo', ext = 'png')`" />
+</span>
+<span class="circle-image">
+ <img src="`r path('fig', 'facyt', ext = 'png')`" />
+</span>
+
+.title[Método de Extracción de Masas de Agua basado en datos satelitales del Landsat-8]
+
+.sub-title[Aplicado al lago de Valencia, Carabobo.]
+
+.left-bordered[
+.date[`r toupper(format(Sys.Date(), "%B %d, %Y"))`]
+
+.author[Marcelo J. Molinatti S.]
+]
+
+.left[
+<a href="https://github.com/Ryuta2329"><img src="`r path('fig', 'github2.png')`" width="20px", height="20px" />&nbsp; Ryuta2329</a><br><a href="https://www.linkedin.com/in/marmolinattis/"><img src="`r path('fig', 'linkedin2.png')`" width="20px", height="20px" />&nbsp; @marmolinattis</a>
+]
+---
+class: left
+background-image: url(./fig/Panorama_lagodeValencia.jpeg)
+background-size: contain
+background-position: bottom
+
+# Introducción.
+
+> El seguimiento de las masas de agua en el tiempo es importante para evaluar el cambio de las propiedades de estas como consecuencia de los cambios bióticos y abióticos naturales, y la acción antopogénica sobre estos.  
+
+> Este seguimiento permite realizar una administración de las masas de agua que sirven como recurso de agua para las poblaciones y lugares de preservación de ecosistemas y la biodiversidad.
+
+--
+
+Los lagos endorreicos, como el Lago de Valencia, son particularmente vulnerables al cambio climático y la acción del hombre sobre el manejo de estos. 
+
+--
+
+* Infraestructuras de aprovechamiento del agua del Lago parauso urbano.
+* Contaminación por productos de sintsís química.
+* Eutrofismo por cianobacterias. 
+
+---
+class: left
+
+# Introducción.
+
+.pull-left[
+> Se resalta la importancia del sensado remoto/satelital de las masas de agua.
+
+> Aparece la necesidad de identificar las masas de agua de forma automatizada.
+
+**Objetivo**
+
+Evaluar la exactitud de cuatro métodologías de clasificación para la identificación de las masas de agua: caso Lago de Valencia, Estado Carabobo.
+
+]
+.pull-right[
+```{r intro-fig-one, echo=FALSE}
+knitr::include_graphics(path("fig", "c1-15", ext="jpg"))
+```
+]
+---
+class: left
+
+# Metodología.
+
+## Zona de estudio
+
+.pull-left[
+```{r method-fig-one, echo=FALSE}
+knitr::include_graphics(path("fig", "Lake_Valencia,_Venezuela", ext="jpg"))
+```
+].pull-right[
+> Landsat8-Nivel 2.  
+> Fecha: 21/11/23.  
+> Dimensiones: 1243 px $\times$ 718 px.  
+> Unidad: 30 px $\times$ 30 px.  
+> Formato: TIFF.  
+> Coordenadas SRC: EPSG:32619 - WGS 84 / UTM zone 19N.  
+]
+
+Lago de Valencia: depresion se encuentra contenida entre los meridianos $67^\circ07'$ y $68^\circ12'$ de longitud oeste y $9^\circ57'$ y $10^\circ26'$ norte. 
+
+---
+class: left
+
+# Metodología.
+
+## Metodologias de clasificación de Masas de Agua.
+
+* _Tressholding_ o valor umbral. 
+* Índice de Agua de Diferencia Normalizada (NDWI).
+* Maquinas de Soporte Vectorial (_SVM_, Aprendizaje Supervisado).
+* $k$-_Means_ (Aprendizaje no Supervisado).
+
+---
+class: left
+
+# Metodología.
+
+**_Tressholding_ o método de Valor Umbral**.
+
+Consiste en buscar un valor umbral $k$ que nos permita dividir los pixeles en dos gripos distintos. 
+
+```{r method-fig-two, echo=FALSE}
+knitr::include_graphics(path("fig", "thresshold-example.png"))
+```
+
+---
+class: left
+
+# Metodología.
+
+**_Tressholding_ o método de Valor Umbral**.
+
+Se defina la distribución de probabilidad discreta:
+
+$$p_i = P(X_i = n_i) = \frac{n_i}{N}\text{, } p_i \ge 0\text{ y }\sum_i p_i = 1 \quad\quad (1)$$
+
+que permite calcular la _probabilidad de pertenecer a la región 0_, para un umbral $k$:
+
+$$\omega(k) = \sum_{i=1}^k p_i\quad\quad (2)$$
+
+---
+class: left
+
+# Metodología.
+
+**_Tressholding_ p método de Valor Umbral (Otsu)**.
+
+Usando esa distribución como base, se descompone la varianza total, $\sigma_T^2$, en varianza entre grupos, $\sigma_B^2$, y varianza dentro de grupos, $\sigma_W^2$, con $\sigma_T^2 = \sigma_B^2 + \sigma_W^2$. 
+
+--
+
+* Se utiliza entonces como función objetivo $\sigma_B^2$:
+
+$$\sigma_B^2(k) = \frac{(\mu_T\omega(k) - \mu(k))^2}{\omega(k)(1 - \omega(k))}\quad\quad (3)$$
+
+--
+
+* Maximizado en $k^*$ tal que:
+
+$$\sigma_B^2(k^*) = \underset{1\le k\le L}{max} \sigma_B^2(k)\quad\quad (4)$$
+
+---
+class: left
+
+# Metodología.
+
+**Índice de Agua de Diferencia Normalizada (NDWI).**.
+
+Es una ecuación matemática que que se aplica a las bandas (en este caso la 3 y la 5 correspondiente a longitudes de onda verde y NIR) espectrales de una imagen para crear una capa nueva con caracteristicfas diferentes. 
+
+--
+
+Para la identificación de agua se usa:
+
+$$NDWI = \frac{B_{verde} - B_{NIR}}{B_{verde} + B_{NIR}}\quad\quad (5)$$
+
+* A más cercano a 1 el valor, entonces es más probable sea agua (se elige _cut-off_ de $0{,}2$).
+* A más cercano a -1 el valor, entonces es más probable sea tierra (0 a $-0{,}3$ es tierra sin agua, y menor es sequía).
+
+---
+class: left
+
+# Metodología.
+
+**Maquina de Soporte Vectorial.**
+
+Se basa en separar las observaciones en grupos de acuerdo a la distancia de estos a un hiperplano que divide el espacio en dos regiones. 
+
+.pull-left[
+> * Se definen dos margenes que determinan la distancia de ambas muestras al hiperplano.
+> * No todas las observaciones contribuyen a determinar la distancia de los margenes.
+]
+.pull-right[
+```{r method-fig-three, echo=FALSE}
+knitr::include_graphics(path("fig", "SVM-example.png"))
+```
+]
+
+---
+class: left
+
+# Metodología.
+
+**Maquina de Soporte Vectorial.**
+
+Se trata de un clasificador lineal, por lo que se parte del hiperplano:
+
+$$\mathbf{w}\cdot\mathbf{x_i} + b = 0\quad\quad (6)$$
+
+--
+
+y se define una función de asignación de signo que denota como positivos aquellas observaciones que caen encima del plano, y negativos aquellos que caen debajo del hiperplano, de forma que se puede generalizar la condición sobre la cual se restringe el espacio de posibles hiperplanos como:
+
+$$y_i(\mathbf{w}\cdot\mathbf{x_i} + b) \ge 1\quad\quad (7)$$
+
+---
+class: left
+
+# Metodología.
+
+**Maquina de Soporte Vectorial.**
+
+El margen total es $M = 2/\vert\vert\mathbf{w}\vert\vert$, lo cual sugiere una forma de maximizar $M$ al minimizar $\vert\vert\mathbf{w}\vert\vert$, lo cual involucra maximizar:
+
+$$F(\mathbf{w},b,\alpha) = \frac{1}{2}\mathbf{w}\cdot\mathbf{w} - \sum_{i=1}^N \alpha_i(y_i(\mathbf{w}\cdot\mathbf{x_i} + b) - 1) \quad\quad (8)$$
+
+por multiplicadores de Lagrange.
+
+--
+
+La solución es entonces:
+
+$$max F_D(\alpha) = \underset{\alpha}{max} \left[\underset{b,\mathbf{w}}{max}\left(F_p(\mathbf{w}, b, \alpha)\right)\right]\quad\quad (9)$$
+
+---
+class: left
+
+# Metodología.
+
+$k$**-_Means_.**
+
+Se encarga de particionar el conjunto de datos en $k$ grupos, tal que cada observación dentro d eun grupo sea sean lo más similar entre sí, mientras que datos de distintos grupos sean lo más diferentes. 
+* El número $k$ de grupos se define previamente.
+
+--
+
+El proceso consiste en asignar datos a cada _cluster_ tal que se minimice la distancia cuadrada entre $c_n$ ycon respecto a la media $\mu_k$ del _cluster_:
+	
+$$J = \sum_{n=1}^N\sum_{k=1}^K r_{nk} \vert\vert x_n - \mu_k\vert\vert^2 \quad\quad (10)$$
+
+donde $r_{nk} \in [0,1]$ es una v.a. binaria, donde $k=1,\ldots,K$ y $n=1,\ldots,N$. Si $r_{nk} = 1$, entonces $x_n$ pertenece al _cluster_ $k$, y 0 de otra forma. El onbjetivo es entonces encontrar los conjutnos $\{r_{nk}\}$ y $\{\mu_k\}$ que minimizan $J$.
+
+---
+class: left
+
+# Metodología.
+
+$k$**-_Means_.**
+
+Procedimiento numérico usando el algoritmo EM.
+
+```{r method-fig-four, echo=FALSE}
+knitr::include_graphics(path("fig", "kmeans-example-two", ext="png"))
+```
+
+---
+class: left
+
+# Metodología.
+
+$k$**-_Means_.**
+
+Procedimiento numérico usando el algoritmo EM.
+
+```{r method-fig-five, echo=FALSE}
+knitr::include_graphics(path("fig", "kmeans-example-three", ext="png"))
+```
+---
+class: left, inverse
+
+# Resultados y Discusión.
+
+**Análisis cualitativo.**
+
+```{r result-fig-one, echo=FALSE}
+knitr::include_graphics(path("fig", "results-global", ext="png"))
+```
+
+---
+class: left, inverse
+
+**Análisis cualitativo.**
+
+```{r result-fig-two, echo=FALSE}
+knitr::include_graphics(path("fig", "results-local", ext="png"))
+```
+
+--
+
+```{r result-fig-three, echo=FALSE}
+knitr::include_graphics(path("fig", "results-local-two", ext="png"))
+```
+
+--
+
+```{r result-fig-four, echo=FALSE}
+knitr::include_graphics(path("fig", "results-local-three", ext="png"))
+```
+
+---
+class: left
+
+# Resultados y Discusión.
+
+**Análisis cuantitativo.**
+
+* Los tres primeros métodos excluyen una menor cantidad de píxeles de agua, mientras que el ultimo método excluye una mayor cantidad.
+* El método SVM es el que tiene un menor error de clasificación de las masas de agua, comparado con los otros tres métodos. 
+
+```{r result-fig-five, echo=FALSE}
+knitr::include_graphics(path("fig", "results-quanta", ext="png"))
+```
+---
+class: left
+
+# Conclusiones.
+
+* El método SVM parece ser el mejor en clasificar correctamente las masas de agua globalmente, mientras que el NDWI fue el peor.
+* El método NDWI logra clasificar corectamente cuerpos pequeños de tietra y los bordes, comparado con los demás métodos. 
+
+## Referencia.
+
+
+```{r, load_refs, echo=FALSE, results='asis'}
+print(bib, 
+  .opts = list(check.entries = FALSE, 
+    style = "html", 
+    bib.style = "authoryear"))
+```

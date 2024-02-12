@@ -1,0 +1,41 @@
+# Solución de la ecuación para el modelo.
+
+Aplicando transformada de Laplace y la propiedad de linealidad de la misma, se obtiene:
+\begin{align}
+             &\mathcal{L}\left\{RIC\frac{dh}{dt} + Ih - R\int_{0}^{t} h(\tau) d\tau\right\} = \mathcal{L}\left\{RIq_{in}\right\} \notag\\
+  \Rightarrow& RIC\mathcal{L}\left\{\frac{dh}{dt}\right\} + I\mathcal{L}\left\{h\right\} - R\mathcal{L}\left\{\int_{0}^{t} h(\tau) d\tau\right\} = RIq_{in}\mathcal{L}\{1\}
+\end{align}
+
+Aplicando el teorema de transformada de derivadas y el de transformada de integrales se obtiene:
+\begin{align}
+             & RIC\left(sH(s) - H\right) + IH(s) - R\frac{H(s)}{s} = RIq_{in}\frac{1}{s} \notag\\
+  \Rightarrow& \left(RIC s + I - R\frac{1}{s}\right)H(s) - RICH = RIq_{in}\frac{1}{s} \notag\\
+  \Rightarrow& \left(RIC s + I - R\frac{1}{s}\right)H(s) = RIq_{in}\frac{1}{s} + RICH \notag\\
+  \Rightarrow& \left(RIC s^2 + I s - R\right)H(s) = RIq_{in} + RICH s \notag\\
+  \Rightarrow& H(s) = \frac{RIq_{in} + RICH s}{RIC s^2 + I s - R} \notag\\ 
+  \Rightarrow& H(s) = \frac{(1/C)q_{in} + H s}{s^2 + (1 / RC)s - (1 / IC)}(\#eq:transformed-h)
+\end{align}
+
+Completando cuadrado, la ecuación anterior queda:
+\begin{align}
+  &H(s) = \frac{(1/C)q_{in} + H s}{s^2 + (1 / RC)s - (1 / IC)} \notag\\ 
+  \Rightarrow& H(s) = \frac{(1/C)q_{in} + H s}{(s - \frac{1}{2RC})^2 - \frac{1}{IC} - \frac{1}{4(RC)^2}} \notag\\
+  \Rightarrow& H(s) = \frac{(1/C)q_{in} + H s}{(s - \frac{1}{2RC})^2 - \frac{(2RC)^2 + IC}{IC(2RC)^2}} \notag\\
+  \Rightarrow& H(s) = \frac{(1/C)q_{in}}{(s - \frac{1}{2RC})^2 - \frac{(2RC)^2 + IC}{IC(2RC)^2}} + \frac{H s}{(s - \frac{1}{2RC})^2 - \frac{(2RC)^2 + IC}{IC(2RC)^2}} (\#eq:transformed-h-two)
+\end{align}
+
+Aplicando la transformada inversa de Laplace se tiene:
+\begin{equation}
+  \mathcal{L}^{-1}\left\{H(s)\right\} = q_{in}\sqrt{\frac{IC(2R)^2}{(2RC)^2 + IC}}\mathcal{L}^{-1}\left\{\frac{\sqrt{\frac{(2RC)^2 + IC}{IC(2RC)^2}}}{(s - \frac{1}{2RC})^2 - \frac{(2RC)^2 + IC}{IC(2RC)^2}}\right\} + H\mathcal{L}^{-1}\left\{\frac{s}{(s - \frac{1}{2RC})^2 - \frac{(2RC)^2 + IC}{IC(2RC)^2}}\right\} 
+\end{equation}
+
+la cual se puede resolver directamente al usar el teorema de traslación:
+\begin{equation}
+  \Rightarrow \mathcal{L}^{-1}\{H(s)\} = q_{in}\sqrt{\frac{IC(2R)^2}{(2RC)^2 + IC}}e^{\frac{t}{2RC}}\text{Senh}\left(\sqrt{\frac{IC(2R)^2}{(2RC)^2 + IC}} t\right) + He^{\frac{t}{2RC}}\text{Cosh}\left(\sqrt{\frac{IC(2R)^2}{(2RC)^2 + IC}} t\right) 
+\end{equation}
+
+por lo que la solución al modelo se puede escribir como:
+\begin{equation}
+  h(t) = e^{\frac{t}{2RC}}\left[q_{in}\sqrt{\frac{IC(2R)^2}{(2RC)^2 + IC}}\text{Senh}\left(\sqrt{\frac{IC(2R)^2}{(2RC)^2 + IC}} t\right) + H\text{Cosh}\left(\sqrt{\frac{IC(2R)^2}{(2RC)^2 + IC}} t\right)\right] (\#eq:solution)
+\end{equation}
+

@@ -1,0 +1,37 @@
+# Definición del Modelo.
+
+Supongamos que se tiene un sistema hidráulico que consiste de un tanque que recibe una entrada de agua a una tasa $q_{in}$, que por simplicidad supondremos constante. 
+El tanque tiene una salida en el fondo hacia una tubería, que conecta a una bomba, que acelera el flujo de líquido hasta llegar a una válvula, parcialmente abierta, de tal forma que hay una salida neta del sistema $q_{out}$. 
+
+Podemos comenzar el análisis, considerando al tanque como un capacitor que almacena cierta cantidad del material de volumen $V$. Si suponemos que el tanque tiene inicialmente una columna de agua de altura $H$, entonces el cambio diferencial en la altura debido a la entrada de fluido se debe a la inclusión del volumen $V$ en el tanque, por lo que se puede escribir:
+
+\begin{equation}
+  C\frac{dh}{dt} = q_{in} - q_{pump} (\#eq:capacitance)
+\end{equation}
+
+donde $C$ es la capacitancia con dimensiones de m${}^2$. La función de salida $q_{pump}$, se puede obtener de la relación entre el cambio en el flujo y la altura diferencial:
+
+\begin{equation}
+  \frac{dQ}{dt} = \frac{h}{I} (\#eq:inertance)
+\end{equation}
+
+dónde $I$ es la inertancia. Integrando a ambos lados con respecto al tiempo se obtiene:
+
+\begin{equation}
+   q_{out} - q_{pump} = \frac{1}{I} \int_{0}^{t} h(\tau) d\tau (\#eq:pump-out)
+\end{equation}
+
+donde $q_{out}$ es el flujo de salida luego del paso por la válvula, que se relaciona con la altura diferencial como $q_{out} = h/R$, donde $R$ es la resistencia. Sustituyendo esta ecuación y el resultado en \@ref(eq:pump-out) en la ecuación \@ref(eq:capacitance) se obtiene:
+
+\begin{equation}
+  C\frac{dh}{dt} = q_{in} + \frac{1}{I} \int_{0}^{t} h(\tau) d\tau - \frac{h}{R} (\#eq:model)
+\end{equation}
+
+que reordenando queda:
+
+\begin{equation}
+  RIC\frac{dh}{dt} + Ih - R\int_{0}^{t} h(\tau) d\tau = RIq_{in} (\#eq:model-two)
+\end{equation}
+
+la cual es una ecuación integrodiferencial con condiciones iniciales $h(0) = H$ y $h'(0) = 0$. 
+

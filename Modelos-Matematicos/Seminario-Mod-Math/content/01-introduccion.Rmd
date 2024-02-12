@@ -1,0 +1,42 @@
+---
+class: left
+background-image: url(./fig/Panorama_lagodeValencia.jpeg)
+background-size: contain
+background-position: bottom
+
+# Introducción.
+
+> El seguimiento de las masas de agua en el tiempo es importante para evaluar el cambio de las propiedades de estas como consecuencia de los cambios bióticos y abióticos naturales, y la acción antopogénica sobre estos.  
+
+> Este seguimiento permite realizar una administración de las masas de agua que sirven como recurso de agua para las poblaciones y lugares de preservación de ecosistemas y la biodiversidad.
+
+--
+
+Los lagos endorreicos, como el Lago de Valencia, son particularmente vulnerables al cambio climático y la acción del hombre sobre el manejo de estos. 
+
+--
+
+* Infraestructuras de aprovechamiento del agua del Lago parauso urbano.
+* Contaminación por productos de sintsís química.
+* Eutrofismo por cianobacterias. 
+
+---
+class: left
+
+# Introducción.
+
+.pull-left[
+> Se resalta la importancia del sensado remoto/satelital de las masas de agua.
+
+> Aparece la necesidad de identificar las masas de agua de forma automatizada.
+
+**Objetivo**
+
+Evaluar la exactitud de cuatro métodologías de clasificación para la identificación de las masas de agua: caso Lago de Valencia, Estado Carabobo.
+
+]
+.pull-right[
+```{r intro-fig-one, echo=FALSE}
+knitr::include_graphics(path("fig", "c1-15", ext="jpg"))
+```
+]

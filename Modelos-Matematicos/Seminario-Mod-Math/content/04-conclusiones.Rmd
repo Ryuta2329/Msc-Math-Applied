@@ -1,0 +1,17 @@
+---
+class: left
+
+# Conclusiones.
+
+* El método SVM parece ser el mejor en clasificar correctamente las masas de agua globalmente, mientras que el NDWI fue el peor.
+* El método NDWI logra clasificar corectamente cuerpos pequeños de tietra y los bordes, comparado con los demás métodos. 
+
+## Referencia.
+
+
+```{r, load_refs, echo=FALSE, results='asis'}
+print(bib, 
+  .opts = list(check.entries = FALSE, 
+    style = "html", 
+    bib.style = "authoryear"))
+```

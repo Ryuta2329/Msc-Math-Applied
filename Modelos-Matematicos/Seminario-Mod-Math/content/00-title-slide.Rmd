@@ -1,0 +1,22 @@
+class: left, inverse
+
+<span class="circle-image">
+ <img src="`r path('fig', 'UC_logo', ext = 'png')`" />
+</span>
+<span class="circle-image">
+ <img src="`r path('fig', 'facyt', ext = 'png')`" />
+</span>
+
+.title[Método de Extracción de Masas de Agua basado en datos satelitales del Landsat-8]
+
+.sub-title[Aplicado al lago de Valencia, Carabobo.]
+
+.left-bordered[
+.date[`r toupper(format(Sys.Date(), "%B %d, %Y"))`]
+
+.author[Marcelo J. Molinatti S.]
+]
+
+.left[
+<a href="https://github.com/Ryuta2329"><img src="`r path('fig', 'github2.png')`" width="20px", height="20px" />&nbsp; Ryuta2329</a><br><a href="https://www.linkedin.com/in/marmolinattis/"><img src="`r path('fig', 'linkedin2.png')`" width="20px", height="20px" />&nbsp; @marmolinattis</a>
+]

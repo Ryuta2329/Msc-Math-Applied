@@ -1,0 +1,45 @@
+---
+class: left, inverse
+
+# Resultados y Discusión.
+
+**Análisis cualitativo.**
+
+```{r result-fig-one, echo=FALSE}
+knitr::include_graphics(path("fig", "results-global", ext="png"))
+```
+
+---
+class: left, inverse
+
+**Análisis cualitativo.**
+
+```{r result-fig-two, echo=FALSE}
+knitr::include_graphics(path("fig", "results-local", ext="png"))
+```
+
+--
+
+```{r result-fig-three, echo=FALSE}
+knitr::include_graphics(path("fig", "results-local-two", ext="png"))
+```
+
+--
+
+```{r result-fig-four, echo=FALSE}
+knitr::include_graphics(path("fig", "results-local-three", ext="png"))
+```
+
+---
+class: left
+
+# Resultados y Discusión.
+
+**Análisis cuantitativo.**
+
+* Los tres primeros métodos excluyen una menor cantidad de píxeles de agua, mientras que el ultimo método excluye una mayor cantidad.
+* El método SVM es el que tiene un menor error de clasificación de las masas de agua, comparado con los otros tres métodos. 
+
+```{r result-fig-five, echo=FALSE}
+knitr::include_graphics(path("fig", "results-quanta", ext="png"))
+```
