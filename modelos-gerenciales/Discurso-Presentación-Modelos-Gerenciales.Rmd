@@ -1,0 +1,30 @@
+# Neuroliderazgo y Neurocomunicadores.
+
+# Manejo de la Comunicación.
+
+El porceso básico de percepción consiste de 4 etapas, o filtros, en el proceso de comunicación. 
+* Atención: Proceso de darse cuenta o tomar conciencia de esimulos particulares en nuestro entorno. No todos los estimulos pueden ser atendidos dada nuestra capacidad. 
+* Organización: es el porceso de incorporar nueva información en el conocimiento existente. este solo suele ser incorporado de forma dependiente a nuestras creencias o conocimiento previo.
+* Interpretación: es el proceso de dar significado al nuevo conocimiento incorporado, y el sentido que le damos a la nueva información esta muy influenicada por nuestras preferencias y creencias.
+* Retención: es el proceso de recordar información interpretada, lo cual esta afectado por lo que recordamos y aprendemos de memoria.
+
+Estos filtors pueden ser un obstculo para la comunicacion efectiva, dado la experiencia, la personalidad y la psocilogia de las personas. Esto crea problemas en la percepción al aceptar y rechazar estímulos, el cual no es aleatorio en absoluto.
+
+_i)_ **Percepción selectiva**: es la tendencia a darse cuenta y aceptar información y objetos que son consistentes con nuestras creencias, valores, y expectatuvas, mientras se ignora y descrta información inconsistente con estas.
+_ii)_ **Cierre o conlusión**: tendencia a llenar los vacíos en la ifnormación que falta, es decir, suponer que lo que no sabemos es coherente con lo que si sabemos.
+
+## Percepción de los demás.
+
+Para entender a los demás, es necesario usar la teoría deatribución, la cual nos dice que todos tenemos una necesidad básica de comprender y explicar las causas de la conducta de otras personas. Esta teoría se divide en dos componentes:
+* La _atribución interna_: en la que el comportamiento esta pensado para ser voluntario o bajo el control de nostros.
+* La _atribución externa_: en la que el comportamiento se concibe como involuntario y fuera de nuestro control.
+
+Estas diferencias en la atribución es lo que hace que los gerentes y trabajadores tengan percepciones opuestas sobre las situaciones. 
+
+Aqio falta...
+
+## Tipos de Comunicación.
+
+# Areas del cerebro relacionadas a la comunicación y comprensión del lenguaje.
+
+Existen dos áreas en el cerebro que estan relacionadas al habla: las áreas de Wernicke y de Broca que, en la maoria de los casos s e encuentran en el hemisferio izquierdo del cerevro neocortical (varia dependiendo de si la persona es zurda o derecha)
