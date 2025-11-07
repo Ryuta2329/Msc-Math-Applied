@@ -1,0 +1,163 @@
+**Ejercicio 3**.
+Un molino agrícola fabrica alimentos para ganado vacuno, ovino y pollos. Esto se hace mezclando los siguientes ingredientes principales: maíz, piedra caliza, soja y harina de pescado. Estos ingredientes contienen los siguientes nutrientes: vitaminas, proteínas, calcio y grasa cruda. Los contenidos de los nutrientes en unidades estándar por cada kilogramo de los ingredientes se resumen en la siguiente tabla:
+
+| Ingredientes | Vitaminas | Proteínas  | Calcio | Grasa Cruda |
+| --- | --- | --- | --- | --- |
+| Maiz | 8 | 6 | 10 | 4 |
+| Caliza | 10 | 5 | 12 | 8 |
+| Soja | 6 | 10 | 6 | 6 |
+| Harina de Pescado | 8 | 6 | 6 | 9 |
+
+El molino está contratado para producir 12, 8 y 9 toneladas (métricas) de alimento para ganado, alimento para ovejas y alimento para pollos. Debido a la escasez, se dispone de una cantidad limitada de ingredientes, a saber, 9 toneladas de maíz, 12 toneladas de piedra caliza, 5 toneladas de soja y 6 toneladas de harina de pescado. El precio por kilogramo de estos ingredientes es, respectivamente, $0,20, $0,12, $0,24 y $0,12. Las unidades mínimas y máximas de los diversos nutrientes que están permitidos se resumen a continuación para un kilogramo de alimento para ganado, alimento para ovejas y alimento para pollos.
+
+| Producto | Vitaminas (Min) | Vitaminas (Max) | Proteína (Min) | Proteína (Max) | Calcio (Min) | Calcio (Max) | Grasa Cruda (Min) | Grasa Cruda (Max) |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Alimento Vacuno  | 6 | $\infty$ | 6 | $\infty$ | 7 | $\infty$ | 4 | 8 |
+| Alimento Ovino | 6 | $\infty$ | 6 | $\infty$ | 6 | $\infty$ | 4 | 6 |
+| Alimento Avícola  | 4 | 6 | 6 | $\infty$ | 6 | $\infty$ | 4 | 5 |
+
+Formule este problema de mezcla de alimentos de modo que se minimice el costo total.
+
+**Solución**.
+
+En este caso, se busca minimizar el costo de la mezcla de cada uno de los ingredientes para hacer la mezcla de los tres productos de alimentación animal. Sea $x_i$ ($i=1, 2, 3, 4$, donde se usa 1 para Maíz, 2 para piedra caliza, 3 para soya, y 4 para harina de pescado) la cantidad (kilogramos de alimento) de cada uno de los 4 ingredientes a utilizar para fabricar los alimentos, entonces la función objetivo es:
+
+$$
+z = 0{,}20 x_1 + 0{,}12 x_2 + 0{,}24 x_3 + 0{,}12 x_4
+$$
+
+Se establecen tres tipos de restricciones: restricciones debido a la cantidad de alimento para el cual esta contratado el molino, restricciones debido a la cantidad de materia prima disponible, y las restricciones debidas al valor nutricional que el alimento debe cumplir.
+
+- Sea $z_{ij} = f_{ij} x_i$ la cantidad (en kilogramos) del ingrediente $i$ usado en el alimento $j$ ($j =1, 2, 3$, donde 1 es alimento vacuno, 2 es alimento ovino, y 3 es alimento avícola), donde $f_{ij}$ es la fracción del ingrediente $i$ usado en el alimento $j$. Las restricciones debido a la cantidad máxima de alimento a formular por el molino son:
+
+$$
+\begin{aligned}  	z_{11} + z_{21} + z_{31} + z_{41} &<= 12000 \text{, para alimento vacuno (en kilogramos)}\\ 	z_{12} + z_{22} + z_{32} + z_{42} &<= 8000  \text{, para alimento ovino (en kilogramos)}\\ 	z_{13} + z_{23} + z_{33} + z_{43} &<= 9000  \text{, para alimento avícola (en kilogramos)} \end{aligned}
+$$
+
+Sin embargo, la introducción de la nueva variable compuesta $z_{ij}$ requiere que la función objetivo sea establecida en términos de esta: 
+
+$$
+z = 0{,}20 (z_{11} + z_{12} + z_{13}) + 0{,}12 (z_{21} + z_{22} + z_{23}) + 0{,}24 (z_{31} + z_{32} + z_{33}) + 0{,}12 (z_{41} + z_{42} + z_{43})
+$$
+
+- Las restricciones debido a la cantidad de materia prima disponible en términos de la nueva variable compuesta son:
+
+$$
+\begin{aligned}  	z_{11} + z_{12} + z_{13} &\le 9000 \text{, cantidad limitada de maíz (en kilogramos)}\\ 	z_{21} + z_{22} + z_{23} &\le 12000 \text{, cantidad limitada de caliza (en kilogramos)}\\ 	z_{31} + z_{32} + z_{33} &\le 5000 \text{, cantidad limitada de soja (en kilogramos)} \\ 	z_{41} + z_{42} + z_{43} &\le 6000 \text{, cantidad limitada de harina de pescado (en kilogramos)}  \end{aligned}
+$$
+
+- Las restricciones debidas al valor nutricional que el alimento debe cumplir deben tomar en cuenta el contenido nutricional de cada uno de los ingredientes (en unidades estándar, notando que hay ecuaciones extras para algunos nutrientes dado que hay algunos que tienen limite inferior y superior de unidades por kilogramo). De forma que para alimento vacuno se tienen las siguientes inecuaciones:
+
+$$
+\begin{aligned}  	
+8z_{11}  + 6z_{21} + 10z_{31} + 4z_{41} &\ge 6\times 12000 \text{, para Vitaminas en alimento vacuno} \\  	10z_{11}  + 5z_{21} + 12z_{31} + 8z_{41} &\ge 6\times 12000 \text{, para Proteínas en alimento vacuno} \\  	6z_{11}  + 10z_{21} + 6z_{31} + 6z_{41} &\ge 7\times 12000  \text{, para Calcio en alimento vacuno} \\  	8z_{11}  + 6z_{21} + 6z_{31} + 9z_{41} &\ge 4\times 12000  \text{, para Grasa cruda en alimento vacuno (limite inferior)} \\  	8z_{11}  + 6z_{21} + 6z_{31} + 9z_{41} &\le 8\times 12000  \text{, para Grasa cruda en alimento vacuno (limite superior)} \end{aligned}
+$$
+
+Para alimento ovino se tienen:
+
+$$
+\begin{aligned}  	
+8z_{12}  + 6z_{22} + 10z_{32} + 4z_{42} &\ge 6\times8000 \text{, para Vitaminas en alimento ovino} \\  	10z_{12}  + 5z_{22} + 12z_{32} + 8z_{42} &\ge 6\times8000 \text{, para Proteínas en alimento ovino} \\  	6z_{12}  + 10z_{22} + 6z_{32} + 6z_{42} &\ge 6\times8000 \text{, para Calcio en alimento ovino} \\  	8z_{12}  + 6z_{22} + 6z_{32} + 9z_{42} &\ge 4\times8000 \text{, para Grasa cruda en alimento ovino(limite inferior)} \\  	8z_{12}  + 6z_{22} + 6z_{32} + 9z_{42} &\le 6\times8000 \text{, para Grasa cruda en alimento ovino(limite superior)} \end{aligned}
+$$
+
+y para alimento avícola: 
+
+$$
+\begin{aligned}  	8z_{13}  + 6z_{23} + 10z_{33} + 4z_{43} &\ge 4\times9000 \text{, para Vitaminas en alimento avícola (limite inferior)} \\  	8z_{13}  + 6z_{23} + 10z_{33} + 4z_{43} &\le 6\times9000 \text{, para Vitaminas en alimento avícola (limite superior)} \\  	10z_{13}  + 5z_{23} + 12z_{33} + 8z_{43} &\ge 6\times9000 \text{, para Proteínas en alimento avícola} \\  	6z_{13}  + 10z_{23} + 6z_{33} + 6z_{43} &\ge 6\times9000 \text{, para Calcio en alimento avícola} \\  	8z_{13}  + 6z_{23} + 6z_{33} + 9z_{43} &\ge 4\times9000 \text{, para Grasa cruda en alimento avícola (limite inferior)} \\  	8z_{13}  + 6z_{23} + 6z_{33} + 9z_{43} &\le 5\times9000 \text{, para Grasa cruda en alimento avícola (limite superior)} \end{aligned}
+$$
+
+Luego se colocan las restricciones de no negatividad, lo cual completa el planteamiento del modelo:
+
+$$
+z_{ij} \ge 0 \quad\forall\quad i=1, 2, 3, 4 (j=1, 2, 3)
+$$
+
+## Código
+
+```python
+'''
+Modelo de PL para el problema 1.3 del Baazara
+Auttor: Marcelo Molinatti
+'''
+
+!pip install pulp
+
+#Librerías
+from pulp import *
+import pandas as pd
+import numpy as np
+import scipy.special as sps
+
+# Creamos el problema de programacion Lineal
+milling = LpProblem("Feed_Milling", LpMinimize)
+
+# Definimos las variables auxiliares
+# z_{ij} cantidad en kg del ingrediente i en el alimento j
+z11 = LpVariable("Z11", lowBound = 0)
+z12 = LpVariable("Z12", lowBound = 0)
+z13 = LpVariable("Z13", lowBound = 0)
+z21 = LpVariable("Z21", lowBound = 0)
+z22 = LpVariable("Z22", lowBound = 0)
+z23 = LpVariable("Z23", lowBound = 0)
+z31 = LpVariable("Z31", lowBound = 0)
+z32 = LpVariable("Z32", lowBound = 0)
+z33 = LpVariable("Z33", lowBound = 0)
+z41 = LpVariable("Z41", lowBound = 0)
+z42 = LpVariable("Z42", lowBound = 0)
+z43 = LpVariable("Z43", lowBound = 0)
+
+# Definimos la función objetivo
+milling += (.20 * (z11 + z12 + z13) + .12 * (z21 + z22 + z23) + .24 * (z31 + z32 + z33) + .12 * (z41 + z42 + z43)), "Costo de mezcla"
+
+# Restricciones:
+# 1) Restricciones de Capacidad del Molino
+milling += (z11 + z21 + z31 + z41 <= 12000)
+milling += (z12 + z22 + z32 + z42 <= 8000)
+milling += (z13 + z23 + z33 + z43 <= 9000)
+
+# 2) Restricciones de Materia Prima
+milling += (z11 + z12 + z13 <= 9000)
+milling += (z21 + z22 + z23 <= 12000)
+milling += (z31 + z32 + z33 <= 5000)
+milling += (z41 + z42 + z43 <= 6000)
+
+# 3) Restricciones de Cumplimiento de Valor Nutricional
+## para alimento vacuno
+milling += (8 * z11 + 6 * z21 + 10 * z31 + 4 * z41 >= 6 * 12000)
+milling += (10 * z11 + 5 * z21 + 12 * z31 + 8 * z41 >= 6 * 12000)
+milling += (6 * z11 + 10 * z21 + 6 * z31 + 6 * z41 >= 7 * 12000)
+milling += (8 * z11 + 6 * z31 + 6 * z31 + 9 * z41 >= 4 * 12000)
+milling += (8 * z11 + 6 * z21 + 6 * z31 + 9 * z41 <= 8 * 12000)
+## para alimento ovino
+milling += (8 * z12 + 6 * z22 + 10 * z32 + 4 * z42 >= 6 * 8000)
+milling += (10 * z12 + 5 * z22 + 12 * z32 + 8 * z42 >= 6 * 8000)
+milling += (6 * z12 + 10 * z22 + 6 * z32 + 6 * z42 >= 6 * 8000)
+milling += (8 * z12 + 6 * z22 + 6 * z32 + 9 * z42 >= 4 * 8000)
+milling += (8 * z12 + 6 * z22 + 6 * z32 + 9 * z42 <= 6 * 8000)
+## para alimento avicola
+milling += (8 * z13 + 6 * z23 + 10 * z33 + 4 * z43 >= 4 * 9000)
+milling += (8 * z13 + 6 * z23 + 10 * z33 + 4 * z43 <= 6 * 9000)
+milling += (10 * z13 + 5 * z23 + 12 * z33 + 8 * z43 >= 6 * 9000)
+milling += (6 * z13 + 10 * z23 + 6 * z33 + 6 * z43 >= 6 * 9000) 
+milling += (8 * z13 + 6 * z23 + 6 * z33 + 9 * z43 >= 4 * 9000)
+milling += (8 * z13 + 6 * z23 + 6 * z33 + 9 * z43 <= 5 * 9000)
+
+# This creates a lp file that allows me to see what it is doing
+milling.writeLP("WhiskasModel.lp")
+
+# Resolvemos el problema
+milling.solve()
+print("Status:", LpStatus[milling.status])
+
+# Impresión de la solución:
+print(f'Cantidades de cada ingrediente a usar (en kilogramos)')
+print(f'Alimento.   \t  Vacuno\t  Ovino\t  Avícola\t  Totales')
+print(f'Maiz.       \t{z11.varValue:>8,.1f}\t{z12.varValue:>7,.1f}\t{z13.varValue:>9,.1f}\t{z11.varValue + z12.varValue + z13.varValue:>9,.1f}')
+print(f'P. caliza   \t{z21.varValue:>8,.1f}\t{z22.varValue:>7,.1f}\t{z23.varValue:>9,.1f}\t{z21.varValue + z22.varValue + z23.varValue:>9,.1f}')
+print(f'Soya        \t{z31.varValue:>8,.1f}\t{z32.varValue:>7,.1f}\t{z33.varValue:>9,.1f}\t{z31.varValue + z32.varValue + z33.varValue:>9,.1f}')
+print(f'H. pescado  \t{z41.varValue:>8,.1f}\t{z42.varValue:>7,.1f}\t{z43.varValue:>9,.1f}\t{z41.varValue + z42.varValue + z43.varValue:>9,.1f}')
+print(f'Totales     \t{z11.varValue + z21.varValue + z31.varValue + z41.varValue:>8,.1f}\t{z12.varValue + z22.varValue + z32.varValue + z42.varValue:>7,.1f}\t{z13.varValue + z23.varValue + z33.varValue + z43.varValue:>9,.1f}')
+
+# The optimised objective function value is printed to the screen
+print("Total Cost of Ingredients per can = ", value(milling.objective))
+```

@@ -1,0 +1,165 @@
+---
+title: Definiciones importantes sobre conjuntos convexos y polihédricos
+subtitle: Notas sobre Programación Lineal de Bazaraa _et al._ (2009)
+author: Marcelo Molinatti
+date: 
+output: 
+ tufte::tufte_html: default
+lang: es-ES
+---
+
+# Conjuntos convexos
+
+Un conjunto $X$ en $\mathrbb{R}^n$ se denomina _conjunto convexo_ si dado cualesquiera dos puntos $\textbf{x}_1$ y $\textbf{x}_2$ en $X$, entonces $\lambda \textbf{x}_1 + (1 - \lambda)\textbf{x}_2 \in X$ para cada $\lambda \in [0,1]$.
+
+Básicamente, se puede entender al punto $\lambda \textbf{x}_1 + (1 - \lambda)\textbf{x}_2$ como uno que cae sobre la recta que une a ambos puntos $\textbf{x}_1$ y $\textbf{x}_2$. 
+
+Si $\lambda \in (0,1)$, a la combinación convexa se le conoce como combinación convexa _estricta_. 
+
+# Punto Extremo
+
+Un punto $\textbf{x}$ en $X$ se dice es un punto extremo de $X$ si $\textbf{x}$ no puede representarse como una combinación convexa estricta de dos puntos distintos de $X$. En otras palabras, si $\textbf{x} = \lambda \textbf{x}_1 + (1 - \lambda) \textbf{x}_2$ es un punto extremo, con $\lambda \in (1,0)$, entonces $\textbf{x} = \textbf{x}_1$ o $\textbf{x} = \textbf{x}_2$. 
+
+# Hiperplanos y Semiespacios.
+
+## Hiperplano
+
+Un hiperplano $H$ en $\mathbb{R}^n$ es un conjunto de la forma $\{\textbf{x} : \textbf{px} = k\}$, donde $\textbf{p}$ es un vector no nulo en $\mathbb{R}^n$ (llamado _gradiente_ o _normal_) y $k$ es un escalar.
+
+> Equivalentemente, un hiperplano consiste de todos los puntos $\textbf{x} = (x_1, x_2, \ldots, x_n)$ que satisface la ecuación $\sum_{j=1}^n p_jx_j = k$. 
+
+> La constante $k$ puede eliminarse de la definición si se hace referencia a un punto $\textbf{x}_0$ en el hiperplano. Si $\textbf{x}_0 \in H$, entonces para cualquier $\textbf{x} \in H$, se tiene por sustracción $\textbf{p}(\textbf{x} - \textbf{x}_0) = 0$.
+
+Un hiperplano $H$ es un conjunto convexo.
+
+## Semiespacios
+
+Un hiperplano divide el espacio $\mathbb{R}^n$ en dos regiones denominadas semiespacios. Esto es, un _semiespacio_ es una colección de puntos de la forma $\{\textbf{x} : \textbf{px} \ge k\}$, donde $\textbf{p}$ es un vector no nulo en $\mathbb{R}^n$ y $k$ es un escalar. 
+
+> También se puede presentar un semiespacio como $\{\textbf{x} : \textbf{px} \le k\}$, y la unión de este y el anterior resulta en todo el espacio $\mathbb{R}^n$.
+
+# Rayos y Direcciones
+
+Un rayo es un conjunto convexo, el cual es una colección de puntos de la forma $\{\textbf{x}_0 + \lanmbda\textbf{d} : \lambda \ge 0\}$, donde $\textbf{d}$ es un vector no nulo. A $\textbf{x}_0$ es denominado el _vértice_ del rayo, y a $\textbf{d}$ se le conoce como la _dirección_ del rayo.
+
+## Direcciones de un conjunto convexo
+
+Dado un conjunto convexo, un vector no nulo $\textbf{d}$ es una _recesión_ del conjunto si para cada $\textbf{x}_0$ en el conjunto, el rayo $\{\textbf{x}_0 + \lambda \textbf{d} : \lambda \ge 0\}$ también pertenece al conjunto. 
+
+Lo que esto quiere decir es que empezando desde cualquier punto $\textbf{x}_0$ en el conjunto, uno puede retroceder a lo largo de $\textbf{d}$ para cualquier paso de longitud $\lambda \ge 0$ y permanecer aun en el conjunto. 
+
+> De la definición, es claro que si el conjunto es acotado, entonces no tiene direcciones.
+
+> El conjunto de direcciones forma un conjunto convexo.
+
+## Direcciones extremas
+
+La dirección extrema de un conjunto convexo es una dirección del conjunto que no puede ser representada como la combinación positiva de dos direcciones distintas del conjunto. Dos vectores $\textbf{d}_1$ y $\textbf{d}_2$ se dicen   distintos o no equivalentes, si $\textbf{d}_1$ no puede escribirse como un múltiplo positivo de $\textbf{d}_2$.
+
+Cualquier rayo en el conjunto y cuya dirección sea una dirección extrema se dice es _un rayo extremo_. 
+
+# Cono Convexo
+
+Es un conjunto convexo con la propiedad adicional de que $\lambda \textbf{x} \in C$ para cada $\textbf{x} \in C$ y para cada $\lambda \ge 0$. Esto quiere decir que:
+
+* El cono convexo $C$ contiene el $\textbf{0}$ al dejar $\lambda = 0$. 
+* Dado cualquier punto $\textbf{x} \in C$, el rayo o semilínea $\{\lambda \textbf{x} : \lambda \ge 0\}$ pertenece a $C$ también. 
+
+Esto quiere decir que un cono convexo consiste de todos los rayos que emanan del origen y que este puede ser caracterizado por las direcciones extremas en el conjunto, dado que cualquier otra dirección se puede escribir como combinación lineal positiva de las direcciones extremas.
+
+> Dado un conjunto de vectores $\textbf{a}_1, \textbf{a}_2, \ldots, \textbf{a}_k$, se puede formar el cono convexo $C$ generado por estos vectores como el conjunto de todas las combinaciones no negativas de los vectores:
+>
+> $$C = \left\{\sum_{j=1}^k \lambda_j\textbf{a}_j : \lambda_j \ge 0, \text{ para } j = 1, 2,\ldots, k \right\}$$
+
+# Funciones cóncavas y convexas.
+
+Una función $f$ de las variables $(x_1, x_2, \ldots, x_n)$ se dice que es convexa si la siguiente desigualdad se mantiene para cualesquiera dos vectores $\textbf{x}_1$ y $\textbf{x}_2$:
+
+$$f(\lambda \textbf{x}_1 + (1 - \lambda)\textbf{x}_2) \le \lambda f(\textbf{x}_1) + (1 - \lambda)f(\textbf{x}_2)$$
+
+para todo $\lambda \in [0,1]$. 
+
+<!--- Aqui coloca un grafico de ejemplo sobre la definciion --->
+
+> Se puede interpretar a $\lambda f(\textbf{x}_1) + (1 - \lambda)f(\textbf{x}_2)$ como la altura del cordón que une los puntos $(\textbf{x}_1, f(\textbf{x}_1))$ y $(\textbf{x}_2, f(\textbf{x}_2))$ en el punto $\lambda \textbf{x}_1 + (1 - \lambda)\textbf{x}_2$.
+
+Se dice que una función $f$ es cóncava si y solo si $-f$ es convexa, lo cual puede rescribirse como:
+
+$$f(\lambda \textbf{x}_1 + (1 - \lambda)\textbf{x}_2) \ge \lambda f(\textbf{x}_1) + (1 - \lambda)f(\textbf{x}_2)$$
+
+para todo $\lambda \in [0,1]$, y para cualesquiera dos vectores $\textbf{x}_1$ y $\textbf{x}_2$. 
+
+# Conjuntos Poliédricos y Conos Poliédricos
+
+Un conjunto poliédrico o _poliedro_ es la intersección de un número finito de semiespacios. Un poliedro acotado se conoce como _polítopo_. 
+
+Dado que cada semiespacio se puede representar como una desigualdad de la forma $\textbf{a}^i \textbf{x} \le b_i$, entonces un conjunto poliédrico se puede representar por el sistema $\textbf{a}^i \textbf{x} \le b_i$ para $i = 1, \ldots, m$. Esto es, un conjunto poliédrico se puede representar como el conjunto:
+
+$$\{\textbf{x} : \textbf{Ax} \le \textbf{b}\}$$
+
+donde $\textbf{A}_{m\times n}$ es una matriz cuya $i$-ésima fila es $\textbf{a}^i$ y $\textbf{b}$ es un vector de dimensión $m \times 1$^[Esto es, el poliedro se puede representar como un sistemas de $m$ ecuaciones con $n$ incognitas.].
+
+> Una clase especial de poliedro son los _conos poliédricos_, que son la intersección de un número finito de semiespacios, cuyos hiperplanos pasan por el origen. Es decir, $C$ es un cono poliédrico si se puede representar como $\{\textbf{x} : \textbf{Ax} \le \textbf{0}\}$, donde $\textbf{A}_{m\times n}$.  
+> Noten que la $i$-ésima fila de $\textbf{A}$ es el vector normal al hiperplano definiendo el $i$-ésimo semiespacio.
+
+Para las definiciones siguientes, se asume que trabajamos con conjuntos poliédricos de la forma:
+
+$$X = \{\textbf{x} : \textbf{Ax} \le \textbf{b}, \textbf{x} \ge \textbf{0}\}$$
+
+**Ejemplo** (Tomado de la pp. 71 de Bazaraa _et al_.). Digamos que se tiene el siguiente conjunto de inecuaciones que definen un conjunto poliédrico:
+
+\begin{aligned}
+	-2x_1 & + & x_2 & \le 4 \\ 
+ 	  x_1 & + & x_2 & \le 3 \\
+ 	  x_1 &   &     & \le 2 \\
+ 	  x_1 &   &     & \ge 0 \\
+ 	      &   & x_2 & \ge 0 
+\end{aligned}
+
+
+
+## Puntos extremos de un conjunto poliédrico
+
+> **Hiperplanos definitorios**
+> 
+> Llamemos a los $m + n$ hiperplanos definiendo los semiespacios de $X$ como hiperplanos definitorios^[Son $m +n$ porque se tienen $m$ restricciones, más las $n$ restricciones de no-negatividad.]. Un conjunto de hiperplanos definitorios son linealmente independientes si la matriz de coeficientes de la matriz asociado con este conjunto de ecuaciones es de rango completo de fila^[Esto es, si el $r(\textbf{A}) = n$.].
+> 
+
+Un punto $\bar{\textbf{x}} \in X$ se dice es un punto extremo, o punto esquina, o vértice de $X$ si $\bar{\textbf{x}}$ yace sobre algunos $n$ hiperplanos definitorios linealmente independientes^[Como al menos $n$ hiperplanos son l. i. en el conjunto, entonces cada punto extremo tiene que estar definido sobre la intersección de $n$ de estos hiperplanos.]. 
+
+Se entiende a $\bar{\textbf{x}}$ como la solución única^[La solución es única precisamente por que los $n$ hiperplanos son l. i.] a $n$ hiperplanos definitorios linealmente independientes que son vinculantes^[Un punto vinculante se refiere a que en ese punto se cumple la igualdad.] en $\bar{\textbf{x}}$.
+
+> Si más de $n$ hiperplanos definitorios pasan por $\bar{\textbf{x}}$, entonces el punto se dice es un _punto extremo degenerado_. El exceso de hiperplanos sobre $n$ se conoce como el orden de degeneración. 
+> 
+
+> Un poliedro con al menos un punto extremo degenerado se dice es un _conjunto poliédrico degenerado_.
+> 
+
+**Ejemplo**. Para el poliedro dado en el último ejemplo, se tiene que la matriz de coeficientes asociada a las restricciones tiene la forma:
+
+$$\begin{pmatrix}
+	-2 & 1 \\ 1 & 1 \\ 1 & 0 \\
+	 1 & 0 \\ 0 & 1 \\
+\end{pmatrix}$$
+
+que claro esta es de rango $2$ ya que al reducir a la forma escalonada, quedarían solo 2 filas no nulas. 
+
+## Caras 
+
+Se dice que una cara $F$ de un conjunto poliédrico $X$ es el conjunto de puntos en $X$ que corresponden a algún conjunto no vacío de hiperplanos definitorios vinculantes de $X$. Dada cualquier cara $F$ de $X$, si $r(F)$ es el máximo número de hiperplanos definitorios l. i.  que son vinculantes en todos los puntos factibles de $F$, entonces la dimensión de $F$ es 
+
+$$dim(F) = n - r(F)$$
+
+> Como cada hiperplano definitorio resulta en la pérdida de un grado de libertad, y dado que en un punto extremo se tienen $n$ hiperplanos definitorios l. i., entonces los puntos extremos son caras cero-dimensionales.
+>
+
+> Un _borde_ o lado (_edge_) de un conjunto poliédrico es una cara unidimensional de $X$, esto es, el conjunto de puntos en $X$ formado por la intersección de algunos $n-1$ hiperplanos definitorios l. i. Esto quiere decir que los bordes tienen un solo grado de libertad. 
+
+
+
+## Puntos extremos adyacentes
+
+Se dice que dos puntos extremos de $X$ son _adyacentes_ si el segmento de línea que los une es un borde de $X$. Por tanto, puntos extremos adyacentes tienen algunos $n-1$ hiperplanos definitorios l. i. vinculantes en común. 
+
+## Direcciones de Recesión y Direcciones Extremas
+

@@ -1,0 +1,106 @@
+**Ejercicio 1**. 
+Fred tiene 5000 USD para invertir durante los próximos cinco años. Al comienzo de cada año puede invertir dinero en depósitos a plazo de uno o dos años. El banco paga un interés del 4 por ciento sobre los depósitos a plazo de un año y del 9 por ciento (total) sobre los depósitos a plazo de dos años. Además, _West World Limited_ ofrecerá certificados de tres años a partir del comienzo del segundo año. Estos certificados devolverán el 15 por ciento (total). Si Fred reinvierte su dinero que está disponible cada año, formule un programa lineal para mostrarle cómo maximizar su efectivo total disponible al final del quinto año.
+
+**Solución**.
+El problema se trata de uno de maximización: se busca maximizar el total ganado luego de los 5 años de inversión. Sean $x_i$ el deposito con intereses de 4% en un año, e $y_i$ el deposito con intereses de 9% del total en dos años, con $i \in \left[1, 5\right]$. Entonces la función objetivo a maximizar es:
+
+$$
+z = x_5 + y_5
+$$
+
+Se tiene que durante el primer año ($i=1$), se realiza un deposito fraccionado siguiendo la inecuación:
+
+$$
+x_1 + y_1 \le 5000
+$$
+
+Al finalizar el primer año, se tiene un incremento en el total de 4% la cantidad invertida en el deposito de un año, que es posible reinvertir, junto con la cantidad total aun no invertida hasta el momento. Además, al iniciar el segundo año, se obtienen certificados de tres años: estos regresan 15% del total al finalizar el tercer año de inversión, es decir, al inicio del quinto año (esta variable no aparece hasta ese momento. Ver mas abajo). De forma que durante el segundo año:
+
+$$
+x_2 + y_2 \le 5000 + 1{,}04 \times x_1
+$$
+
+Al finalizar el segundo año, se tiene que, no solo el deposito de un año regresa intereses nuevamente, sino que además, el deposito de dos años regresa intereses de 9% del total disponible, de forma que para el inicio del tercer año se tiene:
+
+$$
+x_3 + y_3 \le 5000 + 1{,}04 \times x_2 + 1{,}09 \times (x_2 + y_2)
+$$
+
+Al finalizar el tercer año, inicio del cuarto año:
+
+$$
+x_4 + y_4 \le 5000 + 1{,}04 \times x_3 + 1{,}09 \times (x_3 + y_3)
+$$
+
+Al finalizar el cuarto año e iniciar el quinto, se cobra el 15% (del total) de interés por el certificado de 3 años:
+
+$$
+x_5 + y_5 \le 5000 + 1{,}04 \times x_4 + 1{,}09 \times (x_4 + y_4) + 1{,}15 \times (x_4 + y_4)
+$$
+
+Al finalizar el quinto año, se cobran los últimos intereses, y ya no se invierte en los depósitos. Además, se cobran los intereses por certificados de 3 años para el ultimo año (que se obtienen al inicio del tercer año), de forma que:
+
+$$
+0 \le 5000 + 1{,}04 \times x_5 + 1{,}09 \times (x_5 + y_5) + 1{,}15 \times (x_5 + y_5)
+$$
+
+De esta forma, se tienen 6 inecuaciones que definen las restricciones del problema. Se tienen 10 variables, a las cuales se les aplica otra restricción adicional:
+
+$$
+x_i, y_i \ge 0 \quad\forall \quad i \in \left[1,5\right]
+$$
+
+Entonces, reorganizando las desigualdades para generar un problema de programación lineal, se tiene que maximizar la función objetivo $z = x_5 + y_5$, sujeto a las restricciones funcionales:
+
+$$
+\begin{aligned}
+	x_1 + y_1 &\le 5000 \\
+	-1{,}04x_1 + x_2 + y_2 &\le 5000 \\
+	- 2{,}13x_2 - 1{,}09y_2 + x_3 + y_3 &\le 5000 \\
+- 2{,}13x_3 - 1{,}09y_3 + x_4 + y_4 &\le 5000 \\
+- 3{,}28x_4 - 2{,}24y_4 + x_5 + y_5 &\le 5000 \\
+- 3{,}28x_5 - 2{,}24y_5 &\le 5000
+\end{aligned}
+$$
+
+y a las restricciones de no negatividad dadas por: $x_i, y_i \ge 0 \forall i \in \left[1,5\right].$
+
+```{python}
+# Planteamiento de la primera formulación
+# Definimos e inicializamos el problema
+inversion = LpProblem("Inversion", LpMaximize)
+
+# Definimos las variables de decisión
+x1 = LpVariable("X1", lowBound=0)
+x2 = LpVariable("X2", lowBound=0)
+x3 = LpVariable("X3", lowBound=0)
+x4 = LpVariable("X4", lowBound=0)
+x5 = LpVariable("X5", lowBound=0)
+y1 = LpVariable("Y1", lowBound=0)
+y2 = LpVariable("Y2", lowBound=0)
+y3 = LpVariable("Y3", lowBound=0)
+y4 = LpVariable("Y4", lowBound=0)
+y5 = LpVariable("Y5", lowBound=0)
+
+# Generamos la función objetivo
+inversion += (x5 + y5)
+
+# Restricciones:
+inversion += (x1 + y1 <= 5000)
+inversion += (-1.04 * x1 + x2 + y2 <= 5000)
+inversion += (-2.13 * x2 - 1.09 * y2 + x3 + y3 <= 5000)
+inversion += (-2.13 * x3 - 1.09 * y3 + x4 + y4 <= 5000)
+inversion += (-3.28 * x4 + -2.24 * y4 + x5 + y5 <= 5000)
+inversion += (-3.28 * x5 + -2.24 * y5 <= 5000)
+
+# Resolvemos el problema
+inversion.solve()
+
+# Impresión de la solución:
+print('(', x1, ',', y1, ') =' , x1.varValue, ',', y1.varValue)
+print('(', x2, ',', y2, ') =' , x2.varValue, ',', y2.varValue)
+print('(', x3, ',', y3, ') =' , x3.varValue, ',', y3.varValue)
+print('(', x4, ',', y4, ') =' , x4.varValue, ',', y4.varValue)
+print('(', x5, ',', y5, ') =' , x5.varValue, ',', y5.varValue)
+```
+

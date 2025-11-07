@@ -1,0 +1,159 @@
+**Problema 2.40**. 
+Encuentra los puntos extremos de la región definida por las siguientes inecuaciones:
+
+$$
+\begin{aligned}
+x_1 + 2x_2 + x_3 &\le5 \\
+-x_1 + x_2 + 2x_3 &\le6 \\
+x_1, x_2, x_3 &\ge 0
+\end{aligned}
+$$
+
+**Solución**. 
+Notamos que los hiperplanos dados en las inecuaciones, sus coeficientes generan una matriz de rango completo para las filas, por lo que se tienen al menos 2 hiperplanos l. i. definiendo la región. 
+
+Podemos encontrar los puntos extremos haciendo las restricciones activas, ya sea una a la vez, dos al mismo tiempo, o las tres a la vez (*se hacen activas 3 restricciones a la vez y se seleccionan las que cumplen las condiciones mínimas dadas por las restricciones*). 
+
+- Si las tres restricciones de no negatividad son activas a la vez, entonces se tiene $x_1 = x_2 = x_3 = 0$, las cuales cumplen las otras restricciones también. Por lo tanto el origen es un punto extremo.
+- Si hacemos dos de las restricciones de no negatividad activas a la vez, tenemos: $(0, 0, 3)$, $(0, 5/2, 0)$, y $(5, 0, 0)$.
+- Si solo hacemos una de las restricciones de no negatividad activa a la vez, entonces se obtiene: si $x_1 = 0$, entonces se obtiene $(0, 4/3, 7/3)$; si $x_2 = 0$ se obtiene $(4/3, 0, 11/3)$, y si $x_3 = 0$ se tiene $(-7/3, 11/3, 0)$ la cual no cumple la restricción de no negatividad y por tanto no es punto extremo.
+
+Se tiene en total, 6 puntos extremos.
+
+**Problema 2.41**.
+¿Por qué el siguiente conjunto tiene direcciones? Encuentra todas las direcciones extremas.
+
+$$
+\begin{aligned}
+-x_1 + 2x_2 &= 3 \\
+2x_1 - 2x_2 - x_3 &\le2 \\
+x_3 &\ge 1 \\
+x_1, x_2, x_3 &\ge 0
+\end{aligned}
+$$
+
+*Pista* Enumera todos los puntos extremos de su conjunto normalizado de direcciones. ¿Qué más necesita verificarse?
+
+**Solución**. 
+El conjunto tiene direcciones porque es un conjunto abierto: si variamos el tercer elemento de un vector en el conjunto, aumentándolo, entonces siempre se puede encontrar $\varepsilon > 0$ tal que la distancia normalizada de este a un punto menor sea menor igual a $\varepsilon$ sin salirse del conjunto.
+
+Las direcciones para el conjunto las podemos escribir a partir de la matriz de coeficientes asociada al sistema:
+
+$$
+\begin{pmatrix} -1 & 2 & 0 \\ 2 & -1 & -1 \end{pmatrix}
+$$
+
+y sabiendo que el conjunto normalizado de direcciones debe cumplir que $\textbf{Ad} \le \textbf{0}$, $\textbf{1d} = 1$ y $\textbf{d} \ge 0$.  Usando $\textbf{A} = \begin{pmatrix} \textbf{B} & \textbf{N} \end{pmatrix}$, podemos escribir
+
+$$
+\textbf{Ad} = \textbf{Bd}_B + \textbf{Nd}_N
+$$
+
+Si seleccionamos $\textbf{Nd}_N$ de tal forma que sea igual que a la columna asociada a la variable no básica, entonces del ejercicio 14 vimos que $d_N = e_j$ , un vector de ceros excepto en la $j$-ésima posición.  Para este caso particular, $\textbf{d}_N = 1$ ya que $\textbf{N}$ es un vector columna para cualquier matriz básica $\textbf{B}$. De esta forma, haciendo activa la restricción notamos que:
+
+$$
+\textbf{Ad} = \textbf{Bd}_B + \textbf{N} = \textbf{0} \Rightarrow \textbf{d}_B = -\textbf{B}^{-1}\textbf{N}  
+$$
+
+Se tienen entonces 3 posibles matrices básicas:
+
+$$
+\begin{pmatrix} -1 & 2\\ 2 & -1 \end{pmatrix}, \begin{pmatrix} -1 & 0\\ 2& -1\end{pmatrix}, \begin{pmatrix} 2 & 0 \\ -1 & -1 \end{pmatrix}
+$$
+
+cuyas inversas son:
+
+$$
+\begin{pmatrix} \frac{1}{3} & \frac{2}{3} \\ \frac{2}{3} & \frac{1}{3} \end{pmatrix}, 
+\begin{pmatrix} -1 & 0 \\ -2 & -1 \end{pmatrix}, 
+\begin{pmatrix} \frac{1}{2} & 0 \\ -\frac{1}{2} & -1 \end{pmatrix}
+$$
+
+De esta forma se tiene que el conjunto de direcciones esta conformado por los vectores:
+
+$$
+\textbf{d}_{B1} = -\begin{pmatrix} \frac{1}{3} & \frac{2}{3} \\ \frac{2}{3} & \frac{1}{3} \end{pmatrix} \begin{pmatrix} 0 \\ -1 \end{pmatrix} = 
+\begin{pmatrix} \frac{2}{3} \\\frac{1}{3} \end{pmatrix}
+$$
+
+$$
+\textbf{d}_{B2} = - \begin{pmatrix} -1 & 0 \\ -2 & -1 \end{pmatrix} \begin{pmatrix} 2 \\ -1 \end{pmatrix} = 
+\begin{pmatrix} 2 \\ 3 \end{pmatrix}
+$$
+
+$$
+\textbf{d}_{B3} = - \begin{pmatrix} \frac{1}{2} & 0 \\ -\frac{1}{2} & -1 \end{pmatrix} \begin{pmatrix} -1 \\2 \end{pmatrix} = 
+\begin{pmatrix} \frac{1}{2}\\ \frac{3}{2} \end{pmatrix} 
+$$
+
+Entonces, normalizando se tiene el conjunto:
+
+$$
+D = \left\{ \begin{pmatrix}\frac{1}{3} \\ \frac{1}{6} \\ \frac{1}{2} \end{pmatrix}\right\}
+$$
+
+Las direcciones extremas corresponden a los puntos extremos de este conjunto, que como tiene un único elemento, la dirección mostrada es extrema también.
+
+**Problema 2.42**. 
+Encuentra todos los puntos extremos del conjunto poliédrico siguiente
+
+$$
+X = \{(x_1, x_2, x_3) : x_1 - x_2 + x_3 \le 1, x_1 - 2x_2 \le 4, x_1, x_2, x_3 \ge 0\}
+$$
+
+¿Tiene $X$ alguna recesión dirección? ¿Por qué?
+
+**Solución**. 
+El conjunto consiste de los puntos debajo o en el plano dado por la primera restricción, y que se encuentran en el cuadrante donde las tres variables son positivas a la vez. Los puntos donde este plano se intersecta con la restricciones de no negatividad corresponden a los puntos extremos. 
+
+- Al activar $x_1$, en el plano  $x_2x_3$, se tienen los puntos extremos donde la recta $x_3 = 1 + x_2$ corta los ejes. Esto ocurre en $(0,0,1)$ y en $(0, -1, 0)$. Solo el primero es un punto factible y por tanto solo ese es  extremo.
+- Al activar $x_2$, en el plano $x_1x_3$, se tienen los puntos extremos donde la recta $x_3 = 1 - x_1$ corta los ejes. Esto ocurre en $(1, 0, 0)$ y en $(0,0,1)$. Se tiene un nuevo punto extremo.
+- Al activar $x_3$, en el plano $x_1x_2$, se tienen dos restricciones sobre el plano, pero la segunda restricción cubre una mayor área, por lo que el punto extremo viene dado por la intersección de este con $x_1$, lo cual ocurre en $(4, 0,0)$.
+- Al activar las restricciones de no negatividad se tiene otro punto extremo, en $(0, 0, 0)$.
+
+<!---
+
+El conjunto dado es abierto o no acotado, así que presenta direcciones. En este caso, la dirección viene dada por la solución al sistema $\textbf{Ad} \le \textbf{0}$. Comenzando con las matrices básicas se tiene
+
+$$
+\textbf{B}_1 = \begin{pmatrix} 1 & -1 \\  1 & -2 \end{pmatrix} \Rightarrow \textbf{B}_1^{-1} = \begin{pmatrix} 2 &  -1 \\ 1  & -1  \end{pmatrix}
+$$
+
+$$
+\textbf{B}_2 = \begin{pmatrix} 1 & 1 \\  1 & 0 \end{pmatrix} \Rightarrow \textbf{B}_2^{-1} = \begin{pmatrix} 0 &  1 \\ 1  & -1  \end{pmatrix}
+$$
+
+$$
+\textbf{B}_3 = \begin{pmatrix} -1 & 1 \\  -2 & 0 \end{pmatrix} \Rightarrow \textbf{B}_3^{-1} = \begin{pmatrix} 0 &  -\frac{1}{2} \\ 1  & -\frac{1}{2}  \end{pmatrix}
+$$
+
+Las direcciones asociadas a las variables básicas son:
+
+$$
+\textbf{d}_{1B} = -\begin{pmatrix} 2 &  -1 \\ 1  & -1  \end{pmatrix}\begin{pmatrix} 1 \\  0  \end{pmatrix} = \begin{pmatrix} -2 \\ -1 \end{pmatrix}
+$$
+
+$$
+\textbf{d}_{2B} = -\begin{pmatrix} 0 &  1 \\ 1  & -1  \end{pmatrix}\begin{pmatrix}-1 \\ -2  \end{pmatrix} = \begin{pmatrix} 2 \\ -1 \end{pmatrix}
+$$
+
+$$
+\textbf{d}_{3B} = -\begin{pmatrix} 0 &  -\frac{1}{2} \\ 1  & -\frac{1}{2}  \end{pmatrix}\begin{pmatrix} 1 \\  1  \end{pmatrix} = \begin{pmatrix} \frac{1}{2} \\ -\frac{1}{2}  \end{pmatrix}
+$$
+
+--->
+
+**Problema 2.43**. 
+Sea $X = \{\textbf{x} : \textbf{Ax} \le \textbf{b}\} \subseteq \mathbb{R}^n$ y $\textbf{x}_0 \in X$ tal que menos que $n$ hiperplanos linealmente independientes definiendo a $X$ sean activos (vinculantes) en $\textbf{x}_0$. Muestra que $\textbf{x}_0$ no puede ser un punto extremo de $X$.
+
+**Problema 2.44**.
+Prueba en detalle que un conjunto poliédrico $X$ es acotado si y solo si no tiene direcciones.
+
+**Problema 2.45**. 
+Considere el conjunto poliédrico no vacío $X = \{\textbf{x} : \textbf{Ax} = \textbf{b}, \textbf{x} > \textbf{0}\}$. Demuestre directamente por definición que $\textbf{d}$ es una dirección del conjunto si y solo si $\textbf{d} \ne \textbf{0}, \textbf{Ad} = \textbf{0}$ y $\textbf{d} > \textbf{0}$. Obtenga resultados análogos si $\textbf{Ax} = \textbf{b}$ se reemplaza por $\textbf{A}_1\textbf{x} = \textbf{b}_1, \textbf{A}_2\textbf{x} \ge \textbf{b}_2$.
+
+**Problema 2.46**. 
+Dado un poliedro no vacío $X$, una cara $F$ de $X$ también se define como la intersección de un hiperplano de soporte de $X$ con el propio $X$. (Un hiperplano que soporta $Χ$ si 
+$$$X$ se encuentra completamente en un semiespacio definido por el hiperplano y la intersección del hiperplano con $X$ no está vacía). Muestre la equivalencia entre esta definición y la dada en la Sección 2.6.
+
+**Problema 2.47**. 

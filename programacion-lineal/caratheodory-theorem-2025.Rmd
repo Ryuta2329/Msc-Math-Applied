@@ -1,0 +1,67 @@
+---
+title: Notas sobre el Teorema de Representación
+subtitle: Notas sobre Programación Lienal
+author: Marcelo Molinatti
+date: 
+output: 
+lang: es-ES
+---
+
+_Las siguientes notas son sobre el teorema 2.1 de la sección 2.7 sobre representación de conjuntos polihédricos del libro de Programación Lineal y Flujo de Redes de Bazaraa et al. (2009)._
+
+El establecimiento del teorema tal cual se presenta en el libro es el siguiente:
+
+> Sea $X = \{\textbf{x} : \textbf{Ax} \le \textbf{b}, \textbf{x} \ge \textbf{0} \}$ un conjunto polihédrico no vacío. 
+> Entonces el conjunto de puntos extremos es no vacío y tiene un número finito de elementos, digamos $\textbf{x}_1, \textbf{x}_2, \ldots, \textbf{x}_k$. 
+> Además, el conjunto de direcciones extremas es vacío si y solo si $X$ es acotado. 
+> Si $X$ no es acotado, el conjunto de direcciones extremas es no vacío y tiene un número finito de elementos, digamos $\textbf{d}_1, \textbf{d}_2, \ldots, \textbf{d}_\varell$. 
+> Además, $\bar{\textbf{x}} \in X$ si y solo si puede ser representado como una combinación convexa de $\textbf{x}_1, \textbf{x}_2, \ldots, \textbf{x}_k$ más una combinación lineal no negativa de $\textbf{d}_1, \textbf{d}_2, \ldots, \textbf{d}_\varell$, esto es:
+>
+> $$\begin{align}
+	\bar{\textbf{x}} = \sum_{j = 1}^k \lambda_j \textbf{x}_j + \sum_{j = 1}^\varell \mu_j \textbf{d}_j \nonumber\\
+	\sum_{j=1}^k \lambda_j = 1 \\
+	\lambda_j \ge 0, j = 1, \ldots, k \nonumber \\
+	\mu_j \ge 0, j = 1, \ldots, \varell \nonumber
+\end{align}$$
+
+El teorema se refiere a la forma en la que podemos representar cada posible punto dentro de un conjunto polihédrico, ya sea que este sea acotado o no. 
+En el primer caso, requiere demostrar que el conjunto de puntos extremos es no vacío y tiene un número finito de elementos de forma que cada elemento en el polítopo se puede representar como una combinación convexa de estos. 
+En el segundo caso, se requiere demostrar también que el conjunto de direcciones extremas es no vacío y tiene un número finito de elementos de forma que cada combinación convexa se le puede añadir una combinación no negativa de estas direcciones para representar cualquier punto del conjunto polihédrico. 
+
+La demostración cuenta de 4 partes:
+
+1. Demostrar que el conjunto de puntos extremos $S_p$ es no vacío y con cardinalidad finita. 
+2. Demostrar que el conjunto de direcciones extremos $S_d$ es no vacío y con cardinalidad finita. 
+3. Demostrar que cualquier elemento del conjunto $X$ se puede escribir como combinación lineal de los elementos del $S_p$ cuando $X$ es acotado.
+4. Demostrar que cualquier elemento del conjunto $X$ se puede escribir como combinación lineal de los elementos del $S_p$ más una combinación lineal no negativa de los elementos de $S_d$ cuando $X$ no es acotado.
+
+Para cada uno de los numerales se hace uso de un elemento $\bar\textbf{x}} \in X$.
+
+Para la primera parte, se busca probar que $\vert S \vert = k$, para $1 \le k < \infty$. 
+En este caso, el razonamiento implica escribir $\bar{\textbf{x}}$ como combinación convexa de dos elementos $\textbf{y}_1$ y $\textbf{y}_2$ ambos en $X$, con $\textbf{y}_1 \ne \textbf{y}_2$ y asumir que existen máximo $r$ hiperplanos definitorios linealmente independientes y vinculantes en $\bar{\textbf{x}}$ ($0 \le r < n$). 
+A la diferencia entre los vectores $\textbf{y}_1$ y $\textbf{y}_2$ la llamamos $\textbf{d}$ y sirve como la longitud de pasos finitos desde $\bar{\textbf{x}}$ en cualquier dirección (hacia los puntos $\textbf{y}_1$ y $\textbf{y}_2$). 
+Esto es así porque usando:
+
+$$\bar{\textbf{x}} = \lambda\textbf{y}_1 +  (1- \lambda)\textbf{y}_2$$
+
+y la diferencia:
+
+$$\textbf{d} = \textbf{y}_2 - \textbf{y}_1$$
+
+se obtiene por sustitución los rayos:
+
+$$\begin{align}
+	\textbf{y}_1 &= \bar{\textbf{x}} - (1 - \lambda)\textbf{d} \nonumber\\
+	\textbf{y}_2 &= \bar{\textbf{x}} + \lambda\textbf{d} \nonumber
+\end{align}$$
+
+Las direcciones $textbf{d}$ y $-\textbf{d}$ no permiten pasos infinitos porque $X \subset \{\textbf{x}: \textbf{x} \ge \textbf{0}\}$, por lo que es posible encontrar una constante $\bar{\gamma} = \text{max}\{\gamma : \bar{\textbf{x}} - \gamma\textbf{d} \in X\} < \infty$ de forma que se obtenga el rayo de mayor longitud $\bar{\textbf{y}}_1 = \bar{\textbf{x}} - \bar{\gamma}\textbf{d}$. 
+Se nota que en $\bar{\textbf{y}}_1$ hay $\bar{r} \ge r + 1$ hiperplanos definitorios vinculantes ya que los hiperplanos definitorios vinculantes en $\bar{\textbf{x}}$ lo son también en $\bar{\textbf{y}}_1$  (porque $\bar{\textbf{x}}$ es combinación convexa de $\bar{\textbf{y}}_1$ y $\textbf{y}_2$), y hay al menos un hiperplano linealmente independiente adicional que es vinculante en $\bar{\textbf{y}}_1$ que bloquea el movimiento sobre el rayo de tal forma que $\bar{\gamma}}$ se puede hallar. 
+
+En este punto se tienen dos alternativas:
+
+* Si $\bar{r} = n$, entonces $\bar{\textbf{y}}_1 \in S_p$ y entonces $k \ge 1$. 
+* Sino, podemos reemplazar $\bar{\textbf{x}}$ por $\bar{\textbf{y}}_1$ y repetir el proceso hasta que $\bar{r} = n$, que debe ocurrir finitamente. 
+
+Con eso es posible demostrar que $S_p$ no es vacío. Además, $S_p$ tiene un número finito de elementos porque el número de formas de escoger $n$ hiperplanos linealmente independientes de $n+m$ hiperplanos es un número finito, y $k < \infty$. 
+

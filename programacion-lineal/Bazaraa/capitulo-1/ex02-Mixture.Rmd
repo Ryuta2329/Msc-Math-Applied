@@ -1,0 +1,91 @@
+**Ejercicio 2**.
+Un fabricante de plásticos planea mezclar un nuevo producto a partir de cuatro compuestos químicos. Estos compuestos se componen principalmente de tres elementos: A, B y C. La composición y el costo unitario de estos químicos se muestran en la siguiente tabla:
+
+```{python}
+data = {
+	"Chem. Compound" : [1, 2, 3, 4],
+	"Percentage A" : [35, 15, 35, 25],
+	"Percentage B" : [20, 65, 35, 40],
+	"Percentage C" : [40, 15, 25, 30],
+	"Cost per Kg" : [20, 30, 20, 15]
+}
+
+df = pd.DataFrame(data)
+df
+```
+
+El nuevo producto consta de 25% del elemento A, al menos 35% del elemento B y al menos 20% del elemento C. Debido a los efectos secundarios de los compuestos 1 y 2, no deben exceder el 25% y el 30%, respectivamente, del contenido del nuevo producto. Formule el problema de encontrar la forma menos costosa de combinar como un programa lineal.
+
+**Solución**
+
+La función objetivo a minimizar es la del costo de los compuestos de los cuales se compone el producto, representado por la cantidad total necesaria de cada uno ponderado por el costo por kilogramo:
+
+$$
+
+(20\text{ \$/kg}) \times x_1 + (30\text{ \$/kg}) \times x_2 + (20\text{ \$/kg}) \times x_3 + (15\text{ \$/kg}) \times x_4
+$$
+
+Tomando la cantidad (en kg) de cada elemento en el compuesto $i$-esimo que se va a usar para el producto, $f_j\times x_i$ ($i=1, 2, 3, 4$), donde $f_j$ es la fracción que indica la cantidad (en kg del elemento j por cada 100 kg del compuesto i) del elemento $j$-esimo en cada 100 kg ($j = A, B, C$), entonces las restricciones sobre la cantidad de cada elemento en el producto final son:
+
+$$
+\begin{aligned}    0{,}35 x_1 + 0{,}15 x_2 + 0{,}35 x_3 + 0{,}25 x_4 &= 0{,}25 \text{, para el elemento A} \\    0{,}20 x_1 + 0{,}65 x_2 + 0{,}35 x_3 + 0{,}40 x_4 &\ge 0{,}35 \text{, para el elemento B} \\    0{,}40 x_1 + 0{,}15 x_2 + 0{,}25 x_3 + 0{,}30 x_4 &\ge 0{,}20 \text{, para el elemento C}\end{aligned}
+$$
+
+Para las restricciones con respecto a los efectos colaterales de los compuestos 1 y 2, se presentan otras dos inecuaciones:
+
+$$
+\begin{aligned}    x_1 &< 0{,}25 x_T \\    x_2 &< 0{,}30 x_T\end{aligned}
+$$
+
+$$
+\begin{aligned}    x_1 &< 0{,}25 (x_1 + x_2 + x_3 + x_4) \\    x_2 &< 0{,}30 (x_1 + x_2 + x_3 + x_4) \end{aligned}
+$$
+
+lo cual se puede escribir como
+
+$$
+\begin{aligned}    0.75x_1 - 0.25x_2 - 0.25x_3 - 0.25x_4 &< 0 \\    -0.3x_1 + 0.7x_2 - 0.3x_3 - 0.3x_4 &< 0 \end{aligned}
+$$
+
+Finalmente, se tiene que las cantidades son masas de compuestos, por lo que $x_i > 0\space\forall\space i \in \{1,2,3,4\}$. Se tienen entonces 4 variables y 9 restricciones.
+
+## Código
+
+```python
+#!pip install pulp # Instala la biblioteca de Programación Lineal
+
+#Librerías
+from pulp import *
+import pandas as pd
+import numpy as np
+import scipy.special as sps
+
+# Planteamiento de la primera formulación
+# Definimos e inicializamos el problema
+mix = LpProblem("Mezcla", LpMinimize)
+
+# Definimos las variables de decisión
+x1 = LpVariable("X1", lowBound = 0)
+x2 = LpVariable("X2", lowBound = 0)
+x3 = LpVariable("X3", lowBound = 0)
+x4 = LpVariable("X4", lowBound = 0)
+
+# Definimos la función objetivo
+mix += ((20 * x1) + (30 * x2) + (20 * x3) + (15 * x4))
+
+# Restricciones:
+mix += (.35 * x1 + .15 * x2 + .35 * x3 + .25 * x4 == .25)
+mix += (.20 * x1 + .65 * x2 + .35 * x3 + .40 * x4 >= .35)
+mix += (.40 * x1 + .15 * x2 + .25 * x3 + .30 * x4 >= .20)
+mix += (.75 * x1 - .25 * x2 - .25 * x3 - .25 * x4 <= 0)
+mix += (- .3 * x1 + .70 * x2 - .30 * x3 - .30 * x4 <= 0)
+
+# Resolvemos el problema
+mix.solve()
+
+# Impresión de la solución:
+print(f'{x1} = {x1.varValue}')
+print(f'{x2} = {x2.varValue}')
+print(f'{x3} = {x3.varValue}')
+print(f'{x4} = {x4.varValue}')
+```

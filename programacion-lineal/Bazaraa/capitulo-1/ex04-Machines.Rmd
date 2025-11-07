@@ -1,0 +1,223 @@
+## Planteamiento
+
+Considera el problema de localizar una nueva maquina a un arreglo existente de 4 maquinas. Estas maquinas están localizadas en las siguientes coordenadas en el espacio bidimensional: $\begin{pmatrix} 3 \\ 1 \end{pmatrix}$, $\begin{pmatrix} 0 \\ -3 \end{pmatrix}$, $\begin{pmatrix} -2 \\ 2 \end{pmatrix}$, y $\begin{pmatrix} 1 \\ 4 \end{pmatrix}$. Sean las coordenadas de la nueva maquina $\begin{pmatrix} x_1 \\ x_2 \end{pmatrix}$. Formula el problema de encontrar una locación óptima como un programa lineal para cada uno de los siguientes casos:
+
+*a)* La suma de las distancias desde la nueva maquina a las otras 4 maquinas es minimizada. Usa distancias de Manhattan (o rectilíneas); por ejemplo la distancia de $\begin{pmatrix} x_1 \\ x_2 \end{pmatrix}$ a la primera maquina localizada en $\begin{pmatrix} 3 \\ 1 \end{pmatrix}$ es  $\vert x_1  - 3\vert + \vert x_2 - 1\vert$.
+
+*b)* Debido a las cantidades de flujo entre la nueva maquina y las existentes, reformula el problema donde la suma de las distancias ponderadas es minimizada, donde los ponderados correspondiente a las 4 maquinas son 6, 4, 7, y 2, respectivamente. 
+
+*c)* Con el fin de evitar la congestión, suponga que la nueva maquina debe estar localizada en el rectángulo $\{(x_1, x_2): -1\le x_1\le2, 0\le x_2\le1\}$. Formula las partes *a)* y *b)* con esta restricción extra.
+
+*d)* Suponga que la nueva maquina debe estar localizada de tal forma que su distancia a la primera maquina no deba exceder 2. Formula el problema con esta restricción extra.
+
+## Solución
+
+### Primer enfoque
+
+Se tiene que se desea minimizar la distancia total de las distancias de la nueva maquina a las otras maquinas, bajo una métrica $L_1$ (distancia Manhattan). Sin embargo, esto dejaría una función objetivo no lineal que no satisface los supuestos de un problema de PL. 
+
+Podemos resolver esto, si definimos una distancia a la nueva maquina como: 
+
+$$
+\vert x_1 - a\vert + \vert x_2 - b\vert = \delta + \varepsilon
+$$
+
+de forma que la función objetivo es:
+
+$$
+z = \sum_{i=1}^4 (\delta_i + \varepsilon_i)
+$$
+
+Ahora, dado que se buscan minimizar la distancia de Manhattan con las nuevas variables $\delta_i$ y $\varepsilon_i$, se deben encontrar valores de $x_1$ y $x_2$ tales que $\vert x_1 - a\vert \le \delta_i$ y $\vert x_2 - b\vert \le \varepsilon_i$, de forma que el problema esta sujeto a:
+
+$$
+\begin{aligned} 
+x_1 - \delta_i &\le a_i \\ 
+x_1 + \delta_i &\ge a_i \\
+x_2 - \varepsilon_i &\le b_i \\ 
+x_2 + \varepsilon_i &\ge b_i \\
+\end{aligned}
+$$
+
+para cada $i=1,2,3,4$. Finalmente añadimos las restricciones de no negatividad, de forma que $x_1, x_2, \delta_i, \varepsilon_i \ge 0$ para todo $i = 1,2,3,4$.
+
+Un punto a considerar es que las variables $x_1$, y $x_2$, si las restringimos a ser mayor $0$, eliminamos del problema parte del conjunto factible dado que estas no tienen restricciones naturales de no negatividad. Esto lo podemos resolver trabajando con las variables transformada $y_1 = x_1 + 2$ y $y_2 = x_2 + 3$. De esta forma, el problema se ve modificado como:
+
+$$
+\begin{aligned}
+\text{Minimizar } & z = \sum_{i=1}^4 (\delta_i + \varepsilon_i)\\
+\text{Sujeto a } & y_1 - \delta_i \le a_i + 2\\ 
+& y_1 + \delta_i \ge a_i + 2 \\
+& y_2 - \varepsilon_i \le b_i + 3 \\ 
+& y_2 + \varepsilon_i \ge b_i + 3 \\
+& y_1 \ge 2, y_2 \ge 3, \\
+& \delta_i, \varepsilon_i \ge 0
+\end{aligned}
+$$
+
+### Código
+
+```python
+metrica = LpProblem("L1",LpMinimize)
+
+# Defino las variables
+y1 = LpVariable("y1", 2, None)
+y2 = LpVariable("y2", 3, None)
+eps =  LpVariable.dicts('Eps', [1,2,3,4], 0, None)
+delta =  LpVariable.dicts('Delta', [1,2,3,4], 0, None)
+
+# Defino La función objetivo
+metrica += lpSum([eps[i+1] + delta[i+1] for i in range(4)])
+
+# Defino las Restricciones
+a_i = [3, 0, -2, 1]
+b_i = [1, -3, 2, 4]
+for k in range(4):
+  metrica +=  y2 - eps[k+1] <= b_i[k] + 3
+  metrica +=  y2 + eps[k+1] >= b_i[k] + 3
+  metrica +=  y1 - delta[k+1] <= a_i[k] + 2
+  metrica +=  y1 + delta[k+1] >= a_i[k] + 2
+
+# Solución
+metrica.solve()
+
+# Resultados
+print("Status: ", LpStatus[metrica.status])
+print("Objective: ", value(metrica.objective))
+print("x1 = ", value(y1) - 2)
+print("x2 = ", value(y2) - 3)
+print("eps = ", [value(eps[k+1]) for k in range(4)])
+print("delta = ", [value(delta[k+1]) for k in range(4)])
+```
+
+Para la parte *b,* se tiene el vector de ponderados $\textbf{w} = \begin{pmatrix} 6 & 4 & 7 & 2 \end{pmatrix}’$ , de forma que ahora la función objetivo es ahora:
+
+$$
+z = \sum_{i=1}^4 w_i(\delta_i + \varepsilon_i)
+$$
+
+sujeto a las mismas restricciones anteriores. 
+
+### Código
+
+```python
+# Defino nueva func objetivo
+w = [6, 4, 7, 2]
+metrica += lpSum([w[i] * (eps[i+1] + delta[i+1]) for i in range(4)])
+
+# Solución
+metrica.solve()
+
+# Resultados
+print("Status: ", LpStatus[metrica.status])
+print("Objective: ", value(metrica.objective))
+print("x1 = ", value(y1) - 2)
+print("x2 = ", value(y2) - 3)
+print("eps = ", [value(eps[k+1]) for k in range(4)])
+print("delta = ", [value(delta[k+1]) for k in range(4)])
+```
+
+Para la parte *c,* se tiene las restricciones extras $-1 \le x_1 \le 2$ y $0 \le x_2 \le 1$, por lo que, al transformar las variables quedan:
+
+$$
+\begin{aligned}
+1 \le &y_2 \le 4 \\ 
+3 \le &y_2 \le 4 \\
+\end{aligned}
+$$
+
+### Código
+
+```{python}
+metrica_extra = LpProblem("L1",LpMinimize)
+
+# Defino las variables
+y1 = LpVariable("y1", 1, 4)
+y2 = LpVariable("y2", 3, 4)
+eps =  LpVariable.dicts('Eps', [1,2,3,4], 0, None)
+delta =  LpVariable.dicts('Delta', [1,2,3,4], 0, None)
+
+# Defino La función objetivo
+metrica_extra += lpSum([eps[i+1] + delta[i+1] for i in range(4)])
+
+# Defino las Restricciones
+a_i = [3, 0, -2, 1]
+b_i = [1, -3, 2, 4]
+for k in range(4):
+  metrica_extra +=  y2 - eps[k+1] <= b_i[k] + 3
+  metrica_extra +=  y2 + eps[k+1] >= b_i[k] + 3
+  metrica_extra +=  y1 - delta[k+1] <= a_i[k] + 2
+  metrica_extra +=  y1 + delta[k+1] >= a_i[k] + 2
+
+# Solución
+metrica_extra.solve()
+
+# Resultados
+print("Status: ", LpStatus[metrica_extra.status])
+print("Objective: ", value(metrica_extra.objective))
+print("x1 = ", value(y1) - 2)
+print("x2 = ", value(y2) - 3)
+print("eps = ", [value(eps[k+1]) for k in range(4)])
+print("delta = ", [value(delta[k+1]) for k in range(4)])
+```
+
+y para la función objetivo modificada con ponderaciones:
+
+```python
+# Defino nueva func objetivo
+metrica_extra += lpSum([w[i] * (eps[i+1] + delta[i+1]) for i in range(4)])
+
+# Solución
+metrica_extra.solve()
+
+# Resultados
+print("Status: ", LpStatus[metrica_extra.status])
+print("Objective: ", value(metrica_extra.objective))
+print("x1 = ", value(y1) - 2)
+print("x2 = ", value(y2) - 3)
+print("eps = ", [value(eps[k+1]) for k in range(4)])
+print("delta = ", [value(delta[k+1]) for k in range(4)])
+```
+
+Para la parte *d* añadimos la restricción:
+
+$$
+\delta_1 + \varepsilon_1 \le 2 
+$$
+
+### Código
+
+```python
+metrica_final = LpProblem("L1", LpMinimize)
+
+# Defino las variables
+y1 = LpVariable("y1", 2, None)
+y2 = LpVariable("y2", 3, None)
+eps =  LpVariable.dicts('Eps', [1,2,3,4], 0, None)
+delta =  LpVariable.dicts('Delta', [1,2,3,4], 0, None)
+
+# Defino La función objetivo
+metrica_final += lpSum([eps[i+1] + delta[i+1] for i in range(4)])
+
+# Defino las Restricciones
+a_i = [3, 0, -2, 1]
+b_i = [1, -3, 2, 4]
+for k in range(4):
+  metrica_final +=  y2 - eps[k+1] <= b_i[k] + 3
+  metrica_final +=  y2 + eps[k+1] >= b_i[k] + 3
+  metrica_final +=  y1 - delta[k+1] <= a_i[k] + 2
+  metrica_final +=  y1 + delta[k+1] >= a_i[k] + 2
+# Nueva Restricción
+metrica_final += delta[1] + eps[1] <= 2, "Nueva Restriccion"
+
+# Solución
+metrica_final.solve()
+
+# Resultados
+print("Status: ", LpStatus[metrica_final.status])
+print("Objective: ", value(metrica_final.objective))
+print("x1 = ", value(y1) - 2)
+print("x2 = ", value(y2) - 3)
+print("eps = ", [value(eps[k+1]) for k in range(4)])
+print("delta = ", [value(delta[k+1]) for k in range(4)])
+```

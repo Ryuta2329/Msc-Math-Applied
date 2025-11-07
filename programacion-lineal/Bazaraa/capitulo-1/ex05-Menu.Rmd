@@ -1,0 +1,248 @@
+# Planteamiento
+
+El personal técnico de un hospital desea desarrollar un sistema computarizado de planificación de menús. Para empezar, se busca un menú de mediodía. El menú se divide en tres grandes categorías: verduras, carnes y postres. Se desea al menos una porción equivalente de cada categoría. El costo por porción de algunos artículos sugeridos, así como su contenido de carbohidratos, vitaminas, proteínas y grasas se resumen a continuación:
+
+| Tipo | Alimento | HDC | Vitaminas | Proteína | Grasa | Costo (por Servida) |
+| --- | --- | --- | --- | --- | --- | --- |
+| Vegetales | Guisantes | 1 | 3 | 1 | 0 | 0.1 |
+|  | Frijoles verdes | 1 | 5 | 2 | 0 | 0.12 |
+|  | Okra  | 1 | 5 | 1 | 0 | 0.13 |
+|  | Maíz | 2 | 6 | 1 | 2 | 0.09 |
+|  | Macaroni | 4 | 2 | 1 | 1 | 0.1 |
+|  | Arroz | 5 | 1 | 1 | 1 | 0.07 |
+| Carnes | Pollo | 2 | 1 | 3 | 1 | 0.70 |
+|  | Carne | 3 | 8 | 5 | 2 | 1.2 |
+|  | Pescado | 3 | 6 | 6 | 1 | 0.63 |
+| Postre | Naranja | 1 | 3 | 1 | 0 | 0.28 |
+|  | Manzana | 1 | 2 | 0 | 0 | 0.42 |
+|  | Pudin  | 1 | 0 | 0 | 0 | 0.15 |
+|  | Gelatina | 1 | 0 | 0 | 0 | 0.12 |
+
+Suponga que los requisitos mínimos de carbohidratos, vitaminas, proteínas y grasas por comida son respectivamente 5, 10, 10 y 2.
+
+*a)* Formule el problema de planificación de menús como un programa lineal.
+
+*b)* Muchos aspectos prácticos se han dejado de lado en el modelo anterior. Estos incluyen la planificación conjunta de los menús del desayuno, el almuerzo y la cena, la planificación semanal para que se utilicen diferentes variedades de alimentos y menús especiales para pacientes con dietas particulares. Discuta en detalle cómo se pueden incorporar estos aspectos en un sistema integral de planificación de menús.
+
+# Solución
+
+## Parte *a)*
+
+Para plantear la solución, establecemos primero la función objetivo del modelo, la cual la planteamos en términos de los costos por servida. Sea x_i la cantidad en una servida del alimento $i$ en una sola servida, entonces, la función objetivo es:
+
+$$
+z = \sum_{i=1}^{13} c_ix_i
+$$
+
+donde $c_i$ es el costo del alimento $i$ mostrado en la tabla.
+
+Aquí asumo que de la categoría de carnes solo se elige una proteína (la gente no como carne y pescado, o pollo y pescado, o pollo y carne a la vez en un hospital). De tal forma que se debe seleccionar la proteína por medio de variables indicadoras definidas como:
+
+- $y_1$ la cual es 1 si Pollo, y 0 de otra forma.
+- $y_2$ la cual es $1$ si Carne, y $0$ de otra forma.
+- $y_3$ la cual es $1$  si Pescado, $0$ de otra forma.
+- Es necesaria la restricción $y_1 + y_2 + y_3 = 1$ para asegurar que solo se seleccione una proteína.
+
+Una vez introducidas estas variables binarias, se usan las restricciones:
+
+$$
+\begin{aligned} x_7 &\le y_1M \\ x_8 &\le y_2M \\ x_9 &\le y_3M \end{aligned} 
+$$
+
+De igual forma, si el plato es de Macaroni, no tiene sentido que se pueda seleccionar también Arroz y Frijoles, por lo que cualquier restricción que incluya estos alimentos debe pensarse en torno a ambas alternativas: 
+
+$$
+\begin{aligned} 
+x_2 &\le y_4M \\
+x_5 &\le y_5M \\
+x_6 &\le y_4M 
+\end{aligned} 
+$$
+
+con las restricción:
+
+$$
+y_4 + y_5 = 1
+$$
+
+También los postres, solo se selecciona uno por lo que definen 4 variables binarias extras y se añaden las restricciones:
+
+$$
+\begin{aligned} x_{10} &\le y_6M \\ x_{11} &\le y_7M \\ x_{12} &\le y_8M \\ x_{13} &\le y_9M \end{aligned} 
+$$
+
+con la restricción:
+
+$$
+y_4 + y_5 + y_6 + y_7 = 1
+$$
+
+Dado que se busca al menos una servida equivalente de cada categoría, entonces se deben definir. En todos los casos, $M$ es una constante arbitrariamente grande.
+
+Dado que se buscan porciones equivalentes de cada categoría, esto implica que la cantidad de una porción de una categoría debe ser igual a la de la misma porción en las otras categorías. Esto permite definir las restricciones en términos de igualdades en cuanto a la cantidad de las porciones en cada categoría
+
+Luego, se tienen las equivalencias de porciones, las cuales razono así: 
+
+- Las carnes las evaluamos en términos de proteínas, de forma que se tienen las restricciones
+
+$$
+\begin{aligned}
+3x_7 - 5x_8 &= 0 \\
+3x_7 - 6x_9 &= 0 \\
+5x_8 - 6x_9 &= 0 
+\end{aligned}
+$$
+
+- Los vegetales en términos de su contenido de carbohidratos y vitaminas de acuerdo a:
+
+$$
+\begin{aligned}
+x_2 + 5x_6 - x_1 - x_3 - 2x_4 - 4x_5 = 0 \\
+5x_2 + x_6 - 3x_1 - 5x_3 - 6x_4 - 2x_5 =0
+\end{aligned}
+$$
+
+- Para los postres, se eligen porciones equivalentes solo en términos de carbohidratos, de forma que:
+
+$$
+\begin{aligned}
+x_{10} - x_{11} &=0\\
+x_{10} - x_{12} &=0\\
+x_{10} - x_{13} &=0\\
+x_{11} - x_{12} &=0\\x_{11} - x_{13} &=0\\
+x_{12} - x_{13} &=0
+\end{aligned}
+$$
+
+Ahora, los requerimientos nutricionales por plato dejan el siguiente sistema para los requerimientos nutricionales:
+
+$$
+\begin{aligned}x_1 &+& x_2 &+& x_3 &+& 2x_4 &+& 4x_5 &+& 5x_6 &+& 2x_7 &+& 3x_8 &+& 3x_9 &+& x_{10} &+& x_{11} &+& x_{12} &+& x_{13} &\ge 5 \\
+
+3x_1 &+& 5x_2 &+& 5x_3 &+& 6x_4 &+& 2x_5 &+& x_6 &+& x_7 &+& 8x_8 &+& 6x_9 &+& 3x_{10} &+& 2x_{11} && && &\ge 10 \\
+x_1 &+& 2x_2 &+& x_3 &+& x_4 &+& x_5 &+& x_6 &+& 3x_7 &+& 5x_8 &+& 6x_9 &+& x_{10} && &&  && &\ge 10 \\
+&&&&&& 2x_4 &+& x_5 &+& x_6 &+& x_7 &+& 2x_8 &+& x_9 &&&&&&&&&\ge 2
+\end{aligned}
+
+$$
+
+Solo resta colocar las restricciones de no-negatividad:
+
+$$
+x_{i} \ge 0 \quad\forall\quad i=1,\ldots 13
+$$
+
+## Código
+
+```python
+'''
+	Menu del mediodia, Ejercicio 1.5 del Bazaraa
+	Autor: Marcelo Molinatti
+'''
+!pip install pulp
+
+from pulp import *
+import pandas as pd
+import numpy as np
+import scypi.special as sps
+
+# Defino la pertenencia a las categorias
+cat = {"Vegtales": ["Guisantes", "Frijoles", "Okra", "Maíz", "Macaroni", "Arroz"],
+       "Carnes": ["Pollo", "Carne", "Pescado"],
+       "Frutas": ["Naranja", "Manzana", "Pudín", "Gelatina"]}
+
+# Primero defino listas de Coeficientes para las restricciones
+coef_hdc = {"Guisantes" : 1,"Frijoles" : 1,"Okra" : 1,"Maíz" : 2,"Macaroni" : 4,"Arroz" : 5,	
+            "Pollo" : 2,"Carne" : 3,"Pescado" : 3,	
+            "Naranja" : 1,"Manzana" : 1,"Pudín" : 1,"Gelatina" : 1}
+coef_vits = {"Guisantes" : 3,"Frijoles" : 5,"Okra" : 5,"Maíz" : 6,"Macaroni" : 2,"Arroz" : 1,	
+             "Pollo" : 1,"Carne" : 8,"Pescado" : 6,	
+             "Naranja" : 3,"Manzana" : 2,"Pudín" : 0,"Gelatina" : 0}
+coef_prot = {"Guisantes" : 1,"Frijoles" : 2,"Okra" : 1,"Maíz" : 1,"Macaroni" : 1,"Arroz" : 1,	
+             "Pollo" : 3,"Carne" : 5,"Pescado" : 6,	
+             "Naranja" : 1,"Manzana" : 0,"Pudín" : 0,"Gelatina" : 0}
+coef_fat = {"Guisantes" : 0,"Frijoles" : 0,"Okra" : 0,"Maíz" : 2,"Macaroni" : 1,"Arroz" : 1, 
+            "Pollo" : 1,"Carne" : 2,"Pescado" : 1,	
+            "Naranja" : 0,"Manzana" : 0,"Pudín" : 0,"Gelatina" : 0}
+            
+# Defino las variables Ingredientes:
+ingredientes = ["Guisantes", "Frijoles", "Okra", "Maíz", "Macaroni", "Arroz", 
+								"Pollo", "Carne", "Pescado", 
+								"Naranja", "Manzana", "Pudín", "Gelatina"]
+ingr = LpVariable.dicts("Ingr", ingredientes, lowBound = 0)
+
+# Diccionario de Costos
+costos = {
+	"Guisantes" : .1, "Frijoles" : .12, "Okra" : .13,	
+	"Maíz" : .09, "Macaroni" : .1,	"Arroz" : .07,
+	"Pollo" : .7, "Carne" : 1.2,	"Pescado" : .63,
+	"Naranja" : .28,	"Manzana" : .42, "Pudín" : .15, "Gelatina" : .12
+}
+
+# Creo el Problema de LP
+menu = LpProblem("Menu", LpMinimize)
+
+# Creación de Función Objetivo
+menu += (lpSum([costos[i] * ingr[i] for i in ingredientes])), "Costo Total por Servida"
+
+'''
+# Restricciones del Problema
+# Defino primero las variables indicadoras
+y1 = LpVariable("y_1", lowBound = 0, upBound = 1, cat = "Binary")
+y2 = LpVariable("y_2", lowBound = 0, upBound = 1, cat = "Binary")
+y3 = LpVariable("y_3", lowBound = 0, upBound = 1, cat = "Binary")
+y4 = LpVariable("y_4", lowBound = 0, upBound = 1, cat = "Binary")
+y5 = LpVariable("y_5", lowBound = 0, upBound = 1, cat = "Binary")
+# Y añado las restricciones
+menu += (y1 + y2 + y3 == 1), "Combinación afin de indicadoras"
+menu += (y4 + y5 == 1), "Combinación afin de indicadoras 2"
+menu += (ingr["Pollo"] <= y1 * 2 ** 100), "Selecionar Pollo"
+menu += (ingr["Carne"] <= y2 * 2 ** 100), "Selecionar Carne"
+menu += (ingr["Pescado"] <= y3 * 2 ** 100), "Selecionar Pescado"
+menu += (ingr["Arroz"] <= y5 * 2 ** 100), "Selecionar Arroz"
+menu += (ingr["Frijoles"] <= y5 * 2 ** 100), "Selecionar Frijoles"
+menu += (ingr["Macaroni"] <= y4 * 2 ** 100), "Selecionar Macaroni"
+'''
+
+# Restricciones debido a equivalencia de porciones
+menu += (coef_prot["Pollo"] * ingr["Pollo"] - coef_prot["Carne"] * ingr["Carne"] == 0), "Equivalencia de Pollo = Carne"
+menu += (coef_prot["Pollo"] * ingr["Pollo"] - coef_prot["Pescado"] * ingr["Pescado"] == 0), "Equivalencia de Pollo = Pescado"
+menu += (coef_prot["Carne"] * ingr["Carne"] - coef_prot["Pescado"] * ingr["Pescado"] == 0), "Equivalencia de Carne = Pescado"
+menu += (coef_hdc["Arroz"] * ingr["Arroz"] + coef_hdc["Frijoles"] * ingr["Frijoles"] - 
+		coef_hdc["Macaroni"] * ingr["Macaroni"] - coef_hdc["Okra"] * ingr["Okra"] - coef_hdc["Maíz"] * ingr["Maíz"] - coef_hdc["Guisantes"] * ingr["Guisantes"] == 0), "Equivalencia de HDC Arroz = Macaroni"
+menu += (coef_vits["Arroz"] * ingr["Arroz"] + coef_vits["Frijoles"] * ingr["Frijoles"] - 
+		coef_vits["Macaroni"] * ingr["Macaroni"] - coef_vits["Okra"] * ingr["Okra"] - coef_vits["Maíz"] * ingr["Maíz"] - coef_vits["Guisantes"] * ingr["Guisantes"] == 0), "Equivalencia de Vitamina Arroz = Macaroni"
+menu += (coef_hdc["Naranja"] * ingr["Naranja"] - coef_hdc["Manzana"] * ingr["Manzana"] == 0), "Equivalencia de Naranja = Manzana"
+menu += (coef_hdc["Naranja"] * ingr["Naranja"] - coef_hdc["Pudín"] * ingr["Pudín"] == 0), "Equivalencia de Naranja = Pudin"
+menu += (coef_hdc["Naranja"] * ingr["Naranja"] - coef_hdc["Gelatina"] * ingr["Gelatina"] == 0), "Equivalencia de Naranja = Gelatina"
+menu += (coef_hdc["Manzana"] * ingr["Manzana"] - coef_hdc["Pudín"] * ingr["Pudín"] == 0), "Equivalencia de Manzana = Pudin"
+menu += (coef_hdc["Manzana"] * ingr["Manzana"] - coef_hdc["Gelatina"] * ingr["Gelatina"] == 0), "Equivalencia de Manzana = Gelatina"
+menu += (coef_hdc["Pudín"] * ingr["Pudín"] - coef_hdc["Gelatina"] * ingr["Gelatina"] == 0), "Equivalencia de Pudin = Gelatina"
+
+# Restricciones de requerimientos nutricionales
+menu += (lpSum([coef_hdc[i] * ingr[i] for i in ingredientes]) >= 5), "Requerimientos de HDC"
+menu += (lpSum([coef_vits[i] * ingr[i] for i in ingredientes]) >= 10), "Requerimientos de Vitaminas"
+menu += (lpSum([coef_prot[i] * ingr[i] for i in ingredientes]) >= 10), "Requerimientos de Proteínas"
+menu += (lpSum([coef_fat[i] * ingr[i] for i in ingredientes]) >= 2), "Requerimientos de Grasas"
+
+# Resuelvo el Problema
+menu.solve()
+
+if LpStatus[menu.status] == "Optimal": 
+  print("Status:", LpStatus[menu.status])
+  print("Objetivo = ", value(menu.objective))
+  for i, j in cat.items() :
+    print(i + '-' * (80 - len(i)))
+    j = ["Ingr_" + x for x in j]
+    for v in menu.variables():
+      if v.name in j :
+        print('\t', v.name, "=", v.varValue)
+    if i == "Carnes" :
+      print('\t', "y_1", "=", y1.varValue)
+      print('\t', "y_2", "=", y2.varValue)
+      print('\t', "y_3", "=", y3.varValue)
+else: 
+  print("Status:", LpStatus[menu.status])
+```
+
+## Parte *b*)

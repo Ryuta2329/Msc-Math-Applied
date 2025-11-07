@@ -1,0 +1,488 @@
+**Problema 2.28**. ¿Cuál de los siguientes conjuntos son convexos y cuales no?
+
+- $\{(x_1, x_2): x_1^2 + x_2^2 \ge 3\}$
+- $\{(x_1, x_2,x_3): x_1 + 2x_2 \le 1, x_1 - 2x_3 \le 2\}$
+- $\{(x_1, x_2):x_2 - 3x_1^2 = 0\}$
+- $\{(x_1, x_2, x_3): x_2\ge x_1^2,x_1 + 2x_2 + x_3 \le 4\}$
+- $\{(x_1, x_2):x_1 = 3, \vert x_2\vert \le 4\}$
+- $\{(x_1, x_2, x_3): x_3 = \vert x_2 \vert, x_1 \le 3\}$
+
+**Solución**.
+
+1. ❎ El primer conjunto representa los puntos que caen sobre el perímetro y fuera de la circunferencia de radio $\sqrt{3}$. Escribiendo un nuevo punto de esta como $\lambda (x_1,x_2) + (1 - \lambda) (x_3, x_4) = (\lambda x_1 + (1-\lambda)x_3, \lambda x_2 + (1-\lambda)x_4)$, vemos que
+    
+    $$
+    \begin{aligned}
+    (\lambda x_1 + (1-\lambda)x_3)^2 + (\lambda x_2 + (1-\lambda)x_4)^2 &\ge 3 \\
+    \lambda^2 x_1^2 + 2\lambda(1 - \lambda)x_1x_3 + (1-\lambda)^2 x_3^2 + \lambda^2 x_2^2 + 2\lambda(1 - \lambda)x_2x_4 + (1-\lambda)^2 x_4^2 &\ge 3
+    \end{aligned}
+    $$
+    
+    De la ultima desigualdad tenemos que $2\lambda(1 - \lambda)x_1x_3 \le \lambda(1 - \lambda)(x_1^2 + x_3^2)$ y $2\lambda(1 - \lambda)x_2x_4 \le \lambda(1 - \lambda)(x_2^2 + x_4^2)$, sumando ambas desigualdades y añadiendo los términos restantes en la desigualdad anterior queda la desigualdad:
+    
+    $$
+    \begin{aligned}
+    \lambda^2 x_1^2 + 2\lambda(1 - \lambda)x_1x_3 &+ (1-\lambda)^2 x_3^2 + \lambda^2 x_2^2 + 2\lambda(1 - \lambda)x_2x_4 + (1-\lambda)^2 x_4^2  \\
+    \le&\lambda^2 x_1^2 + \lambda(1 - \lambda)(x_1^2 + x_3^2) + (1-\lambda)^2 x_3^2 + \lambda^2 x_2^2 + \lambda(1 - \lambda)(x_2^2 + x_4^2) + (1-\lambda)^2 x_4^2 \\
+    \le& \lambda x_1^2 + (1-\lambda)x_3^2 + \lambda x_2^2 + (1-\lambda)x_4^2
+    \end{aligned}
+    $$
+    
+    Ahora, notamos que $\lambda(x_1^2 + x_2^2) \ge 3\lambda$ y que  $(1-\lambda)(x_3^ + x_4^2 \ge 3(1 - \lambda)$, así que sumando se obtiene $\lambda(x_1^2 + x_2^2) + (1-\lambda)(x_3^ + x_4^2 \ge  3\lambda + 3(1 - \lambda) = 3$, pero como el término de la izquierda es menor que este, no necesariamente se cumple que el punto $\textbf{x}$ sea parte del conjunto. Por ejemplo, vemos que si escogemos los puntos $(\sqrt{3},0)$ y $(-\sqrt{3},0)$, la desigualdad no se cumple para cualquier valor de $\lambda$. Luego, el conjunto no es convexo.
+    
+
+> Cualquier segmento uniendo puntos opuestos a ambos extremos de la circunferencia contiene puntos que no están en el conjunto.
+> 
+
+2. ✅El segundo conjunto se puede escribir como un sistema de la forma $\begin{pmatrix} 1&2&0\\1&0&-2\end{pmatrix}\textbf{x} \le \begin{pmatrix} 1\\2\end{pmatrix}$. Si escogemos cualquier punto escrito como $\textbf{x} = \lambda\textbf{x}_1 + (1-\lambda)\textbf{x}_2$, donde $\textbf{x}_1$ y $\textbf{x}_2$ esta en el conjunto, entonces es fácil notar que
+    
+    $$
+    \begin{aligned}
+		\begin{pmatrix} 1&2&0\\1&0&-2\end{pmatrix}\textbf{x} &= 
+		\begin{pmatrix} 1&2&0\\1&0&-2\end{pmatrix}\left[\lambda\textbf{x}_1 + (1-\lambda)\textbf{x}_2\right] \\
+		&= \lambda\begin{pmatrix} 1&2&0\\1&0&-2\end{pmatrix}\textbf{x}_1 + (1-\lambda)\begin{pmatrix} 1&2&0\\1&0&-2\end{pmatrix}\textbf{x}_2 \\ 
+		&= \lambda\textbf{b}_1 + (1 - \lambda)\textbf{b}_2 \le \begin{pmatrix} 1\\2\end{pmatrix}
+	\end{aligned}
+    $$
+    
+    el termino de la izquierda es una combinación lineal de dos vectores dentro de una base tridimensional, por lo que el espacio generado por estos es subespacio del espacio generado por la matriz del sistema, y la combinación lineal es parte del conjunto. Para verificar la desigualdad, se tiene que $\lambda\textbf{b}_1 \le \lambda\begin{pmatrix} 1\\2\end{pmatrix}$ y $(1 - \lambda)\textbf{b}_2 \le (1 - \lambda)\begin{pmatrix} 1\\2\end{pmatrix}$, de forma que al sumar ambas inecuaciones se obtiene;
+    
+    $$
+    \lambda\textbf{b}_1 + (1 - \lambda)\textbf{b}_2 
+    \le \lambda\begin{pmatrix} 1\\2\end{pmatrix} + (1-\lambda)\begin{pmatrix} 1\\2\end{pmatrix} = \begin{pmatrix} 1\\2\end{pmatrix}
+    $$
+    
+    y se demuestra que la combinación cumple la desigualdad. Por lo tanto, el conjunto es convexo.
+    
+
+> Cualquier conjunto de la forma $\{\textbf{x}: \textbf{A}\textbf{x} \le \textbf{b}\}$ es convexo, porque cualquier combinación lineal de dos puntos dentro del conjunto resulta en soluciones al sistema que se encuentran dentro de un subespacio dentro del conjunto generado por $\textbf{A}$ y que, por lo tanto, cumple la desigualdad.
+> 
+
+3. ❎ Digamos que se tienen dos puntos $(x_1, x_2)$  y $(x_3, x_4)$ pertenecientes al conjunto, y que se escribe la combinación lineal de estos de tal forma que:
+    
+    $$
+    \begin{aligned} 
+    \lambda x_2 + (1-\lambda)x_4 - 3(\lambda x_1 + (1-\lambda)x_3)^2 &= 0 \\
+    \lambda x_2 + (1-\lambda)x_4 - 3(\lambda^2x_1^2 + 2\lambda(1-\lambda)x_1x_3 + (1-\lambda)^2x_3^2) &= 0 
+    \end{aligned}
+    $$
+    
+    De la última ecuación observamos que podemos escribir: 
+    
+    $$
+    \begin{aligned} 
+    \lambda x_2 + (1-\lambda)x_4 - 3(\lambda^2x_1^2 + 2\lambda(1-\lambda)x_1x_3 + (1-\lambda)^2x_3^2) &=  0 \\
+    \lambda x_2 + (1-\lambda)x_4 - 3(\lambda^2x_1^2 + \lambda(1-\lambda)(x_1^2 + x_3^2) + (1-\lambda)^2x_3^2) &\le 0 \\
+    \lambda x_2 + (1-\lambda)x_4 - 3(\lambda x_1^2 + (1 - \lambda)x_3^2) &\le 0
+    \end{aligned}
+    $$
+    
+    Notamos que como la relación no es necesariamente estrictamente igual, entonces la combinación lineal no pertenece necesariamente al conjunto y, por lo tanto, el conjunto no es convexo. 
+    
+
+> Cualquier segmento uniendo dos puntos en una parábola contiene puntos que no caen dentro de la parábola, por lo que el conjunto de cualquier parábola no puede ser convexo.
+> 
+
+4. ✅ Si tomamos cualquier punto que sea combinación lineal de dos puntos en el conjunto, ya vimos de 2. que el punto cumple la desigualdad para el plano. Solo falta demostrar que el punto cumple la primera restricción para cualquier $\lambda$. Esto es así ya que podemos escribir 
+    
+    $$
+    \begin{aligned}
+    \lambda x_2 + (1 - \lambda)x_4 - [\lambda x_1 + (1 - \lambda)x_3]^2 &\ge 0 \\ 
+    \lambda x_2 + (1 - \lambda)x_4 - [\lambda^2 x_1^2 + 2\lambda(1-\lambda)x_1x_3 + (1-\lambda)^2 x_3^2] &\ge 0 \\
+    \lambda x_2 + (1 - \lambda)x_4 - [\lambda^2 x_1^2 + \lambda(1-\lambda)(x_1^2 + x_3^2) + (1-\lambda)^2 x_3^2)] &\ge 0 \\
+    \lambda x_2 + (1 - \lambda)x_4 - \lambda x_1^2 - (1-\lambda)x_3^2 &\ge 0
+    \end{aligned}
+    $$
+    
+    y notamos que el punto esta dentro del conjunto para cualquier valor de $\lambda$, por lo que el conjunto es convexo.
+    
+5. ✅ Si tomamos los puntos $(x_1, x_2)$ y $(x_3, x_4)$, y escribimos a $\textbf{x} = \lambda(x_1, x_2)  + (1-\lambda)(x_3, x_4)$. De esta forma se tienen las ecuaciones $\lambda x_1 = 3\lambda$ y $(1-\lambda) x_3 = 3(1-\lambda)$, que al sumarlas se obtiene
+    
+    $$
+     \lambda x_1 + (1-\lambda) x_3= 3\lambda  + 3(1-\lambda) = 3
+    $$
+    
+    y también las inecuaciones $-4\lambda \le \lambda x_2 \le 4\lambda$ y $-4(1-\lambda) \le (1-\lambda) x_4 \le 4(1-\lambda)$, que al sumarlas se obtiene
+    
+    $$
+    -4 = -4(1-\lambda) - 4\lambda \le \lambda x_2 + (1-\lambda) x_4 \le 4\lambda + 4(1-\lambda) = 4 
+    $$
+    
+    Como ambas condiciones se cumplen para el punto $\textbf{x}$, se tiene que el conjunto es convexo.
+    
+6. Si tomamos los puntos $(x_1, x_2, x_3)$ y $(x_4, x_5, x_6)$, y escribimos a $\textbf{x} = \lambda(x_1, x_2, x_3)  + (1-\lambda)(x_4, x_5, x_6)$. De esta forma se tienen las ecuaciones $\lambda x_3 = \lambda x_2, \lambda x_3 = -\lambda x_2, (1-\lambda) x_6 = (1-\lambda) x_5$ y $(1-\lambda) x_6 = -(1-\lambda) x_5$, que al sumarlas, se obtienen las ecuaciones
+    
+    $$
+    \lambda x_3 + (1-\lambda) x_6 = \lambda x_2 + (1-\lambda) x_5
+    $$
+    
+    y
+    
+    $$
+    \lambda x_3 + (1-\lambda) x_6 = -\lambda x_2 - (1-\lambda) x_5 = -(\lambda x_2 + (1-\lambda) x_5)
+    $$
+    
+    y se cumple $\lambda x_3 + (1-\lambda) x_6 = \vert \lambda x_2 + (1-\lambda) x_5\vert$. Luego, para la segunda condición, se tiene $\lambda x_1 \le 3\lambda$ y $(1-\lambda) x_4 \le 3(1-\lambda)$, que al sumarlas se obtiene:
+    
+    $$
+    \lambda x_1 + (1-\lambda) x_4 \le 3\lambda + 3(1-\lambda) = 3
+    $$
+    
+    y la segunda condición se cumple. Como el nuevo punto cumple ambas condiciones, este es parte del conjunto para cualquier $\lambda$, y entonces, el conjunto es convexo.
+
+**Problema 2.29**. ¿Cuál de las siguientes funciones es convexa, cóncava o ninguna de las dos?
+
+- $f(x) = x^2$
+- $f(x_1, x_2) = e^{-(x_1 + x_2)} + 2x_1^2 -2x_1$
+- $f(x_1, x_2) = \text{max}\{f_1(x_1, x_2), f_2(x_1, x_2)\}$ con $f_1(x_1, x_2) = 3x_1^2 + x_2^2$ y $f_2(x_1, x_2) = 2x_1^2 -5x_2$
+- $f(x_1, x_2) = \text{min}\{f_1(x_1, x_2), f_2(x_1, x_2)\}$ con $f_1$ y $f_2$ definidas como en el inciso anterior.
+- $f(x_1, x_2, x_3) = -x_1^2 - 2x_2^2 -x_3^2 + 2x_1x_2 - x_2x_3 - 2x_1 + 5x_3$
+- $f(x_1, x_2) = x_1^2  + x_2^2 - 2x_1x_2 + x_2$
+
+**Solución**.
+
+- Se tiene que para la combinación lineal de los puntos $x_1$ y $x_2$, se escribe:
+    
+    $$
+    \begin{aligned}
+    f(\lambda x_1 + (1-\lambda) x_2) &= (\lambda x_1 + (1-\lambda) x_2)^2 \\ 
+    &= \lambda^2 x_1^2 + 2\lambda(1-\lambda)x_1x_2 + (1-\lambda)^2 x_2^2 \\
+    &\le \lambda^2 x_1^2 + \lambda(1-\lambda)(x_1^2 + x_2^2) + (1-\lambda)^2 x_2^2 \\
+    &\le \lambda x_1^2 + (1-\lambda) x_2^2 \\
+    &\le \lambda f(x_1) + (1-\lambda)f(x_2)
+    \end{aligned}
+    $$
+    
+    y, para cualquier $\lambda \in [0,1]$, se tiene que la función es convexa. 
+    
+- Se tiene que para la combinación lineal de los puntos $(x_1, x_2)$ y $(x_3, x_4)$, es fácil verificar tal cual en el apartado anterior que para $2x_1^2 - 2x_1$ la función es convexa. Queda demostrarlo para el termino exponencial:
+    
+    $$
+    \begin{aligned}
+    f_e(\lambda x_1 + (1-\lambda) x_3,\lambda x_2 + (1-\lambda) x_4) &= e^{-(\lambda x_1 + (1-\lambda) x_3)^2 -(\lambda x_2 + (1-\lambda) x_4)^2 }  \\ 
+    &\le e^{-\lambda^2 x_1^2 - \lambda(1-\lambda)(x_1^2 + x_3^2) - (1-\lambda)^2 x_3^2 - \lambda^2 x_2^2 - \lambda(1-\lambda)(x_2^2 + x_4^2) + (1-\lambda)^2 x_4^2} \\
+    &\le e^{-(\lambda x_1^2 + (1-\lambda) x_3^2) -(\lambda x_2^2 + (1-\lambda) x_4^2)} 
+    \end{aligned}
+    $$
+    
+    De esta ultima inecuación notamos que no es posible separar los términos de forma que se cumpla la definición, por lo que la función no es cóncava ni convexa. Luego, la función global tampoco lo es.
+    
+
+Usando los resultados de los dos incisos anteriores, ya se ha demostrado que las funciones $f_1$ y $f_2$ son convexas. Entonces:
+
+- Para la parte *c)*, se tiene que
+    
+    $$
+    \begin{aligned}
+    f(\lambda x_1 + (1-\lambda) x_3,\lambda x_2 + (1-\lambda) x_4) &= \text{max}\{f_1(\lambda x_1 + (1-\lambda) x_3,\lambda x_2 + (1-\lambda) x_4), f_2(\lambda x_1 + (1-\lambda) x_3,\lambda x_2 + (1-\lambda) x_4)\} \\
+    &\le \text{max}\{ \lambda f_1(x_1) + (1-\lambda)f_1(x_3), \lambda f_2(x_2) + (1-\lambda)f_2(x_4) \} 
+    \end{aligned} 
+    $$
+    
+    donde la desigualdad se cumple cuando en ambas $f_1$ y $f_2$ se cumple. Luego, el conjunto es convexo. 
+    
+- Para la parte *d),* se tiene que, al igual que antes:
+    
+    $$
+    \begin{aligned}
+    f(\lambda x_1 + (1-\lambda) x_3,\lambda x_2 + (1-\lambda) x_4) &= \text{min}\{f_1(\lambda x_1 + (1-\lambda) x_3,\lambda x_2 + (1-\lambda) x_4), f_2(\lambda x_1 + (1-\lambda) x_3,\lambda x_2 + (1-\lambda) x_4)\} \\
+    &\le \text{min}\{ \lambda f_1(x_1) + (1-\lambda)f_1(x_3), \lambda f_2(x_2) + (1-\lambda)f_2(x_4) \} 
+    \end{aligned} 
+    $$
+    
+    donde la desigualdad se cumple cuando en ambas $f_1$ y $f_2$ se cumple. Luego, el conjunto es convexo.  
+    
+- Se tiene que para la combinación lineal de los puntos $(x_1, x_2, x_3)$ y $(x_4, x_5, x_6)$, solo hace falta verificar que los productos $2x_1x_2$ y $-x_2x_3$ son convexos, ya que el resto de los términos ya hemos mostrado son convexos.
+    
+    $$
+    \begin{aligned}
+    2(\lambda x_1 + (1-\lambda) x_3)(\lambda x_2 + (1-\lambda) x_4) &= 2(\lambda^2 x_1x_2 + \lambda(1-\lambda) x_1 x_4 + \lambda(1-\lambda) x_3x_2 + (1-\lambda)^2 x_3 x_4) \\
+    &\le \lambda^2(x_1^2 + x_2^2) + \lambda(1-\lambda)(x_1^2 + x_4^2) +  \lambda(1-\lambda)(x_3^2 + x_2^2) + (1-\lambda)^2(x_3^2 + x_4^2) \\
+    &\le \lambda (x_1^2 + x_2^2) + (1-\lambda)(x_3^2 + x_4^2) \\
+    &\le 2\lambda x_1x_2 + 2(1-\lambda) x_3x_4 \\
+    &\le \lambda f_{p1}(x_1, x_2) + (1-\lambda)f_{p1}(x_3,x_4)
+    \end{aligned}
+    $$
+    
+    y la función es convexa. Para el siguiente producto se tiene:
+    
+    $$
+    \begin{aligned}
+    -(\lambda x_2 + (1-\lambda) x_4)(\lambda x_5 + (1-\lambda) x_6) &= -(\lambda^2 x_2x_5 + \lambda(1-\lambda) x_2 x_6 + \lambda(1-\lambda) x_4x_5 + (1-\lambda)^2 x_4 x_6) \\
+    &\ge -\frac{1}{2}\lambda^2(x_2^2 + x_5^2) -\frac{1}{2} \lambda(1-\lambda)(x_2^2 + x_6^2) -\frac{1}{2}\lambda(1-\lambda)(x_4^2 + x_5^2) - \frac{1}{2}(1-\lambda)^2(x_4^2 + x_6^2) \\
+    &\ge -\frac{1}{2}\lambda (x_2^2 + x_5^2) -\frac{1}{2} (1-\lambda)(x_4^2 + x_6^2) \\
+    &\ge -\lambda x_2x_4 - (1-\lambda) x_5x_6 \\
+    &\ge \lambda f_{p2}(x_2, x_4) + (1-\lambda)f_{p2}(x_5,x_6)
+    \end{aligned}
+    $$
+    
+    y este término es cóncavo. Pero la función global se puede escribir como la suma de los términos aditivos y los términos que son productos de monomios escrita como función convexa, por lo que:
+    
+    $$
+    f (x_1, x_2, x_3) = f_a(x_1, x_2, x_3) + f_{p1}(x_1, x_2, x_3) -f(x_1, -x_2, x_3) 
+    $$
+    
+    que es convexa. 
+    
+- Es convexa.
+
+**Problema 2.30**. Consideremos el conjunto $\{(x_1, x_2) : ~x_1 + x_2 \le 2, x_1 + 2x_2 \le 8, x_1, x_2 \ge 0\}$ ¿Cuál es la distancia mínima desde $(-3,4)$ hasta el conjunto? ¿Cuál es el punto del conjunto más cercano a $(-3,4)$? Repitamos con el punto $(6,4)$.
+
+**Solución**. Digamos que tenemos una circunferencia con centro en el punto $(x_0, y_0)$ y de radio $R$. Entonces, podemos escribir la función objetivo a minimizar como
+
+$$
+f(x_1, x_2) = (x_1-x_0)^2 + (x_2-y_0)^2 
+$$
+
+La distancia mínima de este punto al conjunto será la mínima distancia a cada una de las restricciones que definen el conjunto:
+
+$$
+d_{min} = \text{ínf}\left\{ f_1, f_2, f_3, f_4\right\}
+$$
+
+Entonces, para cada una de las restricciones se tienen:
+
+$$
+\begin{aligned}
+f_1(x_1, x_2) &= (x_1-x_0)^2 + (2 - x_1 - y_0)^2 \\
+f_2(x_1, x_2) &= (x_1-x_0)^2 + (4 - \frac{1}{2}x_1-y_0)^2 \\
+f_3(x_1, x_2) &= x_0^2 + (x_2-y_0)^2 \\
+f_4(x_1, x_2) &= (x_1-x_0)^2 + y_0^2
+\end{aligned}
+$$
+
+Derivando cada una, e igualando a cero, se obtiene:
+
+$$
+\begin{aligned}
+2(x_1-x_0) - 2(2 - x_1-y_0) = 0 &\Rightarrow x_1 = 1-\frac{1}{2}y_0+\frac{1}{2}x_0 \\
+2(x_1-x_0) - (4 - \frac{1}{2}x_1-y_0) = 0 &\Rightarrow x_1 = \frac{8}{5} - \frac{2}{5}y_0 + \frac{4}{5}x_0\\
+2(x_2-y_0) =0 &\Rightarrow x_2 = y_0 \\
+2(x_1-x_0) = 0 &\Rightarrow x_1 = x_0
+\end{aligned}
+$$
+
+Para el punto $(-3,4)$ se tienen las distancias:
+
+$$
+d_{min} = \text{ínf}\left\{\frac{1}{2}, 1, 9, 16\right\} = \frac{1}{2}
+$$
+
+y la distancia mínima es la del punto a la primera restricción. El valor de $x_1$ para el cual esta distancia es mínima es negativo, por lo que uso $x_1 = 0$ (el valor más cercano dentro del conjunto al $x_1$ mínimo), que para la primera restricción arroja $x_2 = 2$. Por lo que el punto más cercano es $(0, 2)$. 
+
+Para el punto $(6, 4)$ se tienen $x_1 = 2, x_1 = 24/5, x_2 = 4$ y $x_1 = 6$, paras lo que se tienen las distancias:
+
+$$
+d_{min} = \text{ínf}\left\{32, 232/25 \approx 9, 36, 16\right\} \approx 9
+$$
+
+**Problema 2.31**. Sean $\textbf{a}_1 = \begin{pmatrix} 1 \\ 0\end{pmatrix}$, $\textbf{a}_2 = \begin{pmatrix} 2\\ 3\end{pmatrix}$, $\textbf{a}_3 = \begin{pmatrix} -1 \\ 3\end{pmatrix}$, $\textbf{a}_4 = \begin{pmatrix} 4 \\ -3\end{pmatrix}$, y $\textbf{a}_5 = \begin{pmatrix} -4\\ \quad3\end{pmatrix}$. Ilustre geométricamente la colección de todas las combinaciones convexas de estos cinco puntos. 
+
+**Solución**. 
+Esto lo hice en papel en algún lugar. Se trata de dibujar los puntos en el plano, y luego generar todos los conjuntos convexos posibles con esos puntos (rectas y figuras geométricas).
+
+**Problema 2.32**. Muestra que un hiperplano $\textbf{H} = \{\textbf{x}: \textbf{px} = k\}$ y un semiespacio $\textbf{H}^+ = \{\textbf{x}: \textbf{px} >  k\}$ son conjuntos convexos. 
+
+**Solución**. Sean $\textbf{x}_1, \textbf{x}_2 \in \textbf{H}$, y el punto $\textbf{x} = \lambda\textbf{x}_1 + (1-\lambda)\textbf{x}_2$, entonces se escribe
+
+$$
+\begin{aligned}
+\textbf{px} &= \textbf{p}(\lambda\textbf{x}_1 + (1-\lambda)\textbf{x}_2) \\
+&= \textbf{p}(\lambda\textbf{x}_1) + \textbf{p}((1-\lambda)\textbf{x}_2) \\
+&= \lambda\textbf{px}_1 + (1-\lambda)\textbf{px}_2 \\
+&= \lambda k + (1-\lambda)k \\
+&= k 
+\end{aligned}
+$$
+
+y entonces $\textbf{x} \in \textbf{H}$ para cualquier valor de $\lambda$. Por lo tanto, $\textbf{H}$ forma un conjunto convexo. 
+
+Para el semiplano se procede de la misma forma, tal que si  $\textbf{x}_1, \textbf{x}_2 \in \textbf{H}^+$, el punto $\textbf{x} = \lambda\textbf{x}_1 + (1-\lambda)\textbf{x}_2$ se puede escribir:
+
+$$
+\begin{aligned}
+\textbf{px} &= \textbf{p}(\lambda\textbf{x}_1 + (1-\lambda)\textbf{x}_2) \\
+&= \textbf{p}(\lambda\textbf{x}_1) + \textbf{p}(\lambda\textbf{x}_2) \\
+&= \lambda\textbf{px}_1 + (1-\lambda)\textbf{px}_2 \\
+&> \lambda k + (1-\lambda)k \\
+&> k 
+\end{aligned}
+$$
+
+y entonces $\textbf{x} \in \textbf{H}^+$ para cualquier valor de $\lambda$. Por lo tanto, $\textbf{H}^+$ forma un conjunto convexo.
+
+**Problema 2.33**. Demuestre que $f$ es convexa si y solo si su *epígrafe* $= \{(\textbf{x},y) : \textbf{x} \in \mathbb{R}^n, y \in \mathbb{R}, y > f(\textbf{x})\}$ es un conjunto convexo. De manera similar, demuestre que $f$ es cóncavo si y solo si su *hipógrafe* $= \{(\textbf{x},y) : \textbf{x} \in \mathbb{R}^n, y \in \mathbb{R}, y < f(\textbf{x})\}$ es un conjunto convexo.
+
+**Solución**.
+
+- Digamos que el epígrafe es convexo, Esto significa que cualquier elemento escrito como $\lambda(\textbf{x}_1, y_1) + (1-\lambda)(\textbf{x}_2, y_2)$ pertenece al epígrafe. Entonces, se tiene:
+    
+    $$
+    f(\lambda\textbf{x}_1 + (1-\lambda)\textbf{x}_2) < y
+    $$
+    
+    Además, también se tiene para ambos $\textbf{x}_1$ y $\textbf{x}_2$ que $f(\textbf{x}_1) < y$ y $f(\textbf{x}_2) < y$, por lo que podemos escribir 
+    
+    $$
+    \lambda f(\textbf{x}_1) + (1-\lambda)f(\textbf{x}_2) < y
+    $$
+    
+    Restando las ultimas dos ecuaciones y reordenando queda:
+    
+    $$
+    f(\lambda\textbf{x}_1 + (1-\lambda)\textbf{x}_2) \le \lambda f(\textbf{x}_1) + (1-\lambda)f(\textbf{x}_2)
+    $$
+    
+    donde la igualdad se cumple para $\lambda = 1$ o $\lambda = 0$. Por lo que $f$ es convexa. A la inversa, supongamos que $f$ es convexa, entonces, si $f(\textbf{x}) < y$, para cualquier $\textbf{x}$, se tiene que
+    
+    $$
+    \begin{aligned} 
+    f(\lambda\textbf{x}_1 + (1-\lambda)\textbf{x}_2)\le \lambda f(\textbf{x}_1) + (1-\lambda)f(\textbf{x}_2) &< \lambda y + (1-\lambda)y \\
+    f(\lambda\textbf{x}_1 + (1-\lambda)\textbf{x}_2) &< y
+    \end{aligned}  
+    $$
+    
+    y como la desigualdad se cumple para $\lambda\textbf{x}_1 + (1-\lambda)\textbf{x}_2$, este pertenece al conjunto. Luego el conjunto es convexo y queda demostrado.
+    
+- Digamos que el hipógrafe es convexo, Esto significa que cualquier elemento escrito como $\lambda(\textbf{x}_1, y_1) + (1-\lambda)(\textbf{x}_2, y_2)$ pertenece al hipógrafe. Entonces, se tiene:
+    
+    $$
+    f(\lambda\textbf{x}_1 + (1-\lambda)\textbf{x}_2) > y
+    $$
+    
+    Además, también se tiene para ambos $\textbf{x}_1$ y $\textbf{x}_2$ que $f(\textbf{x}_1) > y$ y $f(\textbf{x}_2) > y$, por lo que podemos escribir
+    
+    $$
+    \lambda f(\textbf{x}_1) + (1-\lambda)f(\textbf{x}_2) > y
+    $$
+    
+    Restando las ultimas dos ecuaciones y reordenando queda:
+    
+    $$
+    f(\lambda\textbf{x}_1 + (1-\lambda)\textbf{x}_2) \ge \lambda f(\textbf{x}_1) + (1-\lambda)f(\textbf{x}_2)
+    $$
+    
+    donde la igualdad se cumple para $\lambda = 1$ o $\lambda = 0$. Por lo que $f$ es cóncava. A la inversa, supongamos que $f$ es cóncava, entonces, si $f(\textbf{x}) > y$, para cualquier $\textbf{x}$, se tiene que
+    
+    $$
+    \begin{aligned} 
+    f(\lambda\textbf{x}_1 + (1-\lambda)\textbf{x}_2)\ge \lambda f(\textbf{x}_1) + (1-\lambda)f(\textbf{x}_2) &> \lambda y + (1-\lambda)y \\
+    f(\lambda\textbf{x}_1 + (1-\lambda)\textbf{x}_2) &> y
+    \end{aligned}
+    $$
+    
+    y como la desigualdad se cumple para $\lambda\textbf{x}_1 + (1-\lambda)\textbf{x}_2$, este pertenece al conjunto. Luego el conjunto es convexo y queda demostrado.
+
+**Problema 2.34**. Demuestre que una función diferenciable $f$ es convexa si y solo si se cumple la siguiente desigualdad para cada punto fijo $\textbf{x}_0 \in \mathbb{R}^n$: $f(\textbf{x}) \ge f(\textbf{x}_0) + \nabla f(\textbf{x}_0)^T(\textbf{x} - \textbf{x}_0)$ para todo $\textbf{x} \in \mathbb{R}^n$, donde $\nabla f(\textbf{x}_0)$ es el vector gradiente de $f$ en $\textbf{x}_0$ dado por
+
+$$
+\left(
+\frac{\partial f(\textbf{x}_0)}{\partial x_1},
+\frac{\partial f(\textbf{x}_0)}{\partial x_2}, 
+\ldots, 
+\frac{\partial f(\textbf{x}_0)}{\partial x_n}
+\right)
+$$
+
+**Solución**. Supongamos que $f$ es convexa,  entonces sea $\textbf{x}’$ cualquier punto en $\mathbb{R}^n$ , que se puede escribir como combinación de dos puntos $\textbf{x}$ y $\textbf{x}_0$, se escribe
+
+$$
+f(\textbf{x}’) \le \lambda f(\textbf{x}) + (1-\lambda)f(\textbf{x}_0)
+$$
+
+Desarrollando por serie de Taylor el lado izquierdo y despreciando los términos con potencias cuadradas o mayores:
+
+$$
+f(\textbf{x}_0) + \nabla f(\textbf{x}_0)^T(\textbf{x}' - \textbf{x}_0) \le \lambda f(\textbf{x}) + (1-\lambda)f(\textbf{x}_0)
+$$
+
+Ahora, usando $\lambda = 1$, se tiene $\textbf{x}’ = \lambda\textbf{x} + (1-\lambda)\textbf{x}_0 = \textbf{x}$, y la ecuación anterior se reduce a
+
+$$
+f(\textbf{x}_0) + \nabla f(\textbf{x}_0)^T(\textbf{x} - \textbf{x}_0) \le f(\textbf{x})
+$$
+
+como se quería probar. A la inversa, si la desigualdad se cumple podemos multiplicar por $\lambda$ a ambos lados de la inecuación y luego de reordenar los términos y sumar $f(\textbf{x}_0)$ a ambos lados se obtiene:
+
+$$
+\begin{aligned}
+f(\textbf{x}_0) + \nabla f(\textbf{x}_0)^T(\lambda\textbf{x} - \lambda\textbf{x}_0) &\le \lambda f(\textbf{x}) - \lambda f(\textbf{x}_0) + f(\textbf{x}_0) \\ &\le \lambda f(\textbf{x}) - (1-\lambda) f(\textbf{x}_0)
+\end{aligned}
+$$
+
+Ahora, usando $\textbf{x}’ = \lambda\textbf{x} + (1-\lambda)\textbf{x}_0 \rightarrow \lambda \textbf{x} = \textbf{x}’ - (1-\lambda)\textbf{x}_0$, se tiene:
+
+$$
+\begin{aligned}
+f(\textbf{x}_0) + \nabla f(\textbf{x}_0)^T(\textbf{x}’ - (1-\lambda)\textbf{x}_0 - \lambda\textbf{x}_0) &\le \lambda f(\textbf{x}) - (1-\lambda) f(\textbf{x}_0) \\ 
+f(\textbf{x}_0) + \nabla f(\textbf{x}_0)^T(\textbf{x}’ - \textbf{x}_0) &\le\\ 
+f(\textbf{x}') - \frac{1}{2}(\textbf{x}' - \textbf{x}_0)^T\nabla^2 f(\textbf{x}_0)^T(\textbf{x}' - \textbf{x}_0) - \cdots &\le 
+\end{aligned}
+$$
+
+Despreciando todos los términos polinomiales, se tiene 
+
+$$
+f(x') \le \lambda f(\textbf{x}) - (1-\lambda) f(\textbf{x}_0)
+$$
+
+y $f$ es convexa. Luego, queda demostrado.
+
+**Problema 2.35**. Demuestre que el conjunto de soluciones factibles del siguiente programa lineal forma un conjunto convexo:
+
+$$
+\begin{aligned}
+\text{Minimizar }\quad &\textbf{cx} \\
+\text{Sujeto a }\quad & \textbf{Ax} = \textbf{b} \\
+& \textbf{x} \ge \textbf{0}
+\end{aligned} 
+$$
+
+**Solución**. Se tiene que el espacio factible $\{\textbf{x}: \textbf{Ax}= \textbf{b}, \textbf{x} \ge \textbf{0}\}$ es un conjunto convexo, y se quiere demostrar que el conjunto de soluciones factibles $\{\textbf{cx}: \textbf{Ax}= \textbf{b}, \textbf{x} \ge \textbf{0}\}$ es convexo. 
+Para ello, hay que demostrar que si se tienen dos soluciones factibles $\textbf{x}_1$ y $\textbf{x}_2$, entonces el punto $\textbf{x} = \lambda \textbf{x}_1 + (1-\lambda)\textbf{x}_2$ debe ser solución factible, esto es, $\textbf{cx} = \textbf{c}[\lambda \textbf{x}_1 + (1-\lambda)\textbf{x}_2] = \lambda \textbf{cx}_1 + (1-\lambda)\textbf{cx}_2$ esta dentro del espacio factible. En efecto:
+
+$$
+\begin{aligned}
+\textbf{Ax} &= \textbf{A}[\lambda \textbf{x}_1 + (1-\lambda)\textbf{x}_2] \\
+&\Rightarrow \lambda \textbf{A}\textbf{x}_1 + (1-\lambda)\textbf{A}\textbf{x}_2 \\
+&\Rightarrow \lambda \textbf{b} + (1-\lambda)\textbf{b} \\
+&\Rightarrow \textbf{b}
+\end{aligned}
+$$
+
+y queda demostrado.
+
+**Problema 2.36**. Consideremos el conjunto $X = \{(x_1, x_2) : x_1 + x_2 \ge 2, x_2 \le 4, x_1, x_2 \ge 0\}$. Halle un hiperplano tal que $X$ y el punto $(1,-2)$ estén en lados diferentes del hiperplano. Escriba la ecuación del hiperplano.
+
+**Solución**.
+
+**Problema 2.37**. 
+Si $S$ es un conjunto abierto, muestra que el problema de maximizar $\textbf{cx}$  sujeto a $\textbf{x}\in S$, donde $\textbf{c} \ne 0$, no posee punto óptimo 
+(*Nota*: $S$  es abierto si para cada $\textbf{x}_0\in S$ hay un $\varepsilon>0$ tal que $\vert\vert\textbf{x}-\textbf{x}_0\vert\vert < \varepsilon$ implica que $\textbf{x}\in S$).
+
+**Solución**. 
+Digamos que  $\textbf{x}_0 \in S$ es solución del problema de optimización, se busca demostrar que siempre es posible encontrar $\textbf{x} \in S$ $$ tal que  $\textbf{cx} - \textbf{cx}_0 > 0$. 
+Si reordenamos, tenemos $\textbf{c}(\textbf{x}-\textbf{x}_0)$, y como $\textbf{c} \ne 0$, y S es abierto, siempre se puede encontrar $\textbf{x}\in S$ a una distancia finita, tan pequeña como se quiera, tal que $\textbf{x} - \textbf{x}_0 > 0$. 
+Por lo tanto, $\textbf{x}_0$ no puede ser máximo. 
+Dado que este argumento se puede repetir para cualquier elección de $\textbf{x}_0$, se hace necesario concluir que no es posible encontrar un máximo, y por tanto, el problema no posee un óptimo.
+
+**Problema 2.38**. 
+Muestra que $C$ es un cono convexo si y solo si $x,y \in C$ implica que $\lambda x + \mu y \in C$ para todo $\lambda\ge 0$ y $\mu \ge 0$.
+
+**Solución**. 
+Si $x,y \in C$, entonces estos son soluciones al sistema $\textbf{Ax} \le \textbf{0}$ y $\textbf{Ay} \le \textbf{0}$, respectivamente. Entonces, multiplicando la primera desigualdad por $\lambda$ y la segunda por $\mu$, y sumando queda  $\lambda \textbf{Ax}+ \mu \textbf{Ay} \le \textbf{0} \Rightarrow \textbf{A}(\lambda \textbf{x} +\mu\textbf{y}) \le \textbf{0}$ y entonces, $\lambda \textbf{x} +\mu\textbf{y}\in C$.
+
+Ahora, a la inversa, si $\lambda \textbf{x} +\mu\textbf{y}\in C,$  si ambos coeficientes son cero, siempre se pueden escoger cualesquiera $\textbf{x}$ y $\textbf{y}$ en $C$ tales que se cumpla la desigualdad $\textbf{A}(\lambda \textbf{x} +\mu\textbf{y}) \le \textbf{0} \Rightarrow  \lambda \textbf{Ax}+ \mu \textbf{Ay} \le \textbf{0}$. Si solo uno de los coeficientes es cero a la vez, entonces siempre se puede escoger $\textbf{x}$ o $\textbf{y}$ arbitrario en $C$, y luego la desigualdad resultante se cumple para $\textbf{y}$ o $\textbf{x}$ en $C$. Si ninguno de los coeficientes es cero, entonces la desigualdad solo se cumple si se cumplen a la vez $\textbf{Ax} \le \textbf{0}$ y $\textbf{Ay} \le \textbf{0}$, lo cual es cierto solo sí  $\textbf{x}$ y $\textbf{y}$ en $C$, lo cual completa la prueba.
+
+**Problema 2.39**.
+Muestra que si $C$ es un cono convexo, entonces $C$ tiene a lo sumo un punto extremo, el origen. 
+
+**Solución**. 
+Supongamos que $\textbf{x} \in C$ y que este es vértice o punto extremo de $C$. Entonces, $\textbf{x}$ se puede escribir como combinación lineal de los rayos que forman el conjunto convexo $C$, esto es, $\textbf{x} = \sum_{i=1}^m c_i(\textbf{x}_{i0} + \mu_i\textbf{d}_i)$. Luego, como de las $m$ direcciones $\textbf{d}$, $n$ forman un conjunto linealmente independiente, se tiene que 
+
+$$
+\textbf{x} = \sum_{i=1}^mc_i\textbf{x}_{i0} + \mu\sum_{i=1}^n\beta_id_i =  \sum_{i=1}^mc_i\textbf{x}_{i0}
+$$
+
+por lo que $\textbf{x}_{i0}$ son todos vértices para cada $i$, entonces $\textbf{x}  = \textbf{x}_{1\space0} = \textbf{x}_{2\space0} = \ldots = \textbf{x}_{m0} = \textbf{0}$, para constantes arbitrarias $c_1, c_2, \ldots, c_m$ (no todas las constantes pueden ser $0$ porque solo $n$ de los $m$ rayos son linealmente independientes). Además, este vértice es único, ya que si se tienen dos vértices $\textbf{x}_1$ y $\textbf{x}_2$ en $C$, entonces estos comparten el mismo conjunto de rayos que forman un conjunto l. i., por lo que siguiendo el razonamiento anterior, los vértices son iguales.
+

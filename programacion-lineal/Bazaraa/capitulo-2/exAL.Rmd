@@ -1,0 +1,993 @@
+**Problema 2.1**
+Demuestra que los vectores 
+
+$$
+a_1 = \begin{pmatrix} 1 \\ 0 \\ 0 \end{pmatrix} \qquad a_2 = \begin{pmatrix} 0 \\ 1 \\ 0 \end{pmatrix} \qquad a_3 = \begin{pmatrix} 1 \\ 5 \\ 3 \end{pmatrix}
+$$
+
+forman una base en $\mathbb{R}^3$. Si se reemplaza el vector $a_2$ por $\begin{pmatrix} 0 & 1 & 1 \end{pmatrix}'$, diga si el nuevo conjunto aún genera $\mathbb{R}^3$.
+
+**Solución**.
+
+Primero determinó el determinantes d ella matriz cuyas columnas son los vectores dados, para verificar que hay una solución y que de hecho los vectores si generan un espacio. Se resuelve
+
+$$
+\begin{vmatrix} 1&0&1\\ 0&1&5\\ 0&0&3 \end{vmatrix} = 1\times(1\times3 - 0\times5) = 3
+$$
+
+y el sistema tiene solución. Ahora resolviendo el sistema de ecuaciones:
+
+$$
+\begin{pmatrix} 1&0&1 &\vert&a\\ 0&1&5&\vert&b\\ 0&0&3 &\vert&c\end{pmatrix} 
+$$
+
+que al resolver quedan las soluciones $z = 1/3c$, $y = b -5/3c$ y $x = a-1/3c$. Por lo que el conjunto genera a $\mathbb{R}^3$, y si cuando $a= b= c = 0$, se demuestra que el conjunto es l. i., por lo que el conjunto forma una base. 
+
+Al reemplazar el segundo vector por el nuevo vector, y resolviendo: 
+
+$$
+\begin{pmatrix} 1&0&1 &\vert&a\\ 0&1&5&\vert&b\\ 0&1&3 &\vert&c\end{pmatrix} \rightarrow \begin{pmatrix} 1&0&1 &\vert&a\\ 0&1&5&\vert&b\\ 0&0&-2 &\vert&c-b\end{pmatrix} \rightarrow \begin{pmatrix} 1&0&0 &\vert&a -1/2b+1/2c\\ 0&1&0&\vert&5/2c-3/2b\\ 0&0&-2 &\vert&c-b\end{pmatrix}
+$$
+
+y se tiene que cuando $a=b = c =0$, el conjunto es linealmente independiente, y que además genera a $\mathbb{R}^3$, por lo que el conjunto sigue siendo base.
+
+**Problema 2.2**
+
+¿Cuáles de las siguientes colecciones de vectores forman una base de $\mathbb{R}^3$, generan $\mathbb{R}^3$, o ninguna de las dos?
+
+*a)* $a_1 = \begin{pmatrix} 1 \\ 2 \\ 1 \end{pmatrix}, a_2 = \begin{pmatrix} -1 \\ 0 \\ -1 \end{pmatrix}, a_3 = \begin{pmatrix} 0 \\ 0 \\ 1 \end{pmatrix}$ 
+
+*b)* $a_1 = \begin{pmatrix} 1 \\ 3 \\ 2 \end{pmatrix}, a_2 = \begin{pmatrix} 2 \\ 0 \\ 5 \end{pmatrix}$
+
+*c)* $a_1 = \begin{pmatrix} -1 \\ 2 \\ 3 \end{pmatrix}, a_2 = \begin{pmatrix} 0 \\ 1 \\ 0 \end{pmatrix}, a_3 = \begin{pmatrix} 1 \\ 2 \\ 3 \end{pmatrix}, a_4 = \begin{pmatrix} -3 \\ 2 \\ 4 \end{pmatrix}$
+
+*d)* $a_1 = \begin{pmatrix} 1 \\ 2 \\ 1 \end{pmatrix}, a_2 = \begin{pmatrix} -3 \\ -1 \\ 2 \end{pmatrix}, a_3 = \begin{pmatrix} 8 \\ -1 \\ 7 \end{pmatrix}$
+
+*e)* $a_1 = \begin{pmatrix} 1 \\ 4 \\ 2 \end{pmatrix}, a_2 = \begin{pmatrix} -1 \\ -4 \\ -1 \end{pmatrix}, a_3 = \begin{pmatrix} 0 \\ 1 \\ 0 \end{pmatrix}$
+
+**Solución**
+
+Para el primer caso, calculamos el determinante de la matriz cuyas columnas son los vectores de la colección, para verificar que el sistema de ecuaciones tiene solución:
+
+$$
+\begin{vmatrix} 1 & -1 & 0 \\ 2 & 0 & 0 \\ 1 & -1 & 1 \end{vmatrix} = 2
+$$
+
+y el sistema tiene al menos una solución. Se tiene entonces:
+
+$$
+\left (
+  \begin{array}{rrr|r}
+     1 & -1 &  0 & a \\
+     2 & 0 & 0 &   b\\
+     1 & -1 & 1 & c
+  \end{array}
+\right ) \xrightarrow{-2e_{12},  -1e_{13}} 
+\left (
+  \begin{array}{rrr|r}
+     1 & -1 &  0 & a \\
+     0 & 2 & 0 &   b -2a\\
+     0 & 0 & 1 & c -a
+  \end{array}
+\right ) \xrightarrow{1/2e_{2},  1e_{21}}
+\left (
+  \begin{array}{rrr|r}
+     1 & 0 & 0 & b/2  \\
+     0 & 1 & 0 & b/2 - a\\
+     0 & 0 & 1 & c -a
+  \end{array}
+\right )
+$$
+
+de forma que el conjunto es l.i. (la solución es $\begin{pmatrix} 0 & 0 & 0 \end{pmatrix}´$ cuando $a = b = c= 0$) y genera a $\mathbb{R}^3$. El conjunto entonces, es base de $\mathbb{R}^3$.
+
+En el segundo caso, se tiene que la colección no genera a $\mathbb{R}^3$ ya que la solución resultante muestra que:
+
+$$
+\left (
+\begin{array}{rr|r}
+1 & 2 & a \\
+3 & 0 & b\\
+2 & 5 & c
+\end{array}
+\right ) \xrightarrow{-3e_{12}, -2e_{13}}
+\left (
+\begin{array}{rr|r}
+1 & 2 & a \\
+0 & -6 & b -3a\\
+0 & 1 & c - 2a
+\end{array}
+\right ) \xrightarrow{-1/6e_{2}, -2e_{21}, -1e_{23}}
+\left (
+\begin{array}{rr|r}
+1 & 0 & 1/3b \\
+0 & 1 & -1/6b +1/2a\\
+0 & 0 & c + 1/6b + 5/2a
+\end{array}
+\right )
+$$
+
+el conjunto solo genera el espacio conformado por los vectores que caen sobre la recta $15a + b + 6c = 0$. El conjunto es l. i. y por lo tanto es base de ese espacio vectorial. 
+
+El tercer conjunto tiene más vectores que la dimensión de $\mathbb{R}^3$, porloque el conjunto genera al espacio. Sin embargo, el conjunto no es l. i. y, por tanto, no es base. Para ver esto, resolvemos:
+
+$$
+\left (
+\begin{array}{rrrr|r}
+-1 & 0 & 1 & -3 & a\\
+2 & 1 & 2 & 2 & b \\
+3 & 0 & 3 & 4 & c
+\end{array}
+\right ) \xrightarrow{2e_{12}, 3e_{13}}
+\left (
+\begin{array}{rrrr|r}
+-1 & 0 & 6 & -5 & a\\
+0 & 1 & 4 & -4 & b +2a \\
+0 & 0 & 6 & -5 & c + 3a
+\end{array}
+\right ) \xrightarrow{-2/3e_{32}, -1e_{31}}
+\left (
+\begin{array}{rrrr|r}
+-1 & 0 & 0 & 0 & -2a - c\\
+0 & 1 & 0 & -2/3 & b -2/3c \\
+0 & 0 & 6 & -5 & c + 3a
+\end{array}
+\right )
+$$
+
+de lo que se observa que para cualesquiera valores de $a, b, c$ y $w$ se tiene un vector de $\mathbb{R}^3$, y si $a = b = c = 0$, entonces se tiene $c_3 = 5/6c_4$, y siempre se puede escoger $c_4$ tal que el conjunto es l. d.
+
+Para el inciso *d),* verifico que la matriz cuyas columnas son los vectores de la colección tenga un determinante distinto de cero:
+
+$$
+\begin{vmatrix} 1 & -3 & 8 \\ 2 & -1 & -1 \\ 1 & 2 & 7 \end{vmatrix} = -5 + 3(15) + 8(5) = (-1 + 9 + 8)5 ) = 80
+$$
+
+y el sistema cuya matriz generadora es la anterior, tiene solución. 
+
+$$
+\left (
+\begin{array}{rrr|r}
+1 & -3 & 8 & a\\
+2 & -1 & -1 & b \\
+1 & 2 & 7 & c
+\end{array}
+\right ) \xrightarrow{-2e_{12}, -1e_{13}} 
+\left (
+\begin{array}{rrr|r}
+1 & -3 & 8 & a\\
+0 & 5 & -17 & b -2a \\
+0 & 5 & -1 & c - a
+\end{array}
+\right ) \xrightarrow{3/5e_{21},-1e_{23}}
+\left (
+\begin{array}{rrr|r}
+1 & 0 & -11/5 & 3/5b - 1/5a\\
+0 & 5 & -17 & b -2a \\
+0 & 0 & 16 & c -b + a
+\end{array}
+\right ) 
+$$
+
+de donde notamos de inmediato que el conjunto genera a $\mathbb{R}^3$ y además es l. i., por lo que es base.
+
+Para el último conjunto se tiene:
+
+$$
+ \begin{vmatrix} 1 & -1 & 0 \\ 4 & -4 & 1 \\ 2 & -1 & 0 \end{vmatrix} = -(-1 + 2) = -1
+$$
+
+por lo que el sistema tiene solución única. Vemos entonces que el sistema es entonces l. i. y genera a $\mathbb{R}^3$.
+
+**Problema 2.3**. Sean los vectores 
+
+$$
+a_1 = \begin{pmatrix} -1 \\ 2 \\ 0 \end{pmatrix}, a_2 = \begin{pmatrix} 3 \\ 2 \\ 5 \end{pmatrix}, a_3 = \begin{pmatrix} 5/2 \\ 3 \\ 5 \end{pmatrix} 
+$$
+
+¿Son l. i.? ¿Generan a $\mathbb{R}^3$?
+
+**Solución**. Se verifica el determinante:
+
+$$
+ \begin{vmatrix} -1 & 3 & 5/2 \\ 2 & 2 & 3 \\ 0 & 5 & 5 \end{vmatrix} = -(-5) -2(5/2) = 5 - 5 = 0
+$$
+
+por lo que el sistema generado por los vectores no tiene solución, y los vectores son l. d. Resolviendo, verificamos_
+
+$$
+\left (
+\begin{array}{rrr|r}
+-1 & 3 & 5/2 & a\\
+2 & 2 & 3 & b \\
+0 & 5 & 5 & c
+\end{array}
+\right ) 
+\xrightarrow{2e_{12}} 
+\left (
+\begin{array}{rrr|r}
+-1 & 3 & 5/2 & a\\
+0 & 8 & 8 & b + 2a \\
+0 & 5 & 5 & c
+\end{array}
+\right ) 
+\xrightarrow{-5/8e_{23}}
+\left (
+\begin{array}{rrr|r}
+-1 & 3 & 5/2 & a\\
+0 & 8 & 8 & b + 2a \\
+0 & 0 & 0 & c -5/8b - 5/4a
+\end{array}
+\right ) 
+$$
+
+y el conjunto solo genera a los vectores sobre la recta $8c -5b-10a = 0$.
+
+**Problema 2.4**. Sean $\{\textbf{a}_1, \textbf{a}_2, \ldots, \textbf{a}_k\}$ una base de $\mathbb{R}^n$. Muestra que  $\{\textbf{a}_1, \textbf{a}_2, \ldots, \textbf{a}_k\}$ son l. i. y que $k = n$
+
+**Solución**. Para demostrar que el conjunto es l. i., podemos escribir el sistema
+
+$$
+\left (
+\begin{array}{rrrr|r}
+a_{11} & a_{12} & \ldots & a_{1k} & 0\\
+a_{21} & a_{22} & \ldots & a_{2k} & 0\\
+\cdot & \cdot & \ldots & \cdot & \cdot\\
+a_{11} & a_{12} & \ldots & a_{1k} & 0\\
+a_{n1} & a_{n2} & \ldots & a_{nk} & 0
+\end{array}
+\right )
+$$
+
+Como el conjunto es base, sabemos que el sistema de ecuaciones dado tiene solución única $\textbf{c} = \textbf{0}$ y por lo tanto el conjunto es l. i. 
+
+Ahora, se tiene:
+
+- si $k\le n$ (se tendrían $n - k$ filas de ceros en la forma reducida), pero si $k < n$, el espacio generado es subconjunto de $\mathbb{R}^n$, lo cual contradice que el conjunto es base de $\mathbb{R}^n$. Por lo tanto, $k$ debe ser mayor o igual a $n$.
+- Ahora, si $k > n$, entonces se pueden escoger $n-k$ coeficientes, no todos ceros, tal que $c_1\textbf{a}_1 + c_2\textbf{a}_2 + \ldots + c_n\textbf{a}_n + \ldots + c_k \textbf{a}_k = \textbf{0}$, lo cual contradice que el conjunto es l. i., por lo que $k$ no puede ser mayor a $n$.
+
+Luego, $k=n$ y queda demostrado.
+
+**Prolema 2.5**. ¿La siguiente matriz tiene inversa? En caso de tenerla, encuentre $A^{-1}$
+
+$$
+\begin{pmatrix} 1&-4&4&0\\2&5&0&1\\0&2&0&1\\1&3&2&2\end{pmatrix}
+$$
+
+**Solución**. Calculando el determinante se tiene:
+
+$$
+\begin{aligned}det\space A &= 4 \begin{vmatrix}2&5&1\\0&2&1\\1&3&2\end{vmatrix} -2\begin{vmatrix}1&-4&0\\2&5&1\\0&2&1\end{vmatrix} \\
+&= 4\left(2 + 3\right) - 2\left(4 + 4\times2\right) \\
+&= 20 - 24 = -4
+\end{aligned}
+$$
+
+y tiene inversa. Calculando:
+
+$$
+\left(
+\begin{array}{rrrr|rrrr}
+1&-4&4&0&1&0&0&0\\
+2&5&0&1&0&1&0&0 \\
+0&2&0&1&0&0&1&0 \\
+1&3&2&2&0&0&0&1
+\end{array}
+\right)
+\xrightarrow{-2e_{12}, -1e_{14}}
+\left(
+\begin{array}{rrrr|rrrr}
+1&-4&4&0  & 1&0&0&0\\
+0&14&-8&1 &-2&1&0&0 \\
+0&2&0&1   & 0&0&1&0 \\
+0&7&-2&2  &-1&0&0&1
+\end{array}
+\right)
+\xrightarrow{\frac{1}{14}e_{2}, 4e_{21}, -2e_{23}, -7e_{24}}
+\left(
+\begin{array}{rrrr|rrrr}
+1&0&12/7&2/7  & 3/7&2/7&0&0\\
+0&1&-4/7&1/14 &-1/7&1/14&0&0 \\
+0&0&8/7&6/7   & 2/7&-1/7&1&0 \\
+0&0&2&3/2     & 0&-1/7&0&1
+\end{array}
+\right)
+\xrightarrow{}
+$$
+
+**Prolema 2.6**. Encuentra la inversa de la matriz triangular
+
+$$
+\begin{pmatrix}2& 4& -3 &-4\\ 0& 4 &3& 2 \\0& 0& 2& 5\\ 0& 0 &0 &-1\end{pmatrix}
+$$
+
+**Solución**. Reduciendo a la identidad se tiene:
+
+$$
+\begin{aligned}\begin{pmatrix}2& 4& -3 &-4\\ 0& 4 &3& 2 \\0& 0& 2& 5\\ 0& 0 &0 &-1\end{pmatrix} &\xrightarrow{-1e_{21}, -3/2e_{32}, 5e_{43}, -1e_4}\begin{pmatrix}2& 0& -6 &-6\\ 0& 4 &0& -11/2 \\0& 0& 2& 0\\ 0& 0 &0 &1\end{pmatrix} \\&
+\xrightarrow{3e_{31},6e_{41}, 11/2e_{42}} \begin{pmatrix}2& 0&0 &0\\ 0& 4 &0&0 \\0& 0& 2& 0\\ 0& 0 &0 &1\end{pmatrix} \\& \xrightarrow{1/2e_1,1/4e_2,1/2e_3} \begin{pmatrix}1& 0&0 &0\\ 0& 1 &0&0 \\0& 0& 1& 0\\ 0& 0 &0 &1\end{pmatrix}
+\end{aligned}
+$$
+
+Luego, aplicando el mismo conjunto de operaciones a la identidad, en el mismo orden, se obtiene la inversa:
+
+$$
+\begin{aligned}
+\begin{pmatrix}1&0&0&0\\ 0&1&0&0 \\0&0&1&0\\ 0&0&0&1\end{pmatrix} &\xrightarrow{-1e_{21}, -3/2e_{32}, 5e_{43}, -1e_4}
+\begin{pmatrix}1&-1&0&0\\ 0&1&-3/2&0 \\0&0&1&5\\ 0&0&0&-1\end{pmatrix}  \\
+&\xrightarrow{3e_{31},6e_{41}, 11/2e_{42}} 
+\begin{pmatrix}1&-1&3&9\\ 0&1&-3/2&-11/2 \\0&0&1&5\\ 0&0&0&-1\end{pmatrix} \\
+&\xrightarrow{1/2e_1,1/4e_2,1/2e_3}
+\begin{pmatrix}\frac{1}{2}&-\frac{1}{2}&\frac{3}{2}&\frac{9}{2}\\ 0&\frac{1}{4}&-\frac{3}{8}&-\frac{11}{8} \\0&0&\frac{1}{2}&\frac{5}{2}\\ 0&0&0&-1\end{pmatrix}
+\end{aligned}
+$$
+
+**Problema 2.7**. Sea $\textbf{A}$ una matriz de $3 \times 5$. Considérese la matriz $\textbf{C}$ obtenida ponderando las columnas de $\textbf{A}$ con los escalares $1, 3/2, -2, 4$ y $- 1$, respectivamente, y sumándolos. Escriba $\textbf{C}$ como un producto matricial. De manera similar, sea $\textbf{D}$ la suma ponderada de las filas de $\textbf{A}$, utilizando pesos $2, -2$ y $3/2$, respectivamente. Escriba $\textbf{D}$ como un producto matricial. Asimismo, sea $\textbf{E}$ una matriz cuya primera fila es la suma de las filas de $\textbf{A}$, cuya segunda fila es la tercera fila de $\textbf{A}$, y cuya tercera fila se obtiene sumando: tres veces la primera fila de $\textbf{A}$, $-5/2$ veces la segunda fila de $\textbf{A}$, y dos veces la tercera fila de $\textbf{A}$. Escriba $\textbf{E}$ como un producto matricial.
+
+**Solución**. Si escribimos $\textbf{A} = \begin{pmatrix}\textbf{a}_1 & \textbf{a}_2 & \textbf{a}_3 & \textbf{a}_4 & \textbf{a}_5 \end{pmatrix}$, y por definción de $\textbf{C}= \begin{pmatrix}\textbf{a}_1 & \frac{3}{2}\textbf{a}_2 & -2\textbf{a}_3 & 4\textbf{a}_4 & -\textbf{a}_5 \end{pmatrix}$, entonces podemos escribir
+
+$$
+\textbf{C} = \textbf{A}\begin{pmatrix}1 \\ \frac{3}{2} \\ -2 \\ 4 \\ -1\end{pmatrix}
+$$
+
+Escribimos $\textbf{D} = \begin{pmatrix}2\textbf{a}'_1 & -2\textbf{a}'_2 & \frac{3}{2}\textbf{a}'_3\end{pmatrix}$, donde $\textbf{a}'_i$ es la $i$-ésima columna de la matriz traspuesta $\textbf{A}^T$. De forma que 
+
+$$
+\textbf{D} = \textbf{A}^T\begin{pmatrix} 2 \\ -2 \\ \frac{3}{2}\end{pmatrix}
+$$
+
+Según la definición de $\textbf{E}$ se escribe:
+
+$$
+\begin{aligned}
+\textbf{E} &= 
+\begin{pmatrix} 
+\textbf{a}’_1 + \textbf{a}’_2 + \textbf{a}’_3 \\ 
+\textbf{a}’_3 \\
+3\textbf{a}’_1 - \frac{5}{2}\textbf{a}’_2 + 2\textbf{a}’_3
+\end{pmatrix} \\
+&= \begin{pmatrix} 
+\textbf{a}’_1 \\ 0 \\ 3\textbf{a}’_1 \end{pmatrix} + \begin{pmatrix} \textbf{a}’_2 \\ 0 \\ - \frac{5}{2}\textbf{a}’_2 \end{pmatrix} + \begin{pmatrix}\textbf{a}’_3 \\ 
+\textbf{a}’_3 \\
+2\textbf{a}’_3
+\end{pmatrix} \\
+&= \textbf{a}’_1\begin{pmatrix} 
+1 \\ 0 \\ 3\end{pmatrix} + \textbf{a}’_2\begin{pmatrix} 1 \\ 0 \\ - \frac{5}{2} \end{pmatrix} + \textbf{a}’_3\begin{pmatrix} 1 \\ 1 \\ 2 \end{pmatrix} \\
+&= \begin{pmatrix}\textbf{a}’_1 & \textbf{a}’_2 & \textbf{a}’_3 \end{pmatrix}\begin{pmatrix} \textbf{r}_1 \\ \textbf{r}_2 \\ \textbf{r}_3 \end{pmatrix}
+\end{aligned}
+$$
+
+donde $\textbf{r}_1 = \begin{pmatrix}1 & 0 & 3\end{pmatrix}'$, $\textbf{r}_2 = \begin{pmatrix}1 & 0 & 5/2\end{pmatrix}'$ y $\textbf{r}_3 = \begin{pmatrix}1 & 1 & 2\end{pmatrix}’$ y queda
+
+$$
+\textbf{E} = \textbf{A}^T\begin{pmatrix} \textbf{r}_1 \\ \textbf{r}_2 \\ \textbf{r}_3\end{pmatrix}
+$$
+
+**Problema 2.8**. Sea $B$ una matriz invertible. Demuestre que $B^{-1}$ es única.
+
+**Solución**. Lo resolví en el material de Algebra Lineal.
+
+**Problema 2.9**. Supóngase que $\{\textbf{a}_1, \textbf{a}_2, \ldots, \textbf{a}_k\}$ forman una base de  $\mathbb{R}^n$ y $\textbf{y} = \lambda_1\textbf{a}_1 + \lambda_2\textbf{a}_2 + \ldots + \lambda_n\textbf{a}_n$ con $\lambda_j = 0$. Demuestre que $\{\textbf{a}_1, \ldots, \textbf{a}_{j-1},\textbf{y}, \textbf{a}_{j+1}, \ldots, \textbf{a}_n\}$ no forman una base de $\mathbb{R}^n$.
+
+**Solución**. Si $\textbf{v} \in \mathbb{R}^n$ entonces se escribe
+
+$$
+\begin{aligned}
+\textbf{v} &= c_1\textbf{a}_1 + c_2\textbf{a}_2 + \ldots + c_{j-1}\textbf{a}_{j-1} + c_j\textbf{y} + c_{j+1}\textbf{a}_{j+1} + \ldots + c_n\textbf{a}_n \\
+&= c_1\textbf{a}_1 + c_2\textbf{a}_2 + \ldots + c_{j-1}\textbf{a}_{j-1} + c_j(\lambda_1\textbf{a}_1 + \lambda_2\textbf{a}_2 + \ldots + \lambda_n\textbf{a}_n)+ c_{j+1}\textbf{a}_{j+1} + \ldots + c_n\textbf{a}_n \\
+&= \beta_1\textbf{a}_1 + \beta_2\textbf{a}_2 + \ldots + \beta_{j-1}\textbf{a}_{j-1} + \beta_{j+1}\textbf{a}_{j+1} + \ldots + \beta_n\textbf{a}_n
+\end{aligned}
+$$
+
+el cual tiene por solución los vectores cuyos elementos caen sobre un hiperplano que pasa por el origen en $\mathbb{R}^n$. Por lo tanto, el conjunto no genera a $\mathbb{R}^n$. Luego, el conjunto no es base.
+
+**Problema 2.10**. Sea 
+
+$$
+\textbf{A} = 
+\begin{pmatrix} 
+\textbf{B} & \textbf{0} \\
+\textbf{T} & \textbf{I} \end{pmatrix}
+$$
+
+donde $\textbf{B}$ es una matriz invertible de $m \times m$, $\textbf{I}$ es una matriz identidad de $k \times k$, $\textbf{0}$ es una matriz cero de $m \times k$  y $\textbf{T}$ es una matriz arbitraria de $k \times m$. Demuestre que $\textbf{A}$ tiene una inversa y que
+
+$$
+\textbf{A}^{-1} = 
+\begin{pmatrix} 
+\textbf{B}^{-1} & \textbf{0} \\
+\textbf{-TB}^{-1} & \textbf{I} \end{pmatrix}
+$$
+
+**Solución**. Se pueden llevar a cabo $n$ operaciones por fila sobre $\textbf{B}$ para convertirla en una matriz triangular superior, de tal forma que: 
+
+$$
+det\space\textbf{A} = det\space\textbf{B}\cdot det\space\textbf{I}
+$$
+
+Como $\textbf{B}$ es invertible, entonces $det\space\textbf{B} \ne 0$, y por lo tanto $det\space\textbf{A} \ne 0$, y $\textbf{A}$ es invertible. 
+
+Para hallar la inversa de $\textbf{A}$, llevamos a cabo las operaciones por filas necesarias para reducir $\textbf{B}$ a la identidad, de tal forma que se tiene
+
+$$
+\left(
+\begin{array}{rr|rr} 
+\textbf{I} & \textbf{0} & \textbf{B}^{-1} & \textbf{0} \\
+\textbf{T} & \textbf{I} & \textbf{0} & \textbf{I}
+\end{array}
+\right)
+$$
+
+Luego, para anular la matriz $\textbf{T}$, multiplico la identidad superior por $-\textbf{T}$ (la cual resulta del conjunto de operaciones elementales adecuadas aplicadas sobre la identidad) y se la sumo la fila de abajo de tal forma a la izquierda se tendría que $-\textbf{T}\textbf{I}+ \textbf{T} =-\textbf{0}$ y a la derecha se tendría $-\textbf{T}\textbf{B}^{-1} + \textbf{0} =-\textbf{T}\textbf{B}^{-1}$ y la matriz inversa queda
+
+$$
+\begin{pmatrix} 
+\textbf{B}^{-1} & \textbf{0} \\
+\textbf{-TB}^{-1} & \textbf{I} \end{pmatrix}
+$$
+
+como se quería demostrar.
+
+**Problema 2.11**. Demuestre que si $\textbf{A}$ y $\textbf{B}$ son matrices $n \times n$ que son ambas invertibles, entonces $(\textbf{A}\textbf{B})^{-1} = \textbf{B}^{-1}\textbf{A}^{-1}$.
+
+**Solución**. Lo resolví en el material de Algebra Lineal.
+
+**Problema 2.12**. Sea $\textbf{A}$ una matriz invertible $n \times n$. Demuestre que $\textbf{A}^T$ tiene una inversa y que $(\textbf{A}^T)^{-1} = (\textbf{A}^{-1})^T$.
+
+**Solución**. Lo resolví en el material de Algebra Lineal.
+
+**Problema 2.13**. Sea $\textbf{B}$ una matriz invertible con entradas no negativas. Muestra que cada fila de $\textbf{B}^{-1}$ tiene al menos una entrada positiva.
+
+**Solución**. Suponiendo cierto el siguiente resultado general (aun no termino de demostrar esto por completo debido a un contratiempo en dos de los elementos a reducir):
+
+$$
+\textbf{B}^{-1} = \frac{1}{\vert B\vert} 
+\begin{pmatrix}
+B_{11} & -B_{21} & \cdots & -B_{m1} \\
+-B_{12} & B_{22} & \cdots & -B_{m2} \\
+\vdots & \vdots & \ddots & \vdots \\
+-B_{1m} & -B_{2m} & \cdots & B_{mm} \\
+\end{pmatrix}
+$$
+
+donde $\vert B \vert$ es el determinante de $\textbf{B}$, y $B_{ij}$ es el determinante de la matriz resultante al eliminar la fila $i$ y la columna $j$. Se tienen los casos:
+
+- Si $\vert B \vert > 0$, entonces, cada fila tiene al menos un elemento positivo: el elemento diagonal si $B_{ii} > 0$, y aquellos elementos no diagonales tales que $B_{ij} < 0$ (lo cual es claro puede ocurrir para algún par $(i,j)$).
+- Si  $\vert B \vert < 0$, entonces, cada fila tiene al menos un elemento positivo: el elemento diagonal si $B_{ii} < 0$, y aquellos elementos no diagonales tales que $B_{ij} > 0$ (lo cual es claro puede ocurrir para algún par $(i,j)$).
+
+**Problema 2.14**. Sea $\textbf{A} = (\textbf{a}_1, \textbf{a}_2, \ldots. \textbf{a}_j, \ldots, \textbf{a}_m)$ una matriz invertible de $m \times m$. Demuestre que $\textbf{A}^{-1} \textbf{a}_j = \textbf{e}_j$ donde $\textbf{e}_j$ es un vector de ceros excepto un  $1$ en la posición $j$.
+
+**Solución**. Multiplicando ambos lados por $\textbf{A}$ se obtiene
+
+$$
+\textbf{A}\textbf{A}^{-1}\textbf{a}_j = \textbf{I}\textbf{a}_j = \textbf{a}_j = \textbf{A}\textbf{e}_j 
+$$
+
+y la ultima igualdad solo puede cumplirse si los elementos de $\textbf{e}_j$ son todos $0$ menos el $j$-ésimo elemento, el cual debe ser uno para que se cumpla la igualdad.
+
+**Problema 2.15** Sea $\textbf{A}$ una matriz $n \times n$. Supongamos que $\textbf{B}$ es una matriz $n \times n$ tal que $\textbf{A}\textbf{B} = \textbf{I}$. ¿Es necesariamente cierto que $\textbf{A}$ tiene una inversa? ¿Es necesariamente cierto que $\textbf{B} = \textbf{A}^{-1}$?
+
+**Solución**. Ya se demostró en el ejercicio 8 que si $\textbf{A}$ es invertible, entonces $\textbf{A}^{-1}$ es única, por lo que necesariamente $\textbf{B}$ es la inversa de $\textbf{A}$.
+
+**Problema 2.16**. Si la $i$-ésima fila de una matriz cuadrada no singular $\textbf{B}$ se multiplica por un escalar $\lambda \ne 0$, ¿Qué cambios resultarían en $\textbf{B}^{-1}$?
+
+**Solución**. La inversa de toda matriz no singular es el inverso del determinante de la matriz no singular multiplicado por su matriz adjunta, por lo que se tiene:
+
+$$
+\begin{aligned}
+\textbf{B}_\lambda^{-1} &= \frac{1}{\vert B_\lambda\vert}  (adj\space \textbf{B}_\lambda) \\
+&= \frac{1}{\lambda\vert B\vert}
+\begin{pmatrix}
+\lambda B_{11} & \lambda B_{12} & \cdots & \lambda B_{1m} \\
+\lambda B_{21} & \lambda B_{22} & \cdots & \lambda B_{2m} \\
+\vdots & \vdots & & \vdots \\
+B_{i1} & B_{i2} & \cdots & B_{im} \\
+\vdots & \vdots & & \vdots \\
+\lambda B_{m1} & \lambda B_{m2} & \cdots & \lambda B_{mm} \\
+\end{pmatrix}^T \\
+&= \frac{\lambda}{\lambda\vert B\vert}
+\begin{pmatrix}
+B_{11} & B_{12} & \cdots & B_{1m} \\
+B_{21} & B_{22} & \cdots & B_{2m} \\
+\vdots & \vdots & & \vdots \\
+\frac{1}{\lambda}B_{i1} & \frac{1}{\lambda}B_{i2} & \cdots & \frac{1}{\lambda}B_{im} \\
+\vdots & \vdots & & \vdots \\
+B_{m1} & B_{m2} & \cdots & B_{mm} \\
+\end{pmatrix}^T \\
+&= \frac{1}{\vert B\vert}
+\begin{pmatrix}
+B_{11} & B_{12} & \cdots & B_{1m} \\
+B_{21} & B_{22} & \cdots & B_{2m} \\
+\vdots & \vdots & & \vdots \\
+\frac{1}{\lambda}B_{i1} & \frac{1}{\lambda}B_{i2} & \cdots & \frac{1}{\lambda}B_{im} \\
+\vdots & \vdots & & \vdots \\
+B_{m1} & B_{m2} & \cdots & B_{mm} \\
+\end{pmatrix}^T
+\end{aligned}
+$$
+
+y como se observa, la inversa se ve modificada en que la fila $i$-ésima esta multiplicada por $1/\lambda$
+
+**Problema 2.17**. Si la $j$-ésima columna de una matriz cuadrada no singular $\textbf{B}$ se multiplica por un escalar $\lambda \ne 0$, ¿Qué cambios resultarían en $\textbf{B}^{-1}$?
+
+**Solución**. La inversa de toda matriz no singular es el inverso del determinante de la matriz no singular multiplicado por su matriz adjunta, por lo que se tiene:
+
+$$
+\begin{aligned}
+\textbf{B}_\lambda^{-1} &= \frac{1}{\vert B_\lambda\vert}  (adj\space \textbf{B}_\lambda) \\
+&= \frac{1}{\lambda\vert B\vert}
+\begin{pmatrix}
+\lambda B_{11} & \lambda B_{12} & \cdots & B_{1j} & \cdots & \lambda B_{1m} \\
+\lambda B_{21} & \lambda B_{22} & \cdots & B_{2j} & \cdots & \lambda B_{2m} \\
+\vdots & \vdots & & \vdots && \vdots \\
+\lambda B_{m1} & \lambda B_{m2} & \cdots & B_{mj} & \cdots & \lambda B_{mm} \\
+\end{pmatrix}^T \\
+&= \frac{\lambda}{\lambda\vert B\vert}
+\begin{pmatrix}
+B_{11} & B_{12} & \cdots & \frac{1}{\lambda}B_{1j} & \cdots & B_{1m} \\
+B_{21} & B_{22} & \cdots & \frac{1}{\lambda}B_{2j} & \cdots & B_{2m} \\
+\vdots & \vdots & & \vdots && \vdots \\
+B_{m1} & B_{m2} & \cdots & \frac{1}{\lambda}B_{mj} & \cdots & B_{mm} \\
+\end{pmatrix}^T \\
+&= \frac{1}{\vert B\vert}
+\begin{pmatrix}
+B_{11} & B_{12} & \cdots & \frac{1}{\lambda}B_{1j} & \cdots & B_{1m} \\
+B_{21} & B_{22} & \cdots & \frac{1}{\lambda}B_{2j} & \cdots & B_{2m} \\
+\vdots & \vdots & & \vdots && \vdots \\
+B_{m1} & B_{m2} & \cdots & \frac{1}{\lambda}B_{mj} & \cdots & B_{mm} \\
+\end{pmatrix}^T\end{aligned}
+$$
+
+y como se observa, la inversa se ve modificada en que la columna $j$-ésima esta multiplicada por $1/\lambda$.
+
+**Problema 2.18**. Encuentra el rango de las siguientes matrices
+
+1. $\textbf{A} = \begin{pmatrix}
+1 & 0 & 1 & -1 \\
+2 & 3 & 4 & 1 \\
+1 & 0 & 5 & -3
+\end{pmatrix}$
+2. $\textbf{A} = \begin{pmatrix}
+-2 & 1 & -3 \\
+2 & 4 & -2 \\
+4 & 3 & 1
+\end{pmatrix}$
+
+**Solución**. Reduciendo las matrices a escalonada reducida se tiene: para la primera
+
+$$
+\begin{pmatrix}
+1 & 0 & 1 & -1 \\
+2 & 3 & 4 & 1 \\
+1 & 0 & 5 & -3
+\end{pmatrix} 
+\xrightarrow{-2e_{12}, -1e_{13}}
+\begin{pmatrix}
+1 & 0 & 1 & -1 \\
+0 & 3 & 2 & 3 \\
+0 & 0 & 4 & -2
+\end{pmatrix}
+\xrightarrow{-1/4e_{31},-1/2e_{32}}
+\begin{pmatrix}
+1 & 0 & 0 & -1/2 \\
+0 & 3 & 0 & 4 \\
+0 & 0 & 4 & -2
+\end{pmatrix}
+$$
+
+y dado que se tienen 3 pivotes, se tienen 3 filas (columnas) l. i. y $rank(\textbf{A}) = 3$. 
+
+Para la segunda matriz:
+
+$$
+\begin{pmatrix}
+-2 & 1 & -3 \\
+2 & 4 & -2 \\
+4 & 3 & 1
+\end{pmatrix}
+\xrightarrow{1e_{12}, 2e_{13}}
+\begin{pmatrix}
+-2 & 1 & -3 \\
+0 & 5 & -5 \\
+0 & 5 & -5
+\end{pmatrix}
+\xrightarrow{-1e_{23}}
+\begin{pmatrix}
+-2 & 1 & -3 \\
+0 & 5 & -5 \\
+0 & 0 & 0
+\end{pmatrix}
+$$
+
+y como se tienen solo dos pivotes, entonces existen solo dos filas l. i., y $rank(\textbf{A}) = 2$.
+
+**Problema 2.19**. Encuentra el determinante de las siguientes matrices:
+
+$\begin{pmatrix}
+1 & 0 & 1 \\
+2 & 2 & -1 \\
+0 & 1 & 2
+\end{pmatrix}$,$\begin{pmatrix}
+1 & 0 & -2 & 1 \\
+-3 & 1 & -1 & 1 \\
+-2 & 2 & -1 & 2 \\
+1 & 2 & 2 & 5
+\end{pmatrix}$, $\begin{pmatrix}
+2 & -2 & 1 \\
+1 & 3 & -2 \\
+3 & -2 & -3
+\end{pmatrix}$
+
+**Solución**. Para la primera matriz se tiene, usando la primera fila, que el determinante es $(4 -1) + (2) = 5$. 
+
+Para la segunda matriz, me parece más sencillo reducir a una escalonada y luego calcular el determinante de la matriz original en términos de las operaciones realizadas:
+
+$$
+\begin{pmatrix}
+1 & 0 & -2 & 1 \\
+-3 & 1 & -1 & 1 \\
+-2 & 2 & -1 & 2 \\
+1 & 2 & 2 & 5
+\end{pmatrix}
+\xrightarrow{3e_{12}, 2e_{13}, -1e_{14}} 
+\begin{pmatrix}
+1 & 0 & -2 & 1 \\
+0 & 1 & -7 & 4 \\
+0 & 2 & -5 & 4 \\
+0 & 2 & 4 & 4
+\end{pmatrix}
+\xrightarrow{-2e_{23}, -2e_{24}}
+\begin{pmatrix}
+1 & 0 & -2 & 1 \\
+0 & 1 & -7 & 4 \\
+0 & 0 & 9 & -4 \\
+0 & 0 & 18 & -4
+\end{pmatrix} 
+\xrightarrow{-2e_{34}}
+\begin{pmatrix}
+1 & 0 & -2 & 1 \\
+0 & 1 & -7 & 4 \\
+0 & 0 & 9 & -4 \\
+0 & 0 & 0 & 4
+\end{pmatrix} 
+$$
+
+como solo se realizaron operaciones de multiplicación de una fila por un escalar y sumársela a otra, el determinante de la matriz original es igual al determinante de la matriz reducida y se tiene que este es $1\times1\times9\times4 = 36$.
+
+Para la tercera matriz, uso la primera fila para expandir por cofactores, quedando $2\times-13 +2\times3 + 1\times-11 = -26 + 6 -11 = -31$.
+
+**Problema 2.20**. Resuelve el siguiente sistema por medio de la regla de Cramer. 
+
+$$
+\begin{aligned} 2x_1 & - x_2 &= 6 \\ 5x_1 & + 2x_2 &= 4\end{aligned}
+$$
+
+**Solución**. Primero escribimos la matriz aumentada para el sistema de ecuaciones dado:
+
+$$
+\left( 
+\begin{array}{rr|r}
+2 & -1 & 6 \\
+5 & 2 & 4
+\end{array}\right)
+$$
+
+por lo que por regla de Cramer se tiene:
+
+$$
+x_1 = \frac{
+\begin{vmatrix}6&-1\\4&2\end{vmatrix}
+}{
+\begin{vmatrix}2&-1\\5&2\end{vmatrix}
+} = \frac{16}{9}
+$$
+
+$$
+x_2 = \frac{
+\begin{vmatrix}2&6\\5&4\end{vmatrix}
+}{
+\begin{vmatrix}2&-1\\5&2\end{vmatrix}
+} = -\frac{22}{9}
+$$
+
+y la solución es $(16/9, -22/9)$.
+
+**Problema 2.21**. Demuestre por enumeración que toda matriz base del siguiente sistema es triangular:
+
+$$
+\begin{aligned}
+x_1 & + x_3 & + x_4 &=4\\
+-x_1 & + x_2 & + x_5 &=2\\
+& -x_2 & -x_4 &= -3 \\
+&& -x_3 & =  -2
+\end{aligned}
+$$
+
+**Solución**. Nos damos cuenta de la ultima ecuación que $x_3 = 2$, por lo que el sistema es uno de 3 ecuaciones y 4 incógnitas. Se escribe entonces:
+
+$$
+\left(\begin{array}{rrrr|r}
+1 & 0 & 1 & 0 & 2 \\
+-1 & 1 & 0 & 1 & 2 \\
+0 & -1 & -1 & 0 & -3 
+\end{array}\right) 
+$$
+
+como el conjunto es l. d. (hay mas incógnitas que ecuaciones), se tiene que cualquier base del sistema debe tener al menos 3 vectores. Resolviendo el sistema:
+
+$$
+\left(\begin{array}{rrrr|r}
+1 & 0 & 1 & 0 & 2 \\
+0 & 1 & 1 & 1 & 4 \\
+0 & 0 & 0 & 1 & 1 
+\end{array}\right) 
+$$
+
+Reordenando las columnas y terminando de reducir se obtiene:
+
+$$
+\left(\begin{array}{rrrr|r}
+1 & 0 & 0 & 1 & 2 \\
+0 & 1 & 0 & 1 & 3 \\
+0 & 0 & 1 & 0 & 1 
+\end{array}\right) 
+$$
+
+Notamos que las variables asociadas a la base son $x_1, x_2$ y $x_5$ (la columna que reordene), y que $x_4$ esta asociada a la dirección extrema del sistema, tal que puedo escribir una solución básica como
+
+$$
+\begin{aligned}
+\textbf{x}_B &= 
+\begin{pmatrix}
+1 & 0 & 0 \\
+-1 & 1 & 1 \\
+0 & -1 & 0
+\end{pmatrix}^{-1}
+\begin{pmatrix} 2  \\ 2 \\-3 \end{pmatrix} - 
+\begin{pmatrix}
+1 & 0 & 0 \\
+-1 & 1 & 1 \\
+0 & -1 & 0
+\end{pmatrix}^{-1}
+\begin{pmatrix} 1  \\ 0 \\-1 \end{pmatrix}x_4 \\
+
+\end{aligned}
+$$
+
+Enumerando, se nota que se tienen 4 matrices básicas posibles que resultan de la combinación de las columnas de $\textbf{A}$, La que aparece en el apartado anterior, y las siguientes tres:
+
+$$
+\begin{pmatrix} 1&0&1 \\ -1&1&0 \\ 0&-1&-1 \\ \end{pmatrix},  \begin{pmatrix} 1&1&0 \\ -1&0&1 \\ 0&-1&0 \\ \end{pmatrix}, \begin{pmatrix} 0&1&0 \\ 1&0&1 \\ -1&-1&0 \\ \end{pmatrix}
+$$
+
+**Problema 2.22**. Resuelve el siguiente sistema de ecuaciones:
+
+$$
+\begin{aligned}
+x_1 & + 2x_2& + x_3 &= 1 \\
+-x_1 & + x_2& - x_3 &= 3 \\
+2x_1 & + 3x_2 & + x_3 &= -4
+\end{aligned}
+$$
+
+Sin resolver el sistema, cual sería la solución si el lado de la derecha de la primera ecuación cambiaras el $1$ por un $2$
+
+**Solución**. Primero calculo el determinante de la matriz adjunta al sistema de ecuaciones que expandiendo por cofactores arroja $4 - 2\times 1 -5 = -3$. Luego, por regla de Cramer se tiene: $x_1 = -(4 - 2\times -1 + 13)/3 = -19/3$, $x_2 = -(-1 -1 -2)/3 = 4/3$, y $x_3 =  -(-13 -2\times-2 -5)/3 = 14/3$.
+
+El enfoque anterior no me deja responder la siguiente pregunta de forma más rápida, más allá de tener que multiplicar por dos en donde la columna es introducida en el calculo del numerador. 
+
+Así que escribiendo la matriz del sistema de ecuaciones y reduciendo se tiene:
+
+$$
+\left(
+\begin{array}{rrr|r}
+1 & 2 & 1 & 1 \\
+-1 & 1 & -1 & 3 \\ 
+2 & 3 & 1 & -4
+\end{array}
+\right)
+\xrightarrow{1e_{12}, -2e_{13}}
+\left(
+\begin{array}{rrr|r}
+1 & 2 & 1 & 1 \\
+0 & 3 & 0 & 4 \\ 
+0 & -1 & -1 & -6
+\end{array}
+\right)
+\xrightarrow{1/3e_{2}, -2e_{21}, 1e_{23}}
+\left(
+\begin{array}{rrr|r}
+1 & 0 & 1 & -5/3 \\
+0 & 1 & 0 & 4/3 \\ 
+0 & 0 & -1 & -14/3
+\end{array}
+\right)
+\xrightarrow{-1e_{3}, -1e_{31}}
+\left(
+\begin{array}{rrr|r}
+1 & 0 & 0 & -19/3 \\
+0 & 1 & 0 & 4/3 \\ 
+0 & 0 & 1 & 14/3
+\end{array}
+\right)
+$$
+
+Para ver como cambia la solución, podemos escribir la solución básica como:
+
+$$
+\begin{aligned}
+\textbf{x}_B &= \textbf{B}^{-1}\textbf{b} + \textbf{B}^{-1}\begin{pmatrix}1\\0\\0\end{pmatrix} \\ 
+&= 
+\begin{pmatrix}-\frac{19}{3}\\\frac{4}{3}\\\frac{14}{3}\end{pmatrix} - \frac{1}{3} \begin{pmatrix}B_{11}\\-B_{12}\\B_{13}\end{pmatrix} \\
+&=
+ \begin{pmatrix}-\frac{19}{3}\\\frac{4}{3}\\\frac{14}{3}\end{pmatrix} - \frac{1}{3} \begin{pmatrix}4\\-1\\-5\end{pmatrix} \\ &= 
+\begin{pmatrix}-\frac{23}{3}\\\frac{5}{3}\\\frac{19}{3}\end{pmatrix}
+\end{aligned}
+$$
+
+**Problema 2.23**. Demuestre que el determinante de una matriz triangular cuadrada es el producto de las entradas diagonales.
+
+**Solución**. Esto lo resolví en el material de Algebra Lineal que tengo en mis notas de estudio.
+
+**Problema 2.24**. Encuentra todas las soluciones básicas del siguiente sistema:
+
+$$
+\begin{aligned} 
+-x_1 &+& 2x_2 &+& x_3 &+& 3x_4 &-&2x_5 & = 4 \\
+x_1 &-& 2x_2 &&&+&2x_4 &+& x_5 &= 2 
+\end{aligned}
+$$
+
+**Solución**. Escribo la matriz aumentada del sistema
+
+$$
+\left(
+\begin{array}{rrrrr|r}
+-1&2&1&3&-2&4 \\
+1&-2&0&2&1&2
+\end{array}
+\right)
+$$
+
+y la reduzco a una escalonada:
+
+$$
+\left(
+\begin{array}{rrrrr|r}
+1&-2&0&2&1&2 \\
+0&0&1&5&-1&6
+\end{array}
+\right)
+$$
+
+De esta forma, notamos que la base del sistema consiste de al menos $10$ matrices de $2\times 2$, de las cuales se obtienen las soluciones básicas siguientes:
+
+1. $\begin{pmatrix} x_1 \\ x_2\end{pmatrix} = \begin{pmatrix} -1 & 2 \\ 1&-2\end{pmatrix}\begin{pmatrix} 4\\ 2\end{pmatrix} = \begin{pmatrix} 0 \\ 0 \end{pmatrix}$
+2. $\begin{pmatrix} x_1 \\ x_3\end{pmatrix} = \begin{pmatrix} -1 & 1 \\ 1&0\end{pmatrix}\begin{pmatrix} 4\\ 2\end{pmatrix} = \begin{pmatrix} -2 \\ 4\end{pmatrix}$
+3. $\begin{pmatrix} x_1 \\ x_4\end{pmatrix} = \begin{pmatrix} -1 & 3 \\ 1&2\end{pmatrix}\begin{pmatrix} 4\\ 2\end{pmatrix} = \begin{pmatrix} 2 \\ 8\end{pmatrix}$
+4. $\begin{pmatrix} x_1 \\ x_5\end{pmatrix} = \begin{pmatrix} -1 & -2 \\ 1&1\end{pmatrix}\begin{pmatrix} 4\\ 2\end{pmatrix} = \begin{pmatrix} -8 \\ 6\end{pmatrix}$
+5. $\begin{pmatrix} x_2 \\ x_3\end{pmatrix} = \begin{pmatrix} 2 & 1 \\ -2&0\end{pmatrix}\begin{pmatrix} 4\\ 2\end{pmatrix} = \begin{pmatrix} 10 \\ -8\end{pmatrix}$
+6. $\begin{pmatrix} x_2 \\ x_4\end{pmatrix} = \begin{pmatrix} 2 & 2 \\ 
+-2& 5\end{pmatrix}\begin{pmatrix} 4\\ 2\end{pmatrix} = \begin{pmatrix} 12 \\ 2\end{pmatrix}$
+7. $\begin{pmatrix} x_2 \\ x_5\end{pmatrix} = \begin{pmatrix} 2 & 1 \\ -2&-1\end{pmatrix}\begin{pmatrix} 4\\ 2\end{pmatrix} = \begin{pmatrix} 10 \\ -10\end{pmatrix}$
+8. $\begin{pmatrix} x_3 \\ x_4\end{pmatrix} = \begin{pmatrix} 0 & 2 \\ 
+1 & 5\end{pmatrix}\begin{pmatrix} 4\\ 2\end{pmatrix} = \begin{pmatrix} 4 \\ 14\end{pmatrix}$
+9. $\begin{pmatrix} x_3 \\ x_5\end{pmatrix} = \begin{pmatrix} 0 & 1 \\ 
+1 & -1\end{pmatrix}\begin{pmatrix} 4\\ 2\end{pmatrix} = \begin{pmatrix} 2 \\ 2\end{pmatrix}$
+10. $\begin{pmatrix} x_4 \\ x_5\end{pmatrix} = \begin{pmatrix} 2 & 1 \\ 
+5 & -1\end{pmatrix}\begin{pmatrix} 4\\ 2\end{pmatrix} = \begin{pmatrix} 10 \\ 18\end{pmatrix}$
+
+**Problema 2.25**. Determinar si el siguiente sistema posee: (a) ninguna solución, (b) una solución única, o (c) muchas (¿cuántas?) soluciones.
+
+$$
+\begin{aligned} 
+x_1 &+& 3x_2 &+& x_3 &-& x_4 &= 1 \\
+ && 5x_2 &-& 6x_3 &+& x_4 &= 0 \\
+x_1 &-& 2x_2 &+& 4x_3 && &= 2
+\end{aligned}
+$$
+
+**Solución**. Escribiendo la matriz aumentada del sistema
+
+$$
+\left(
+\begin{array}{rrrr|r}
+1&3&1&-1&1 \\
+0&5&-6&1&0 \\
+1&-2&4&0&2 \\
+\end{array}
+\right)
+$$
+
+Ahora, reduzco la matriz por filas:
+
+$$
+\left(
+\begin{array}{rrrr|r}
+1&3&1&-1&1 \\
+0&5&-6&1&0 \\
+0&-5&3&1&1 \\
+\end{array}
+\right)
+\rightarrow
+\left(
+\begin{array}{rrrr|r}
+1&0&23/5&-8/5&1 \\
+0&5&-6&1&0 \\
+0&0&-3&2&1 \\
+\end{array}
+\right)
+\rightarrow
+\left(
+\begin{array}{rrrr|r}
+1&0&0&22/15&38/15 \\
+0&5&0&-3&-2 \\
+0&0&-3&2&1 \\
+\end{array}
+\right)
+$$
+
+y el sistema tiene soluciones infinitas (duh! Hay más incógnitas que ecuaciones), de las cuales se pueden obtener $\binom{4}{3} = 4$ soluciones básicas y a partir de estas variar las variables independientes o no básicas para generar las infinitas soluciones.
+
+**Problema 2.26**. Construya una solución general del sistema $\textbf{A}\textbf{x} = \textbf{b}$ donde $\textbf{A}$ es una matriz $m \times n$ con rango $m$. ¿Cuál es la solución general del siguiente sistema?
+
+$$
+\begin{aligned} 
+x_1 &-& 2x_2 &+& x_3 & = 2 \\
+-x_1 &-& 3x_2 &+& 2x_3 &= 6 
+\end{aligned}
+$$
+
+**Solución**. Creo que este ejercicio lo que busca es saber como construir las soluciones al sistema de ecuaciones usando el conocimiento general de que cualquier solución al sistema se puede obtener fijando valores arbitrarios a las variables independientes o extras del sistema, y usando el resultado
+
+$$
+\textbf{x}_B = \textbf{B}^{-1}\textbf{b} + \textbf{B}^{-1}\textbf{N}\textbf{x}_N
+$$
+
+para escribir una solución al sistema de ecuaciones. 
+
+Si ese es el caso, entonces el procedimiento consistiría en construir matrices básicas $\textbf{B}$ de $m\times m$, usando $m$ columnas de $\textbf{A}$. Las $m$ columnas consisten de todas las posibles permutaciones de $m$ columnas de las $n$ posibles (que sería $\binom{n}{m}, n > m$), tal que el conjunto de $m$ columnas sea una base generadora de $\mathbb{R}^m$. Luego utilizo estas matrices para encontrar  soluciones 
+
+$$
+\bar{\textbf{b}} = \textbf{B}^{-1}\textbf{b}
+$$
+
+donde $\bar{\textbf{b}}$ es el vector de soluciones para las variables asociadas a las columnas seleccionadas de la matriz $\textbf{A}$ usadas para construir a $\textbf{B}$. Cada una de estas soluciones son solución general del sistema para cualquier elección de las variables independientes no incluidas en la construcción de las matrices básicas. 
+
+Para el caso del ejemplo, se tienen $3$ columnas por lo que se tienen $3$  posibles permutaciones de las columnas, por lo que las soluciones generales se escriben:
+
+$$
+\begin{aligned}
+\textbf{x}_B &= \begin{pmatrix} 1 & -2 \\ -1 & -3\end{pmatrix}^{-1} \begin{pmatrix} 2 \\ 6\end{pmatrix} - \begin{pmatrix} 1 & -2 \\ -1 & -3\end{pmatrix}^{-1}\begin{pmatrix} 1 \\ 2\end{pmatrix}x_3 \\
+&= \begin{pmatrix} 3/5 & -2/5 \\ -1/5 & -1/5\end{pmatrix} \begin{pmatrix} 2 \\ 6\end{pmatrix} - \begin{pmatrix} 3/5 & -2/5 \\ -1/5 & -1/5\end{pmatrix}\begin{pmatrix} 1 \\ 2\end{pmatrix}x_3 \\
+&= -\frac{1}{5}\begin{pmatrix} 6 \\ 8\end{pmatrix} + \frac{1}{5}  \begin{pmatrix} 1 \\ 3\end{pmatrix}x_3 \\ 
+\end{aligned}
+$$
+
+y se tiene una solución para $x_1$ y $x_2$ para cualquier valor arbitrario de $x_3$.
+
+**Problema 2.27**. Consideremos el sistema $\textbf{A}\textbf{x} = \textbf{b}$ donde $\textbf{A} = [\textbf{a}_1, \textbf{a}_2,\ldots,\textbf{a}_n]$ es una matriz $m \times n$ de rango $m$. Sea $\textbf{x}$ cualquier solución de este sistema. Partiendo de $\textbf{x}$, construya una solución básica. (Pista: supongamos que $x_1,\ldots,x_p \ne0$ y $x_{p+1}, \ldots,x_n = 0$. Si $p > m$, represente una de las columnas $\textbf{a}_j$, para $j = 1, \ldots, p$, como una combinación lineal de los vectores restantes. Esto da como resultado una nueva solución que tiene un número menor de variables distintas de cero. Repita el proceso).
+
+**Solución**. Supongamos que $x_1,\ldots,x_p \ne0$ y $x_{p+1}, \ldots,x_n = 0$. Si $p > m$, esto implica que podemos tomar una de las columnas de $\textbf{A}$, digamos $\textbf{a}_j$, para $j = 1, \ldots, p$, y escribirla como una combinación lineal del resto de los vectores:
+
+$$
+\begin{aligned}\textbf{a}_1x_1 + \textbf{a}_2x_2 + \cdots + \textbf{a}_jx_j + \cdots + \textbf{a}_px_p &= \textbf{b} \\
+\rightarrow
+\textbf{a}_1x_1 + \textbf{a}_2x_2 + \cdots + \textbf{a}_{j-1}x_{j-1} + \textbf{a}_{j+1}x_{j+1} + \cdots + \textbf{a}_{p}x_{p} &= \textbf{b} + \textbf{a}_{j}x_j = \textbf{b}'
+\end{aligned}
+$$
+
+Como $rank(\textbf{A}) = m$, se puede escoger valores arbitrarios para la variable $x_j$ y escribir el nuevo sistema como:
+
+$$
+\textbf{A}'\textbf{x}' = \textbf{b}'  
+$$
+
+el cual tiene solución $\textbf{x’}$ que consiste de $p - 1$ variables. Se puede proceder igual que antes $p-m$ veces hasta llegar a un sistema con solución única $\textbf{A}’\textbf{x’} = \textbf{b}’$ tal que 
+
+$$
+\textbf{b}’ = \textbf{b} - \sum_{j \in J} \textbf{a}_jx_j
+$$
+
+donde $J$ representa el conjunto de índices de los vectores seleccionados para reducir el sistema. La solución encontrada de esta forma es una solución básica del sistema.
+

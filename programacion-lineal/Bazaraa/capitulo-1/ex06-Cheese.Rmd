@@ -1,0 +1,112 @@
+# Planteamiento
+
+Una empresa quesera produce dos tipos de queso: queso suizo y queso ***cheddar***. La empresa tiene 60 trabajadores experimentados y desea aumentar su plantilla a 90 trabajadores durante las próximas ocho semanas. Cada trabajador experimentado puede formar a tres nuevos empleados en un periodo de dos semanas durante el cual los trabajadores implicados prácticamente no producen nada. Se necesita una hora-hombre para producir 10 libras de queso suizo y una hora-hombre para producir 6 libras de queso ***cheddar***. Una semana laboral son 40 horas. Las demandas semanales (en 1000 libras) se resumen a continuación:
+
+| CHEESE TYPE  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Suizo | 11 | 12 | 13 | 18 | 14 | 18 | 20 | 20 |
+| ***cheddar*** | 8 | 8 | 10 | 8 | 12 | 13 | 12 | 12 |
+
+Supongamos que un aprendiz recibe el mismo salario completo que un trabajador experimentado. Supongamos además que el envejecimiento excesivo destruye el sabor del queso, por lo que el inventario se limita a una semana. ¿Cómo debería la empresa contratar y capacitar a sus nuevos empleados para que el costo de la mano de obra se minimice durante este período de ocho semanas? Formule el problema como un programa lineal.
+
+## Solución
+
+### Información
+
+Se tienen dos tipos de trabajadores, que reciben el mismo salario:
+
+1. 60 trabajadores experimentados, y
+2. 30 trabajadores nuevos
+
+Los trabajadores experimentados forman a 3 nuevos trabajadores, con producciones asociadas a dos responsables:
+
+1. Durante las primeras dos semanas, solo los experimentados producen, y
+2. durante las siguientes 6 semanas todos producen.
+
+La cantidad de cada tipo de queso por horas-hombre es:
+
+1. 10 libras para queso suizo, y
+2. 6 libras para queso picante
+
+Se tienen horas laborales de 40 horas.
+
+Y dado el limite de envejecido del queso, se limita el horizonte del modelo a 1 semana.
+
+Se desea saber cuanto nuevos empleados debería contratar la empresa y como asignarlo a los trabajadores experimentados, para minimizar el costo de mano de obra.
+
+### Modelo
+
+Durante cada semana del periodo de 8 semanas se pueden contratar nuevos empleados que serán entrenados para producir las demandas de queso de cada semana. Se desea saber, cuantos nuevos empleados se deben contratar semanalmente (hay suficientes empleados experimentados para que cada nuevo empleado sea entrenado por los experimentados). Notamos que como el objetivo es cumplir la demanda del periodo de 8 semanas, no tiene sentido contratar nuevos empleados a partir de la sexta semana, dado que estos no producirán nada el resto del periodo. Por lo tanto, se desea saber cuantos empleados nuevos contratar cada semana durante las primeras 6 semanas de producción hasta cumplir la cuota de 30 empleados nuevos.
+
+Cada trabajador experimentado es productor de alguno de los dos quesos o es entrenador de cierto numero de nuevos empleados. Se desea saber, para cada semana, cuantos de estos empleados experimentados serán entrenadores y cuantos productores, y cuantos nuevos empleados contratar cada semana, a fin de cumplir las demandas de producción de cada uno de los tipos de queso. Concretamente, se desea encontrar el número mínimo de trabajadores experimentados que entrenarán a los nuevos empleados. 
+
+Sea $x_{ij}$ el número de empleados experimentados entrenado nuevos empleados en la línea de producción del queso $i \in \{S,C\}$ en la semana $j \in \{1,2,3,4,5,6,7,8\}$, $y_{ij}$ el número de empleados experimentados produciendo queso $i$ en la semana $j$, y $z_{ij}$ el número de nuevos empleados en la línea de producción del queso $i$ en la semana $j$, entonces, se busca minimizar la función objetivo:
+
+$$
+z = \sum_{j=1}^8(x_{Sj} + x_{Cj})
+$$
+
+Dado que se tiene una plantilla de 60 trabajadores que se busca incrementar a 90 al final de las 8 semanas, entonces se tienen las siguientes restricciones en cuanto a la plantilla para cada semana $j$ :
+
+$$
+\begin{aligned}
+z_{Sj} + z_{Cj} &\le 30 \\
+x_{Sj} + x_{Cj} + y_{Sj} + y_{Cj} &= 60 \\
+x_{Sj} + x_{Cj} &\le 30 
+\end{aligned}
+$$
+
+y la restricción total en cuanto al número de empleados nuevos para el final del periodo de 8 semanas:
+
+$$
+\begin{aligned}
+z_{S8} + z_{C8} &= 30 
+\end{aligned}
+$$
+
+Dado que cada trabajador experimentado puede entrenar máximo a 3 trabajadores nuevos cada semana, se tiene que, para la semana $j$:
+
+$$
+\begin{aligned}z_{Sj} - 3x_{Sj} &\le0 \\ z_{Cj} - 3x_{Cj} &\le0\end{aligned} 
+$$
+
+En cuanto a la demanda de queso en las 8 semanas, se tienen las siguientes restricciones semanales para la producción de queso suizo:
+
+$$
+\begin{aligned}
+400y_{S1} &\ge 11.0000\\
+400y_{S2} &\ge 12.000\\
+400(y_{S3} + z_{S1}) &\ge 13.000\\
+400(y_{S4} + z_{S1} + z_{S2}) &\ge18.000\\
+400(y_{S5} + z_{S1} + z_{S2} + z_{S3}) &\ge14.000\\
+400(y_{S6} + z_{S1} + z_{S2} + z_{S3} + z_{S4})&\ge18.000\\
+400(y_{S7} + z_{S1} + z_{S2} + z_{S3} + z_{S4} + z_{S5})&\ge20.000\\
+400(y_{S8} + z_{S1} + z_{S2} + z_{S3} + z_{S4} + z_{S5} + z_{S6})&\ge20.000
+\end{aligned}
+$$
+
+y las siguientes restricciones semanales para la producción de queso ***cheddar:***
+
+$$
+\begin{aligned}
+240y_{C1} &\ge 8.0000\\
+240y_{C2} &\ge 8.000\\
+240(y_{C3} + z_{C1}) &\ge 10.000\\
+240(y_{C4} + z_{C1} + z_{C2}) &\ge8.000\\
+240(y_{C5} + z_{C1} + z_{C2} + z_{C3}) &\ge12.000\\
+240(y_{C6} + z_{C1} + z_{C2} + z_{C3} + z_{C4})&\ge13.000\\
+240(y_{C7} + z_{C1} + z_{C2} + z_{C3} + z_{C4} + z_{C5})&\ge12.000\\
+240(y_{C8} + z_{C1} + z_{C2} + z_{C3} + z_{C4} + z_{C5} + z_{C6})&\ge12.000
+\end{aligned}
+$$
+
+y finalmente, añadimos las restricciones de no negatividad para todas las variables empleadas, $x_{ij}, y_{ij}, z_{ij} \ge 0$ para $i \in \{S,C\}$ y $j = 1, \ldots,8$. 
+
+### Código
+
+```python
+queso = LpProblem("Queso", LpMinimize)
+
+# Defino las variables
+
+```
